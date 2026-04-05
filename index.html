@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e3a5f">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Profissional - Associação Vila Floresta 2</title>
+
+  <style>
+    body { font-family: Arial; margin:0; background:#eef2f7; }
+    header { background:#1e3a5f; color:white; padding:15px; text-align:center; }
+
+    .container { max-width:1100px; margin:20px auto; background:white; padding:20px; border-radius:10px; }
+
+    .hidden { display:none; }
+
+    input { padding:10px; border:1px solid #ccc; border-radius:6px; margin:5px 0; width:100%; }
+
+    button { padding:10px; border:none; border-radius:6px; cursor:pointer; }
+
+    .btn { background:#2563eb; color:white; }
+    .btn-danger { background:#dc2626; color:white; }
+    .btn-edit { background:#f59e0b; color:white; }
+
+    table { width:100%; margin-top:20px; border-collapse:collapse; }
+    th, td { padding:10px; border-bottom:1px solid #ddd; }
+
+    .topbar { display:flex; justify-content:space-between; align-items:center; }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sistema da Associação Vila Floresta 2</h1>
+</header>
+
+<div class="container" id="loginBox">
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginSenha" placeholder="Senha">
+  <button class="btn" onclick="login()">Entrar</button>
+</div>
+
+<div class="container hidden" id="sistema">
+
+  <div class="topbar">
+    <h2>Associados</h2>
+    <button class="btn-danger" onclick="logout()">Sair</button>
+  </div>
+
+  <input type="text" id="busca" placeholder="Buscar...">
+
+  <form id="form">
+    <input type="hidden" id="id">
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="text" id="cpf" placeholder="CPF" required>
+    <input type="text" id="telefone" placeholder="Telefone">
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="endereco" placeholder="Endereço">
+
+    <button class="btn">Salvar</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Telefone</th>
+        <th>Email</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_DOMINIO",
+    projectId: "SEU_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const loginBox = document.getElementById('loginBox');
+  const sistema = document.getElementById('sistema');
+  const lista = document.getElementById('lista');
+
+  window.login = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail.value, loginSenha.value);
+    } catch (e) {
+      alert('Erro no login');
+    }
+  };
+
+  window.logout = () => signOut(auth);
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginBox.classList.add('hidden');
+      sistema.classList.remove('hidden');
+      carregar();
+    } else {
+      loginBox.classList.remove('hidden');
+      sistema.classList.add('hidden');
+    }
+  });
+
+  async function carregar() {
+    lista.innerHTML = '';
+    const dados = await getDocs(collection(db, 'associados'));
+
+    dados.forEach(docSnap => {
+      const a = docSnap.data();
+      const id = docSnap.id;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${a.nome}</td>
+        <td>${a.cpf}</td>
+        <td>${a.telefone}</td>
+        <td>${a.email}</td>
+        <td>
+          <button class="btn-edit" onclick="editar('${id}','${a.nome}','${a.cpf}','${a.telefone}','${a.email}','${a.endereco}')">Editar</button>
+          <button class="btn-danger" onclick="excluir('${id}')">Excluir</button>
+        </td>
+      `;
+
+      lista.appendChild(tr);
+    });
+  }
+
+  document.getElementById('form').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const id = document.getElementById('id').value;
+
+    const obj = {
+      nome: nome.value,
+      cpf: cpf.value,
+      telefone: telefone.value,
+      email: email.value,
+      endereco: endereco.value
+    };
+
+    if (id) {
+      await updateDoc(doc(db, 'associados', id), obj);
+    } else {
+      await addDoc(collection(db, 'associados'), obj);
+    }
+
+    form.reset();
+    document.getElementById('id').value = '';
+    carregar();
+  });
+
+  window.excluir = async id => {
+    if (confirm('Excluir?')) {
+      await deleteDoc(doc(db, 'associados', id));
+      carregar();
+    }
+  };
+
+  window.editar = (id, n, c, t, e, en) => {
+    nome.value = n;
+    cpf.value = c;
+    telefone.value = t;
+    email.value = e;
+    endereco.value = en;
+    document.getElementById('id').value = id;
+  };
+
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+</script>
+
+</body>
+</html>
