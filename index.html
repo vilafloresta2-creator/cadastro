@@ -42,9 +42,18 @@ header{
 /* DASHBOARD */
 .dashboard{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(2,1fr);
   gap:10px;
   margin-bottom:15px;
+  <div class="card-top">
+  <div>Em aberto</div>
+  <b id="aberto">R$ 0</b>
+</div>
+
+<div class="card-top">
+  <div>Previsto</div>
+  <b id="previsto">R$ 0</b>
+</div>
 }
 
 .card-top{
@@ -245,15 +254,23 @@ function toggleDevedores(){
 }
 
 function calcular(){
-  let total=0,pagos=0,pendentes=0;
+  let total=0;
+  let pagos=0;
+  let pendentes=0;
+  let aberto=0;
+  let previsto=0;
 
   dadosGlobal.forEach(a=>{
-    const valor=Number(a[7])||0;
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
 
-    if(a[8]==="Pago"){
-      total+=valor;
+    previsto += valor;
+
+    if(status === "Pago"){
+      total += valor;
       pagos++;
     }else{
+      aberto += valor;
       pendentes++;
     }
   });
@@ -261,7 +278,10 @@ function calcular(){
   document.getElementById("total").innerText = "R$ " + total;
   document.getElementById("pagos").innerText = pagos;
   document.getElementById("pendentes").innerText = pendentes;
+  document.getElementById("aberto").innerText = "R$ " + aberto;
+  document.getElementById("previsto").innerText = "R$ " + previsto;
 }
+
 function renderizar(filtro=""){
   lista.innerHTML="";
   dadosGlobal
