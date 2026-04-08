@@ -60,6 +60,7 @@ input,select{
   border-radius:16px;
   margin-top:12px;
   box-shadow:0 6px 18px rgba(0,0,0,.08);
+  border:1px solid #e2e8f0;
 }
 .card.pago{border-left:5px solid #22c55e}
 .card.pendente{border-left:5px solid #ef4444}
@@ -236,21 +237,40 @@ function renderizar(filtro=""){
     const card=document.createElement("div");
     card.className="card "+(status==="Pago"?"pago":"pendente");
 
-    card.innerHTML=`
-      <b onclick="ver('${a[0]}')">${a[1]}</b>
+    card.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    
+    <div>
+      <div style="font-weight:600">${a[1]}</div>
+      <div style="font-size:12px;color:#64748b">${a[6] || "-"}</div>
+    </div>
 
-      <div style="margin-top:6px">
-        <span style="font-size:12px;color:${status==="Pago"?"green":"red"}">
-          ${status}
-        </span>
+    <div style="text-align:right">
+      <div style="font-weight:600">
+        R$ ${(Number(a[7]) || 0).toFixed(2)}
       </div>
 
-      <div class="actions">
-        <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-        ${status!=="Pago"?`<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`:""}
-        <button class="btn" onclick="gerarPDF('${a[0]}')">PDF</button>
-        <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+      <div style="
+        font-size:12px;
+        font-weight:600;
+        color:${status==="Pago" ? "#16a34a" : "#dc2626"}
+      ">
+        ${status}
       </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+
+    ${status!=="Pago" ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>` : ""}
+
+    <button class="btn" onclick="gerarPDF('${a[0]}')">PDF</button>
+
+    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+  </div>
+`;
     `;
 
     lista.appendChild(card);
@@ -432,7 +452,7 @@ function gerarRelatorio(){
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 210, 25, "F");
 
-    doc.addImage(logo, "PNG", 160, 3, 40, 18);
+    doc.addImage(logo, "PNG", 160, 3, 20, 20);
 
     doc.setTextColor(255,255,255);
     doc.setFontSize(14);
