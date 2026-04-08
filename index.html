@@ -248,53 +248,91 @@ function gerarRelatorio(){
 
   let y = 20;
 
-  doc.setFontSize(16);
-  doc.text("Relatório Geral de Associados", 20, y);
+  doc.setFontSize(14);
+  doc.text("Relatório de Associados", 20, y);
 
   y += 10;
 
+  // CABEÇALHO
   doc.setFontSize(10);
+  doc.text("Nome", 20, y);
+  doc.text("Mês", 90, y);
+  doc.text("Valor", 120, y);
+  doc.text("Status", 160, y);
+
+  y += 5;
+  doc.line(20, y, 190, y);
+  y += 5;
 
   let total = 0;
   let aberto = 0;
 
-  dadosGlobal.forEach((a, i) => {
+  dadosGlobal.forEach(a => {
 
-    const nome = a[1];
-    const mes = a[6] || "-";
     const valor = Number(a[7]) || 0;
     const status = a[8] || "Pendente";
 
     if(status === "Pago") total += valor;
     else aberto += valor;
 
-    const linha = `${nome} | ${mes} | R$ ${valor} | ${status}`;
-
-    doc.text(linha, 20, y);
+    doc.text(a[1], 20, y);
+    doc.text(a[6] || "-", 90, y);
+    doc.text("R$ " + valor, 120, y);
+    doc.text(status, 160, y);
 
     y += 6;
 
-    // quebra de página automática
     if(y > 280){
       doc.addPage();
       y = 20;
     }
   });
 
-  // RESUMO FINAL
   y += 10;
 
-  doc.setFontSize(12);
-  doc.text("Resumo Financeiro", 20, y);
-
-  y += 8;
-
-  doc.setFontSize(10);
-  doc.text("Total arrecadado: R$ " + total, 20, y);
+  doc.text("Total: R$ " + total, 20, y);
   y += 6;
-  doc.text("Total em aberto: R$ " + aberto, 20, y);
+  doc.text("Em aberto: R$ " + aberto, 20, y);
 
-  doc.save("relatorio_associados.pdf");
+  doc.save("relatorio.pdf");
+}
+
+function gerarRelatorioMes(){
+  const mesFiltro = prompt("Digite o mês (ex: 03-2026)");
+
+  if(!mesFiltro) return;
+
+  const filtrados = dadosGlobal.filter(a => a[6] === mesFiltro);
+
+  gerarRelatorioCustom(filtrados, "relatorio_"+mesFiltro+".pdf");
+}
+
+function gerarRelatorioDevedores(){
+  const filtrados = dadosGlobal.filter(a => a[8] !== "Pago");
+
+  gerarRelatorioCustom(filtrados, "devedores.pdf");
+}
+
+function gerarRelatorioCustom(lista, nomeArquivo){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  doc.text("Relatório", 20, y);
+  y += 10;
+
+  lista.forEach(a => {
+    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]} - ${a[8]}`, 20, y);
+    y += 6;
+
+    if(y > 280){
+      doc.addPage();
+      y = 20;
+    }
+  });
+
+  doc.save(nomeArquivo);
 }
 
 function toggleDevedores(){
