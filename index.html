@@ -277,13 +277,10 @@ function calcular(){
   let pagosQtd = 0;
   let pendentesQtd = 0;
   let abertoValor = 0;
-  let previstoValor = 0;
 
   dadosGlobal.forEach(a=>{
     const valor = Number(a[7]) || 0;
     const status = (a[8] || "Pendente").trim();
-
-    previstoValor += valor;
 
     if(status === "Pago"){
       totalValor += valor;
@@ -294,16 +291,16 @@ function calcular(){
     }
   });
 
-  document.getElementById("total").innerText = "R$ " + totalValor.toFixed(2);
-  document.getElementById("pagos").innerText = pagosQtd;
-  document.getElementById("pendentes").innerText = pendentesQtd;
-  document.getElementById("aberto").innerText = "R$ " + abertoValor.toFixed(2);
-
-  // segurança extra
-  const previstoEl = document.getElementById("previsto");
-  if(previstoEl){
-    previstoEl.innerText = "R$ " + previstoValor.toFixed(2);
+  // FUNÇÃO SEGURA (NUNCA MAIS QUEBRA)
+  function setText(id, valor){
+    const el = document.getElementById(id);
+    if(el) el.innerText = valor;
   }
+
+  setText("total", "R$ " + totalValor.toFixed(2));
+  setText("pagos", pagosQtd);
+  setText("pendentes", pendentesQtd);
+  setText("aberto", "R$ " + abertoValor.toFixed(2));
 }
 
 // ================= RENDER =================
