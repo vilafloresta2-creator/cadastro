@@ -1,243 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#2563eb">
-  <title>App Associados</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
 
-  <style>
-  *{box-sizing:border-box;transition:all .2s ease}
+<title>Associados - Vila Floresta 2</title>
 
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-    margin:0;
-    background:#eef2f7;
-    color:#1e293b;
-  }
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  header{
-    background:linear-gradient(135deg,#2563eb,#1e3a8a);
-    color:#fff;
-    padding:20px;
-    text-align:center;
-    font-weight:600;
-  }
+<style>
+*{box-sizing:border-box;transition:.2s}
 
-  #overlay{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.4);
-    z-index:998;
-  }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  margin:0;
+  background:#eef2f7;
+}
 
-  .container{padding:15px;max-width:600px;margin:auto}
+header{
+  background:linear-gradient(135deg,#2563eb,#1e3a8a);
+  color:#fff;
+  padding:18px;
+  text-align:center;
+  font-weight:600;
+}
 
-  /* DASHBOARD */
-  .dashboard{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin-bottom:15px;
-    <div class="card-top">
-      <div>Em aberto</div>
-      <b id="aberto">R$ 0</b>
-    </div>
+.container{padding:15px;max-width:600px;margin:auto}
 
-    <div class="card-top">
-      <div>Previsto</div>
-      <b id="previsto">R$ 0</b>
-    </div>
-  }
+/* DASHBOARD */
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
 
-  /* INPUT */
-  input,select{
-    width:100%;
-    padding:14px;
-    margin:6px 0;
-    border-radius:12px;
-    border:none;
-    background:#fff;
-    box-shadow:0 2px 6px rgba(0,0,0,0.05);
-  }
+.card-top{
+  background:#fff;
+  padding:12px;
+  border-radius:14px;
+  text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
 
-  /* CARD */
-  .card-top{
-    background:#fff;
-    padding:12px;
-    border-radius:14px;
-    text-align:center;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  }
-  .card{
-    background:#fff;
-    padding:15px;
-    border-radius:16px;
-    margin-top:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-  }
-  .card.pago{border-left:6px solid #22c55e
-  }
-  .card.pendente{border-left:6px solid #ef4444
-  }
+/* INPUT */
+input,select{
+  width:100%;
+  padding:14px;
+  margin:6px 0;
+  border-radius:12px;
+  border:none;
+}
 
-  /* BUTTONS */
-  button{
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    font-weight:500;
-  }
-  button:active{transform:scale(.95)
-  }
-  .btn{
-    background:linear-gradient(135deg,#2563eb,#3b82f6);
-    color:#fff;
-  }
-  .btn-edit{background:#f59e0b;color:#fff
-  }
-  .btn-danger{background:#ef4444;color:#fff
-  }
-  .actions{display:flex;gap:6px;margin-top:10px
-  }
+/* CARD */
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:16px;
+  margin-top:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.card.pago{border-left:5px solid #22c55e}
+.card.pendente{border-left:5px solid #ef4444}
 
-  /* FLOAT */
-  .floating{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#2563eb;
-    color:#fff;
-    font-size:30px;
-  }
+/* BUTTON */
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  color:#fff;
+}
 
-  /* FORM */
-  .form-box{
-    display:none;
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    background:#fff;
-    padding:15px;
-    max-height:90vh;
-    overflow:auto;
-    border-radius:20px 20px 0 0;
-    z-index:999;
-  }
+.btn{background:#2563eb}
+.btn-edit{background:#f59e0b}
+.btn-danger{background:#ef4444}
 
-  /* MODAL */
-  .modal{
-    display:none; /* 👈 ESSENCIAL */
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    background:#fff;
-    padding:20px;
-    border-radius:20px 20px 0 0;
-    box-shadow:0 -5px 20px rgba(0,0,0,0.2);
-    z-index:999;
-  }
+.actions{display:flex;gap:6px;margin-top:10px}
 
-  </style>
+/* FLOAT */
+.floating{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  font-size:28px;
+  background:#2563eb;
+}
+
+/* FORM */
+.form-box{
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:15px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:20px 20px 0 0;
+  z-index:999;
+}
+
+#overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  z-index:998;
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:20px;
+  border-radius:20px 20px 0 0;
+  z-index:999;
+}
+</style>
 </head>
 
 <body>
 
-<header>Cadastro Associados Vila Floresta 2</header>
+<header>Vila Floresta 2</header>
 
 <div class="container">
-  <div class="dashboard">
-    <div class="card-top"><div>Total</div><b id="total">R$ 0</b>
-  </div>
-  <div class="card-top"><div>Pagos</div><b id="pagos">0</b>
-  </div>
-    <div class="card-top"><div>Pendentes</div><b id="pendentes">0</b>
-  </div>
-  </div>
 
-    <input id="busca" placeholder="Buscar...">
-    <div id="lista"></div>
-    </div>
-
-    <button class="btn" onclick="gerarRelatorio()">📊 Relatório Geral</button>
-
-    <button class="btn" onclick="toggleDevedores()" id="btnFiltro">
-    Mostrar Devedores
-    </button>
-
-    <button class="floating" onclick="abrirForm()">+</button>
-    <div id="overlay" onclick="fecharForm()"></div>
-    <div class="form-box" id="formBox">
-    <form id="form">
-    <input type="hidden" id="id">
-    <input id="nome" placeholder="Nome" required>
-    <input id="cpf" placeholder="CPF">
-    <input id="telefone" placeholder="Telefone">
-    <input id="email" placeholder="Email">
-    <input id="endereco" placeholder="Endereço">
-    <input id="mes" placeholder="Ex: 03-2026">
-    <input id="valor" placeholder="Valor">
-      <select id="status">
-      <option value="Pago">Pago</option>
-      <option value="Pendente">Pendente</option>
-      </select>
-    <button class="btn">Salvar</button>
-    <button type="button" class="btn-danger" onclick="fecharForm()">Cancelar</button>
-    </form>
+<div class="dashboard">
+  <div class="card-top"><div>Total</div><b id="total">R$ 0</b></div>
+  <div class="card-top"><div>Pagos</div><b id="pagos">0</b></div>
+  <div class="card-top"><div>Pendentes</div><b id="pendentes">0</b></div>
+  <div class="card-top"><div>Em aberto</div><b id="aberto">R$ 0</b></div>
+  <div class="card-top"><div>Previsto</div><b id="previsto">R$ 0</b></div>
 </div>
 
-<div class="modal" id="detalhe"></div>
+<input id="busca" placeholder="Buscar...">
+
+<button class="btn" onclick="gerarRelatorio()">📊 Relatório</button>
+<button class="btn" onclick="toggleDevedores()" id="btnFiltro">Devedores</button>
+
+<div id="lista"></div>
+
+</div>
+
+<button class="floating" onclick="abrirForm()">+</button>
+
+<div id="overlay" onclick="fecharForm()"></div>
+
+<div class="form-box" id="formBox">
+<form id="form">
+<input type="hidden" id="id">
+<input id="nome" placeholder="Nome" required>
+<input id="cpf" placeholder="CPF">
+<input id="telefone" placeholder="Telefone">
+<input id="email" placeholder="Email">
+<input id="endereco" placeholder="Endereço">
+<input id="mes" placeholder="Ex: 03-2026">
+<input id="valor" placeholder="Valor">
+<select id="status">
+<option value="Pago">Pago</option>
+<option value="Pendente">Pendente</option>
+</select>
+
+<button class="btn">Salvar</button>
+<button type="button" class="btn-danger" onclick="fecharForm()">Cancelar</button>
+</form>
+</div>
+
+<div class="modal" id="detalhe" onclick="fecharDetalhe()"></div>
 
 <script>
+
+// CONFIG
 const URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
-let mostrarDevedores = false;
+let mostrarDevedores=false;
 
-function gerarPDF(idSel){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+// INIT
+carregar();
 
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  const hoje = new Date().toLocaleDateString();
-
-  const logo = new Image();
-  logo.src = "icon-512.png";
-
-  logo.onload = function(){
-
-    doc.addImage(logo, "PNG", 150, 10, 40, 20);
-
-    doc.setFontSize(18);
-    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 20);
-
-    doc.setFontSize(14);
-    doc.text("Recibo de Pagamento", 20, 30);
-
-    doc.line(20, 35, 190, 35);
-
-    doc.setFontSize(12);
-    doc.text("Nome: " + a[1], 20, 50);
-    doc.text("Mês: " + a[6], 20, 60);
-    doc.text("Valor: R$ " + a[7], 20, 70);
-    doc.text("Status: " + a[8], 20, 80);
-
-    doc.text("Emitido em: " + hoje, 20, 100);
-
-    doc.save("recibo_"+a[1]+".pdf");
-  };
-}
-
+// ================= API =================
 async function carregar(){
   const res=await fetch(URL);
   const dados=await res.json();
@@ -246,186 +196,68 @@ async function carregar(){
   calcular();
 }
 
-function gerarRelatorio(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 20;
-
-  doc.setFontSize(14);
-  doc.text("Relatório de Associados", 20, y);
-
-  y += 10;
-
-  // CABEÇALHO
-  doc.setFontSize(10);
-  doc.text("Nome", 20, y);
-  doc.text("Mês", 90, y);
-  doc.text("Valor", 120, y);
-  doc.text("Status", 160, y);
-
-  y += 5;
-  doc.line(20, y, 190, y);
-  y += 5;
-
-  let total = 0;
-  let aberto = 0;
-
-  dadosGlobal.forEach(a => {
-
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    if(status === "Pago") total += valor;
-    else aberto += valor;
-
-    doc.text(a[1], 20, y);
-    doc.text(a[6] || "-", 90, y);
-    doc.text("R$ " + valor, 120, y);
-    doc.text(status, 160, y);
-
-    y += 6;
-
-    if(y > 280){
-      doc.addPage();
-      y = 20;
-    }
-  });
-
-  y += 10;
-
-  doc.text("Total: R$ " + total, 20, y);
-  y += 6;
-  doc.text("Em aberto: R$ " + aberto, 20, y);
-
-  doc.save("relatorio.pdf");
-}
-
-function gerarRelatorioMes(){
-  const mesFiltro = prompt("Digite o mês (ex: 03-2026)");
-
-  if(!mesFiltro) return;
-
-  const filtrados = dadosGlobal.filter(a => a[6] === mesFiltro);
-
-  gerarRelatorioCustom(filtrados, "relatorio_"+mesFiltro+".pdf");
-}
-
-function gerarRelatorioDevedores(){
-  const filtrados = dadosGlobal.filter(a => a[8] !== "Pago");
-
-  gerarRelatorioCustom(filtrados, "devedores.pdf");
-}
-
-function gerarRelatorioCustom(lista, nomeArquivo){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 20;
-
-  doc.text("Relatório", 20, y);
-  y += 10;
-
-  lista.forEach(a => {
-    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]} - ${a[8]}`, 20, y);
-    y += 6;
-
-    if(y > 280){
-      doc.addPage();
-      y = 20;
-    }
-  });
-
-  doc.save(nomeArquivo);
-}
-
-function toggleDevedores(){
-  mostrarDevedores = !mostrarDevedores;
-
-  document.getElementById("btnFiltro").innerText =
-    mostrarDevedores ? "Mostrar Todos" : "Mostrar Devedores";
-
-  renderizar(busca.value.toLowerCase());
-}
-
+// ================= UI =================
 function calcular(){
-  let total=0;
-  let pagos=0;
-  let pendentes=0;
-  let aberto=0;
-  let previsto=0;
+  let total=0,pagos=0,pendentes=0,aberto=0,previsto=0;
 
   dadosGlobal.forEach(a=>{
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
+    const valor=Number(a[7])||0;
+    const status=a[8]||"Pendente";
 
-    previsto += valor;
+    previsto+=valor;
 
-    if(status === "Pago"){
-      total += valor;
-      pagos++;
-    }else{
-      aberto += valor;
-      pendentes++;
-    }
+    if(status==="Pago"){total+=valor;pagos++}
+    else{aberto+=valor;pendentes++}
   });
 
-  document.getElementById("total").innerText = "R$ " + total;
-  document.getElementById("pagos").innerText = pagos;
-  document.getElementById("pendentes").innerText = pendentes;
-  document.getElementById("aberto").innerText = "R$ " + aberto;
-  document.getElementById("previsto").innerText = "R$ " + previsto;
+  total.innerText="R$ "+total.toFixed(2);
+  pagos.innerText=pagos;
+  pendentes.innerText=pendentes;
+  aberto.innerText="R$ "+aberto.toFixed(2);
+  previsto.innerText="R$ "+previsto.toFixed(2);
 }
 
+// ================= RENDER =================
 function renderizar(filtro=""){
   lista.innerHTML="";
+
   dadosGlobal
   .filter(a=>{
-  const nomeOk = a[1].toLowerCase().includes(filtro);
-  const status = a[8] || "Pendente";
+    const nome=(a[1]||"").toLowerCase();
+    const status=a[8]||"Pendente";
 
-  if(mostrarDevedores){
-    return nomeOk && status !== "Pago";
-  }
-
-  return nomeOk;
-})
+    if(mostrarDevedores) return nome.includes(filtro)&&status!=="Pago";
+    return nome.includes(filtro);
+  })
   .forEach(a=>{
 
     const status=a[8]||"Pendente";
-    const classe=status==="Pago"?"pago":"pendente";
 
     const card=document.createElement("div");
-    card.className="card "+classe;
+    card.className="card "+(status==="Pago"?"pago":"pendente");
 
     card.innerHTML=`
       <b onclick="ver('${a[0]}')">${a[1]}</b>
 
-      <div>
-        <span style="
-          padding:4px 10px;
-          border-radius:20px;
-          font-size:12px;
-          background:${status==='Pago'?'#dcfce7':'#fee2e2'};
-          color:${status==='Pago'?'#166534':'#991b1b'};
-        ">${status}</span>
+      <div style="margin-top:6px">
+        <span style="font-size:12px;color:${status==="Pago"?"green":"red"}">
+          ${status}
+        </span>
       </div>
 
       <div class="actions">
-  	<button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-
-  	${status!=="Pago"?`<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`:""}
-
-  	<button class="btn" onclick="gerarPDF('${a[0]}')">📄 PDF</button>
-
-  	<button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-	</div>
+        <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+        ${status!=="Pago"?`<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`:""}
+        <button class="btn" onclick="gerarPDF('${a[0]}')">PDF</button>
+        <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+      </div>
     `;
 
     lista.appendChild(card);
   });
 }
 
+// ================= FORM =================
 form.addEventListener("submit",async e=>{
   e.preventDefault();
 
@@ -439,13 +271,11 @@ form.addEventListener("submit",async e=>{
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
-    status: document.getElementById("status").value
+    status:status.value
   };
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
-
   form.reset();
-  id.value="";
   fecharForm();
   carregar();
 });
@@ -461,28 +291,18 @@ function editar(idSel){
   endereco.value=a[5];
   mes.value=a[6]||"";
   valor.value=a[7]||"";
-  document.getElementById("status").value = a[8] || "Pendente";
+  status.value=a[8]||"Pendente";
 
   abrirForm();
 }
 
+// ================= AÇÕES =================
 async function pagar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
   await fetch(URL,{
     method:"POST",
-    body:JSON.stringify({
-      acao:"editar",
-      id:a[0],
-      nome:a[1],
-      cpf:a[2],
-      telefone:a[3],
-      email:a[4],
-      endereco:a[5],
-      mes:a[6],
-      valor:a[7],
-      status:"Pago"
-    })
+    body:JSON.stringify({...a,status:"Pago"})
   });
 
   carregar();
@@ -494,39 +314,124 @@ async function excluir(idSel){
   carregar();
 }
 
-function fecharDetalhe(){
-  detalhe.style.display = "none";
-}
+// ================= UI AUX =================
+function abrirForm(){formBox.style.display="block";overlay.style.display="block"}
+function fecharForm(){formBox.style.display="none";overlay.style.display="none"}
 
 function ver(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
-
-  detalhe.innerHTML=`
-    <h3>${a[1]}</h3>
-    <p><b>Mês:</b> ${a[6]}</p>
-    <p><b>Valor:</b> R$ ${a[7]}</p>
-    <p><b>Status:</b> ${a[8]}</p>
-    <button class="btn" onclick="fecharDetalhe()">Fechar</button>
-`;
-
+  detalhe.innerHTML=`<h3>${a[1]}</h3><p>${a[6]} - R$ ${a[7]}</p>`;
   detalhe.style.display="block";
 }
 
-busca.addEventListener("input",e=>{
-  renderizar(e.target.value.toLowerCase());
-});
+function fecharDetalhe(){detalhe.style.display="none"}
 
-function abrirForm(){
-  formBox.style.display = "block";
-  overlay.style.display = "block";
+busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
+
+// ================= FILTRO =================
+function toggleDevedores(){
+  mostrarDevedores=!mostrarDevedores;
+  btnFiltro.innerText=mostrarDevedores?"Todos":"Devedores";
+  renderizar(busca.value.toLowerCase());
 }
 
-function fecharForm(){
-  formBox.style.display = "none";
-  overlay.style.display = "none";
-}
-carregar();
+// ================= PDF =================
+function gerarPDF(idSel){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
+  const a = dadosGlobal.find(x => x[0] == idSel);
+  const hoje = new Date().toLocaleDateString();
+
+  const logo = new Image();
+  logo.src = "icon-512.png";
+
+  logo.onload = function(){
+
+    // FUNDO HEADER
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, 210, 30, "F");
+
+    // LOGO
+    doc.addImage(logo, "PNG", 160, 5, 40, 20);
+
+    // TÍTULO
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16);
+    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 18);
+
+    // SUBTÍTULO
+    doc.setFontSize(11);
+    doc.text("Recibo de Pagamento", 20, 25);
+
+    // RESET COR TEXTO
+    doc.setTextColor(0,0,0);
+
+    // CAIXA PRINCIPAL
+    doc.setDrawColor(200);
+    doc.setFillColor(245, 247, 250);
+    doc.roundedRect(15, 40, 180, 70, 5, 5, "FD");
+
+    // DADOS
+    doc.setFontSize(12);
+
+    doc.text("Nome:", 20, 55);
+    doc.text((a[1] || "-"), 60, 55);
+
+    doc.text("Mês:", 20, 65);
+    doc.text((a[6] || "-"), 60, 65);
+
+    doc.text("Valor:", 20, 75);
+    doc.text("R$ " + (a[7] || "0"), 60, 75);
+
+    doc.text("Status:", 20, 85);
+    doc.text((a[8] || "-"), 60, 85);
+
+    // STATUS DESTACADO
+    if(a[8] === "Pago"){
+      doc.setTextColor(34,197,94);
+      doc.text("PAGO", 150, 75);
+    }else{
+      doc.setTextColor(239,68,68);
+      doc.text("PENDENTE", 140, 75);
+    }
+
+    doc.setTextColor(0,0,0);
+
+    // LINHA
+    doc.line(20, 120, 190, 120);
+
+    // RODAPÉ
+    doc.setFontSize(10);
+    doc.text("Emitido em: " + hoje, 20, 130);
+
+    doc.text("Associação Vila Floresta 2", 20, 140);
+
+    // ASSINATURA
+    doc.line(120, 140, 190, 140);
+    doc.text("Responsável", 140, 145);
+
+    doc.save("recibo_"+a[1]+".pdf");
+  };
+}
+
+// ================= RELATORIO =================
+function gerarRelatorio(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y=20;
+
+  dadosGlobal.forEach(a=>{
+    doc.text(`${a[1]} - R$ ${a[7]} - ${a[8]}`,20,y);
+    y+=6;
+    if(y>280){doc.addPage();y=20}
+  });
+
+  doc.save("relatorio.pdf");
+}
+
+// ================= PWA =================
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
