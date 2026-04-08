@@ -29,19 +29,41 @@ header{
 
 .container{padding:15px;max-width:600px;margin:auto}
 
-/* DASHBOARD */
+/* DASHBOARD GRID */
 .dashboard{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+/* GLASS EFFECT */
+.glass{
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
 .card-top{
-  background:#fff;
-  padding:12px;
-  border-radius:14px;
-  text-align:center;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  animation:fadeUp .4s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.card-top b{
+  font-size:18px;
+  font-weight:700;
+  color:#0f172a;
+}
+
+/* TEXTO */
+.card-top span{
+  font-size:12px;
+  color:#64748b;
 }
 
 /* INPUT */
@@ -55,15 +77,32 @@ input,select{
 
 /* CARD */
 .card{
-  background:#fff;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
   padding:15px;
   border-radius:16px;
   margin-top:12px;
   box-shadow:0 6px 18px rgba(0,0,0,.08);
-  border:1px solid #e2e8f0;
+  border:1px solid rgba(255,255,255,0.4);
 }
 .card.pago{border-left:5px solid #22c55e}
 .card.pendente{border-left:5px solid #ef4444}
+
+/* DESTAQUE (TIPO SALDO) */
+.destaque{
+  background:linear-gradient(135deg,#2563eb,#1e3a8a);
+  color:#fff;
+}
+
+.destaque span,
+.destaque b{
+  color:#fff;
+}
+
+/* ANIMAÇÃO SUAVE */
+.card-top:hover{
+  transform:translateY(-2px);
+}
 
 /* BUTTON */
 button{
@@ -136,11 +175,27 @@ button{
 <div class="container">
 
 <div class="dashboard">
-  <div class="card-top"><div>Total</div><b id="total">R$ 0</b></div>
-  <div class="card-top"><div>Pagos</div><b id="pagos">0</b></div>
-  <div class="card-top"><div>Pendentes</div><b id="pendentes">0</b></div>
-  <div class="card-top"><div>Em aberto</div><b id="aberto">R$ 0</b></div>
-  <div class="card-top"><div>Previsto</div><b id="previsto">R$ 0</b></div>
+
+  <div class="card-top glass">
+    <span>Total</span>
+    <b id="total">R$ 0</b>
+  </div>
+
+  <div class="card-top glass">
+    <span>Recebido</span>
+    <b id="pagos">0</b>
+  </div>
+
+  <div class="card-top glass">
+    <span>Pendentes</span>
+    <b id="pendentes">0</b>
+  </div>
+
+  <div class="card-top glass destaque">
+    <span>Em aberto</span>
+    <b id="aberto">R$ 0</b>
+  </div>
+
 </div>
 
 <input id="busca" placeholder="Buscar...">
