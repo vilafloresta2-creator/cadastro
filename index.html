@@ -119,6 +119,8 @@ input,select{
 
 </div>
 
+<button onclick="gerarRelatorio()" class="btn">📊 Relatório</button>
+<button onclick="gerarDevedores()" class="btn">⚠️ Devedores</button>
 <button class="floating" onclick="abrirForm()">+</button>
 
 <div class="form-box" id="formBox">
@@ -233,18 +235,66 @@ function atualizarGrafico(){
   });
 }
 
+/* ================== RELATORIOS ===================== */
+
+function gerarRelatorio(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y=20;
+
+  doc.text("Relatório Geral",20,y);
+  y+=10;
+
+  dadosGlobal.forEach(a=>{
+    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]} - ${a[8]}`,20,y);
+    y+=6;
+
+    if(y>280){
+      doc.addPage();
+      y=20;
+    }
+  });
+
+  doc.save("relatorio.pdf");
+}
+
+function gerarDevedores(){
+  const lista = dadosGlobal.filter(a=>a[8]!=="Pago");
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y=20;
+
+  doc.text("Devedores",20,y);
+  y+=10;
+
+  lista.forEach(a=>{
+    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]}`,20,y);
+    y+=6;
+  });
+
+  doc.save("devedores.pdf");
+}
+
+
 /* ===================== AÇÕES ===================== */
 form.addEventListener("submit",async e=>{
   e.preventDefault();
 
   const obj={
-    acao:id.value?"editar":"adicionar",
-    id:id.value,
-    nome:nome.value,
-    mes:mes.value,
-    valor:valor.value,
-    status:status.value
-  };
+  acao:id.value?"editar":"adicionar",
+  id:id.value,
+  nome:nome.value,
+  cpf: cpf.value || "",
+  telefone: telefone.value || "",
+  email: email.value || "",
+  endereco: endereco.value || "",
+  mes:mes.value,
+  valor:valor.value,
+  status: document.getElementById("status").value
+};
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
 
@@ -255,11 +305,17 @@ form.addEventListener("submit",async e=>{
 
 function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
+
   id.value=a[0];
   nome.value=a[1];
-  mes.value=a[6];
-  valor.value=a[7];
-  status.value=a[8];
+  cpf.value=a[2]||"";
+  telefone.value=a[3]||"";
+  email.value=a[4]||"";
+  endereco.value=a[5]||"";
+  mes.value=a[6]||"";
+  valor.value=a[7]||"";
+  document.getElementById("status").value = a[8] || "Pendente";
+
   abrirForm();
 }
 
@@ -272,6 +328,10 @@ async function pagar(idSel){
       acao:"editar",
       id:a[0],
       nome:a[1],
+      cpf:a[2],
+      telefone:a[3],
+      email:a[4],
+      endereco:a[5],
       mes:a[6],
       valor:a[7],
       status:"Pago"
