@@ -1,153 +1,155 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>App Associados</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <title>App Associados</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="manifest" href="manifest.json">
 
-<style>
-*{box-sizing:border-box;transition:all .2s ease}
+  <style>
+  *{box-sizing:border-box;transition:all .2s ease}
 
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-  margin:0;
-  background:#eef2f7;
-  color:#1e293b;
-}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+    margin:0;
+    background:#eef2f7;
+    color:#1e293b;
+  }
 
-header{
-  background:linear-gradient(135deg,#2563eb,#1e3a8a);
-  color:#fff;
-  padding:20px;
-  text-align:center;
-  font-weight:600;
-}
+  header{
+    background:linear-gradient(135deg,#2563eb,#1e3a8a);
+    color:#fff;
+    padding:20px;
+    text-align:center;
+    font-weight:600;
+  }
 
-#overlay{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.4);
-  z-index:998;
-}
+  #overlay{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+    z-index:998;
+  }
 
-.container{padding:15px;max-width:600px;margin:auto}
+  .container{padding:15px;max-width:600px;margin:auto}
 
-/* DASHBOARD */
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin-bottom:15px;
-  <div class="card-top">
-  <div>Em aberto</div>
-  <b id="aberto">R$ 0</b>
-</div>
+  /* DASHBOARD */
+  .dashboard{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:15px;
+    <div class="card-top">
+      <div>Em aberto</div>
+      <b id="aberto">R$ 0</b>
+    </div>
 
-<div class="card-top">
-  <div>Previsto</div>
-  <b id="previsto">R$ 0</b>
-</div>
-}
+    <div class="card-top">
+      <div>Previsto</div>
+      <b id="previsto">R$ 0</b>
+    </div>
+  }
 
-.card-top{
-  background:#fff;
-  padding:12px;
-  border-radius:14px;
-  text-align:center;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
+  /* INPUT */
+  input,select{
+    width:100%;
+    padding:14px;
+    margin:6px 0;
+    border-radius:12px;
+    border:none;
+    background:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+  }
 
-/* INPUT */
-input,select{
-  width:100%;
-  padding:14px;
-  margin:6px 0;
-  border-radius:12px;
-  border:none;
-  background:#fff;
-  box-shadow:0 2px 6px rgba(0,0,0,0.05);
-}
+  /* CARD */
+  .card-top{
+    background:#fff;
+    padding:12px;
+    border-radius:14px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  }
+  .card{
+    background:#fff;
+    padding:15px;
+    border-radius:16px;
+    margin-top:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  }
+  .card.pago{border-left:6px solid #22c55e
+  }
+  .card.pendente{border-left:6px solid #ef4444
+  }
 
-/* CARD */
-.card{
-  background:#fff;
-  padding:15px;
-  border-radius:16px;
-  margin-top:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
+  /* BUTTONS */
+  button{
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    font-weight:500;
+  }
+  button:active{transform:scale(.95)
+  }
+  .btn{
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+    color:#fff;
+  }
+  .btn-edit{background:#f59e0b;color:#fff
+  }
+  .btn-danger{background:#ef4444;color:#fff
+  }
+  .actions{display:flex;gap:6px;margin-top:10px
+  }
 
-.card.pago{border-left:6px solid #22c55e}
-.card.pendente{border-left:6px solid #ef4444}
+  /* FLOAT */
+  .floating{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#2563eb;
+    color:#fff;
+    font-size:30px;
+  }
 
-/* BUTTONS */
-button{
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  font-weight:500;
-}
+  /* FORM */
+  .form-box{
+    display:none;
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#fff;
+    padding:15px;
+    max-height:90vh;
+    overflow:auto;
+    border-radius:20px 20px 0 0;
+    z-index:999;
+  }
 
-button:active{transform:scale(.95)}
+  /* MODAL */
+  .modal{
+    display:none; /* 👈 ESSENCIAL */
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#fff;
+    padding:20px;
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -5px 20px rgba(0,0,0,0.2);
+    z-index:999;
+  }
 
-.btn{
-  background:linear-gradient(135deg,#2563eb,#3b82f6);
-  color:#fff;
-}
-
-.btn-edit{background:#f59e0b;color:#fff}
-.btn-danger{background:#ef4444;color:#fff}
-
-.actions{display:flex;gap:6px;margin-top:10px}
-
-/* FLOAT */
-.floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#2563eb;
-  color:#fff;
-  font-size:30px;
-}
-
-/* FORM */
-.form-box{
-  display:none;
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:15px;
-  max-height:90vh;
-  overflow:auto;
-  border-radius:20px 20px 0 0;
-  z-index:999;
-}
-/* MODAL */
-.modal{
-  display:none; /* 👈 ESSENCIAL */
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:20px;
-  border-radius:20px 20px 0 0;
-  box-shadow:0 -5px 20px rgba(0,0,0,0.2);
-  z-index:999;
-}
-</style>
+  </style>
 </head>
 
 <body>
@@ -155,42 +157,44 @@ button:active{transform:scale(.95)}
 <header>Cadastro Associados Vila Floresta 2</header>
 
 <div class="container">
+  <div class="dashboard">
+    <div class="card-top"><div>Total</div><b id="total">R$ 0</b>
+  </div>
+  <div class="card-top"><div>Pagos</div><b id="pagos">0</b>
+  </div>
+    <div class="card-top"><div>Pendentes</div><b id="pendentes">0</b>
+  </div>
+  </div>
 
-<div class="dashboard">
-  <div class="card-top"><div>Total</div><b id="total">R$ 0</b></div>
-  <div class="card-top"><div>Pagos</div><b id="pagos">0</b></div>
-  <div class="card-top"><div>Pendentes</div><b id="pendentes">0</b></div>
-</div>
+    <input id="busca" placeholder="Buscar...">
+    <div id="lista"></div>
+    </div>
 
-<input id="busca" placeholder="Buscar...">
-<div id="lista"></div>
-</div>
+    <button class="btn" onclick="gerarRelatorio()">📊 Relatório Geral</button>
 
-<button class="btn" onclick="gerarRelatorio()">📊 Relatório Geral</button>
+    <button class="btn" onclick="toggleDevedores()" id="btnFiltro">
+    Mostrar Devedores
+    </button>
 
-<button class="btn" onclick="toggleDevedores()" id="btnFiltro">
-Mostrar Devedores
-</button>
-
-<button class="floating" onclick="abrirForm()">+</button>
-<div id="overlay" onclick="fecharForm()"></div>
-<div class="form-box" id="formBox">
-<form id="form">
-<input type="hidden" id="id">
-<input id="nome" placeholder="Nome" required>
-<input id="cpf" placeholder="CPF">
-<input id="telefone" placeholder="Telefone">
-<input id="email" placeholder="Email">
-<input id="endereco" placeholder="Endereço">
-<input id="mes" placeholder="Ex: 03-2026">
-<input id="valor" placeholder="Valor">
-<select id="status">
-<option value="Pago">Pago</option>
-<option value="Pendente">Pendente</option>
-</select>
-<button class="btn">Salvar</button>
-<button type="button" class="btn-danger" onclick="fecharForm()">Cancelar</button>
-</form>
+    <button class="floating" onclick="abrirForm()">+</button>
+    <div id="overlay" onclick="fecharForm()"></div>
+    <div class="form-box" id="formBox">
+    <form id="form">
+    <input type="hidden" id="id">
+    <input id="nome" placeholder="Nome" required>
+    <input id="cpf" placeholder="CPF">
+    <input id="telefone" placeholder="Telefone">
+    <input id="email" placeholder="Email">
+    <input id="endereco" placeholder="Endereço">
+    <input id="mes" placeholder="Ex: 03-2026">
+    <input id="valor" placeholder="Valor">
+      <select id="status">
+      <option value="Pago">Pago</option>
+      <option value="Pendente">Pendente</option>
+      </select>
+    <button class="btn">Salvar</button>
+    <button type="button" class="btn-danger" onclick="fecharForm()">Cancelar</button>
+    </form>
 </div>
 
 <div class="modal" id="detalhe"></div>
