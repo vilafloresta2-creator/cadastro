@@ -3,16 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2563eb">
+<title>App Associados</title>
 
-<title>Associados - Vila Floresta 2</title>
-
-<link rel="manifest" href="manifest.json">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-*{box-sizing:border-box;transition:.2s}
+*{box-sizing:border-box}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
@@ -21,115 +18,52 @@ body{
 }
 
 header{
-  background:linear-gradient(135deg,#2563eb,#1e3a8a);
+  background:#2563eb;
   color:#fff;
-  padding:18px;
+  padding:15px;
   text-align:center;
   font-weight:600;
 }
 
 .container{padding:15px;max-width:600px;margin:auto}
 
-/* DASHBOARD GRID */
+/* DASHBOARD */
 .dashboard{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-bottom:15px;
-}
-
-/* GLASS EFFECT */
-.glass{
-  background:rgba(255,255,255,0.6);
-  backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,0.4);
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  gap:10px;
 }
 
 .card-top{
-  animation:fadeUp .4s ease;
+  background:#fff;
+  padding:12px;
+  border-radius:14px;
 }
 
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-.card-top b{
-  font-size:18px;
-  font-weight:700;
-  color:#0f172a;
-}
-
-/* TEXTO */
-.card-top span{
-  font-size:12px;
-  color:#64748b;
-}
-
-/* INPUT */
-input,select{
-  width:100%;
-  padding:14px;
-  margin:6px 0;
-  border-radius:12px;
-  border:none;
-}
+.card-top b{font-size:18px}
 
 /* CARD */
 .card{
-  background:rgba(255,255,255,0.7);
-  backdrop-filter:blur(10px);
+  background:#fff;
   padding:15px;
   border-radius:16px;
   margin-top:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
-  border:1px solid rgba(255,255,255,0.4);
-}
-.card.pago{border-left:5px solid #22c55e}
-.card.pendente{border-left:5px solid #ef4444}
-
-/* DESTAQUE (TIPO SALDO) */
-.destaque{
-  background:linear-gradient(135deg,#2563eb,#1e3a8a);
-  color:#fff;
 }
 
-.destaque span,
-.destaque b{
-  color:#fff;
-}
+.card.pago{border-left:5px solid green}
+.card.pendente{border-left:5px solid red}
 
-/* ANIMAÇÃO SUAVE */
-.card-top:hover{
-  transform:translateY(-2px);
-}
-
-/* BUTTON */
+/* BOTÕES */
 button{
-  padding:10px;
   border:none;
-  border-radius:10px;
+  padding:8px;
+  border-radius:8px;
   color:#fff;
 }
 
 .btn{background:#2563eb}
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
-
-.actions{display:flex;gap:6px;margin-top:10px}
-
-/* FLOAT */
-.floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  font-size:28px;
-  background:#2563eb;
-}
 
 /* FORM */
 .form-box{
@@ -140,31 +74,25 @@ button{
   right:0;
   background:#fff;
   padding:15px;
-  max-height:90vh;
-  overflow:auto;
   border-radius:20px 20px 0 0;
-  z-index:999;
 }
 
-#overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  z-index:998;
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
 }
 
-/* MODAL */
-.modal{
-  display:none;
+.floating{
   position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:20px;
-  border-radius:20px 20px 0 0;
-  z-index:999;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:30px;
 }
 </style>
 </head>
@@ -175,147 +103,90 @@ button{
 
 <div class="container">
 
+<!-- DASHBOARD -->
 <div class="dashboard">
-
-  <div class="card-top glass">
-    <span>Total</span>
-    <b id="total">R$ 0</b>
-  </div>
-
-  <div class="card-top glass">
-    <span>Recebido</span>
-    <b id="pagos">0</b>
-  </div>
-
-  <div class="card-top glass">
-    <span>Pendentes</span>
-    <b id="pendentes">0</b>
-  </div>
-
-  <div class="card-top glass destaque">
-    <span>Em aberto</span>
-    <b id="aberto">R$ 0</b>
-  </div>
-
+  <div class="card-top"><span>Total</span><b id="total">R$ 0</b></div>
+  <div class="card-top"><span>Recebido</span><b id="pagos">0</b></div>
+  <div class="card-top"><span>Pendentes</span><b id="pendentes">0</b></div>
+  <div class="card-top"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
 </div>
 
+<!-- GRÁFICO -->
+<canvas id="grafico"></canvas>
+
 <input id="busca" placeholder="Buscar...">
-
-<button class="btn" onclick="gerarRelatorio()">📊 Relatório</button>
-<button class="btn" onclick="toggleDevedores()" id="btnFiltro">Devedores</button>
-
 <div id="lista"></div>
 
 </div>
 
 <button class="floating" onclick="abrirForm()">+</button>
 
-<div id="overlay" onclick="fecharForm()"></div>
-
 <div class="form-box" id="formBox">
 <form id="form">
 <input type="hidden" id="id">
-<input id="nome" placeholder="Nome" required>
-<input id="cpf" placeholder="CPF">
-<input id="telefone" placeholder="Telefone">
-<input id="email" placeholder="Email">
-<input id="endereco" placeholder="Endereço">
-<input id="mes" placeholder="Ex: 03-2026">
+<input id="nome" placeholder="Nome">
+<input id="mes" placeholder="03-2026">
 <input id="valor" placeholder="Valor">
 <select id="status">
 <option value="Pago">Pago</option>
 <option value="Pendente">Pendente</option>
 </select>
-
 <button class="btn">Salvar</button>
-<button type="button" class="btn-danger" onclick="fecharForm()">Cancelar</button>
 </form>
 </div>
 
-<div class="modal" id="detalhe" onclick="fecharDetalhe()"></div>
-
 <script>
 
-// CONFIG
-const URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
+const URL = "COLE_SEU_SCRIPT_URL_AQUI";
 let dadosGlobal=[];
-let mostrarDevedores=false;
 let grafico;
 
-// INIT
-carregar();
-
-// ================= API =================
+/* ===================== CARREGAR ===================== */
 async function carregar(){
-  try{
-    const res = await fetch(URL);
+  const res = await fetch(URL);
+  const dados = await res.json();
+  dadosGlobal = dados.slice(1);
 
-    if(!res.ok){
-      throw new Error("Erro na API");
-    }
-
-    const dados = await res.json();
-
-    dadosGlobal = dados.slice(1);
-
-    renderizar();
-    calcular();
-
-  }catch(e){
-    alert("Erro ao conectar com a planilha");
-    console.error(e);
-  }
-  
   renderizar();
   calcular();
   atualizarGrafico();
-
 }
 
-// ================= UI =================
+/* ===================== CALCULO ===================== */
 function calcular(){
-  let totalValor = 0;
-  let pagosQtd = 0;
-  let pendentesQtd = 0;
-  let abertoValor = 0;
+  let total=0, pagos=0, pendentes=0, aberto=0;
 
   dadosGlobal.forEach(a=>{
     const valor = Number(a[7]) || 0;
-    const status = (a[8] || "Pendente").trim();
+    const status = a[8] || "Pendente";
 
-    if(status === "Pago"){
-      totalValor += valor;
-      pagosQtd++;
+    if(status==="Pago"){
+      total += valor;
+      pagos++;
     }else{
-      abertoValor += valor;
-      pendentesQtd++;
+      aberto += valor;
+      pendentes++;
     }
   });
 
-  // FUNÇÃO SEGURA (NUNCA MAIS QUEBRA)
-  function setText(id, valor){
-    const el = document.getElementById(id);
-    if(el) el.innerText = valor;
-  }
-
-  setText("total", "R$ " + totalValor.toFixed(2));
-  setText("pagos", pagosQtd);
-  setText("pendentes", pendentesQtd);
-  setText("aberto", "R$ " + abertoValor.toFixed(2));
+  set("total","R$ "+total.toFixed(2));
+  set("pagos",pagos);
+  set("pendentes",pendentes);
+  set("aberto","R$ "+aberto.toFixed(2));
 }
 
-// ================= RENDER =================
+/* ===================== UTIL ===================== */
+function set(id,val){
+  const el=document.getElementById(id);
+  if(el) el.innerText=val;
+}
+
+/* ===================== RENDER ===================== */
 function renderizar(filtro=""){
   lista.innerHTML="";
 
   dadosGlobal
-  .filter(a=>{
-    const nome=(a[1]||"").toLowerCase();
-    const status=a[8]||"Pendente";
-
-    if(mostrarDevedores) return nome.includes(filtro)&&status!=="Pago";
-    return nome.includes(filtro);
-  })
+  .filter(a=>a[1].toLowerCase().includes(filtro))
   .forEach(a=>{
 
     const status=a[8]||"Pendente";
@@ -323,47 +194,46 @@ function renderizar(filtro=""){
     const card=document.createElement("div");
     card.className="card "+(status==="Pago"?"pago":"pendente");
 
-    card.innerHTML = `
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    
-    <div>
-      <div style="font-weight:600">${a[1]}</div>
-      <div style="font-size:12px;color:#64748b">${a[6] || "-"}</div>
-    </div>
+    card.innerHTML=`
+      <b>${a[1]}</b>
+      <div>${a[6]}</div>
+      <div>R$ ${a[7]}</div>
+      <div>${status}</div>
 
-    <div style="text-align:right">
-      <div style="font-weight:600">
-        R$ ${(Number(a[7]) || 0).toFixed(2)}
-      </div>
+      <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+      <button class="btn" onclick="pagar('${a[0]}')">Pagar</button>
+      <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+    `;
 
-      <div style="
-        font-size:12px;
-        font-weight:600;
-        color:${status==="Pago" ? "#16a34a" : "#dc2626"}
-      ">
-        ${status}
-      </div>
-    </div>
-
-  </div>
-
-  <div class="actions">
-    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-
-    ${status!=="Pago" ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>` : ""}
-
-    <button class="btn" onclick="gerarPDF('${a[0]}')">PDF</button>
-
-    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-  </div>
-`;
-  
-
-  lista.appendChild(card);
+    lista.appendChild(card);
   });
 }
 
-// ================= FORM =================
+/* ===================== GRAFICO ===================== */
+function atualizarGrafico(){
+  let pago=0, pendente=0;
+
+  dadosGlobal.forEach(a=>{
+    const valor = Number(a[7])||0;
+    if(a[8]==="Pago") pago+=valor;
+    else pendente+=valor;
+  });
+
+  const ctx=document.getElementById("grafico");
+
+  if(grafico) grafico.destroy();
+
+  grafico=new Chart(ctx,{
+    type:"doughnut",
+    data:{
+      labels:["Pago","Pendente"],
+      datasets:[{data:[pago,pendente]}]
+    },
+    options:{cutout:"70%"}
+  });
+}
+
+/* ===================== AÇÕES ===================== */
 form.addEventListener("submit",async e=>{
   e.preventDefault();
 
@@ -371,16 +241,13 @@ form.addEventListener("submit",async e=>{
     acao:id.value?"editar":"adicionar",
     id:id.value,
     nome:nome.value,
-    cpf:cpf.value,
-    telefone:telefone.value,
-    email:email.value,
-    endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
     status:status.value
   };
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
+
   form.reset();
   fecharForm();
   carregar();
@@ -388,294 +255,49 @@ form.addEventListener("submit",async e=>{
 
 function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
-
   id.value=a[0];
   nome.value=a[1];
-  cpf.value=a[2];
-  telefone.value=a[3];
-  email.value=a[4];
-  endereco.value=a[5];
-  mes.value=a[6]||"";
-  valor.value=a[7]||"";
-  status.value=a[8]||"Pendente";
-
+  mes.value=a[6];
+  valor.value=a[7];
+  status.value=a[8];
   abrirForm();
 }
 
-function atualizarGrafico(){
-  let pago = 0;
-  let pendente = 0;
-
-  dadosGlobal.forEach(a=>{
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    if(status === "Pago") pago += valor;
-    else pendente += valor;
-  });
-
-  const ctx = document.getElementById("graficoFinanceiro");
-
-  if(grafico){
-    grafico.destroy();
-  }
-
-  grafico = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Pago", "Pendente"],
-      datasets: [{
-        data: [pago, pendente],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      plugins:{
-        legend:{display:false}
-      },
-      cutout: "70%"
-    }
-  });
-}
-
-// ================= AÇÕES =================
 async function pagar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
   await fetch(URL,{
     method:"POST",
-    body:JSON.stringify({...a,status:"Pago"})
+    body:JSON.stringify({
+      acao:"editar",
+      id:a[0],
+      nome:a[1],
+      mes:a[6],
+      valor:a[7],
+      status:"Pago"
+    })
   });
 
   carregar();
 }
 
 async function excluir(idSel){
-  if(!confirm("Excluir?"))return;
-  await fetch(URL,{method:"POST",body:JSON.stringify({acao:"excluir",id:idSel})});
+  await fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({acao:"excluir",id:idSel})
+  });
   carregar();
 }
 
-// ================= UI AUX =================
-function abrirForm(){formBox.style.display="block";overlay.style.display="block"}
-function fecharForm(){formBox.style.display="none";overlay.style.display="none"}
+/* ===================== UI ===================== */
+busca.addEventListener("input",e=>{
+  renderizar(e.target.value.toLowerCase());
+});
 
-function ver(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
-  detalhe.innerHTML=`<h3>${a[1]}</h3><p>${a[6]} - R$ ${a[7]}</p>`;
-  detalhe.style.display="block";
-}
+function abrirForm(){formBox.style.display="block"}
+function fecharForm(){formBox.style.display="none"}
 
-function fecharDetalhe(){detalhe.style.display="none"}
-
-busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
-
-// ================= FILTRO =================
-function toggleDevedores(){
-  mostrarDevedores=!mostrarDevedores;
-  btnFiltro.innerText=mostrarDevedores?"Todos":"Devedores";
-  renderizar(busca.value.toLowerCase());
-}
-
-// ================= PDF =================
-function gerarPDF(idSel){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  const hoje = new Date().toLocaleDateString();
-
-  const logo = new Image();
-  logo.src = "icon-512.png";
-
-  logo.onload = function(){
-
-    // FUNDO HEADER
-    doc.setFillColor(37, 99, 235);
-    doc.rect(0, 0, 210, 30, "F");
-
-    // LOGO
-    doc.addImage(logo, "PNG", 160, 5, 20, 20);
-
-    // TÍTULO
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(16);
-    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 18);
-
-    // SUBTÍTULO
-    doc.setFontSize(11);
-    doc.text("Recibo de Pagamento", 20, 25);
-
-    // RESET COR TEXTO
-    doc.setTextColor(0,0,0);
-
-    // CAIXA PRINCIPAL
-    doc.setDrawColor(200);
-    doc.setFillColor(245, 247, 250);
-    doc.roundedRect(15, 40, 180, 70, 5, 5, "FD");
-
-    // DADOS
-    doc.setFontSize(12);
-
-    doc.text("Nome:", 20, 55);
-    doc.text((a[1] || "-"), 60, 55);
-
-    doc.text("Mês:", 20, 65);
-    doc.text((a[6] || "-"), 60, 65);
-
-    doc.text("Valor:", 20, 75);
-    doc.text("R$ " + (a[7] || "0"), 60, 75);
-
-    doc.text("Status:", 20, 85);
-    doc.text((a[8] || "-"), 60, 85);
-
-    // STATUS DESTACADO
-    if(a[8] === "Pago"){
-      doc.setTextColor(34,197,94);
-      doc.text("PAGO", 150, 75);
-    }else{
-      doc.setTextColor(239,68,68);
-      doc.text("PENDENTE", 140, 75);
-    }
-
-    doc.setTextColor(0,0,0);
-
-    // LINHA
-    doc.line(20, 120, 190, 120);
-
-    // RODAPÉ
-    doc.setFontSize(10);
-    doc.text("Emitido em: " + hoje, 20, 130);
-
-    doc.text("Associação Vila Floresta 2", 20, 140);
-
-    // ASSINATURA
-    doc.line(120, 140, 190, 140);
-    doc.text("Responsável", 140, 145);
-
-    doc.save("recibo_"+a[1]+".pdf");
-  };
-}
-
-// ================= RELATORIO =================
-function gerarRelatorio(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const logo = new Image();
-  logo.src = "icon-512.png";
-
-  logo.onload = function(){
-
-    let y = 20;
-    let pagina = 1;
-
-    // HEADER
-    doc.setFillColor(37, 99, 235);
-    doc.rect(0, 0, 210, 25, "F");
-
-    doc.addImage(logo, "PNG", 160, 3, 20, 20);
-
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(14);
-    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 15);
-
-    doc.setFontSize(10);
-    doc.text("Relatório Financeiro de Associados", 20, 21);
-
-    doc.setTextColor(0,0,0);
-
-    y = 35;
-
-    // CABEÇALHO TABELA
-    doc.setFillColor(230, 235, 245);
-    doc.rect(10, y, 190, 8, "F");
-
-    doc.setFontSize(9);
-    doc.text("Nome", 12, y+5);
-    doc.text("Mês", 90, y+5);
-    doc.text("Valor", 120, y+5);
-    doc.text("Status", 160, y+5);
-
-    y += 10;
-
-    let total = 0;
-    let aberto = 0;
-    let previsto = 0;
-
-    dadosGlobal.forEach(a=>{
-
-      const nome = a[1] || "-";
-      const mes = a[6] || "-";
-      const valor = Number(a[7]) || 0;
-      const status = a[8] || "Pendente";
-
-      previsto += valor;
-
-      if(status === "Pago") total += valor;
-      else aberto += valor;
-
-      // COR STATUS
-      if(status === "Pago"){
-        doc.setTextColor(34,197,94);
-      }else{
-        doc.setTextColor(239,68,68);
-      }
-
-      doc.setFontSize(9);
-      doc.text(nome, 12, y);
-      doc.text(mes, 90, y);
-      doc.text("R$ " + valor.toFixed(2), 120, y);
-      doc.text(status, 160, y);
-
-      doc.setTextColor(0,0,0);
-
-      y += 6;
-
-      // QUEBRA DE PÁGINA
-      if(y > 270){
-        doc.addPage();
-        pagina++;
-
-        y = 20;
-
-        doc.setFontSize(10);
-        doc.text("Página " + pagina, 180, 290);
-      }
-    });
-
-    // RESUMO
-    y += 10;
-
-    doc.setDrawColor(200);
-    doc.line(10, y, 200, y);
-
-    y += 8;
-
-    doc.setFontSize(11);
-    doc.text("Resumo Financeiro", 12, y);
-
-    y += 8;
-
-    doc.setFontSize(10);
-    doc.text("Total arrecadado: R$ " + total.toFixed(2), 12, y);
-    y += 6;
-    doc.text("Total em aberto: R$ " + aberto.toFixed(2), 12, y);
-    y += 6;
-    doc.text("Total previsto: R$ " + previsto.toFixed(2), 12, y);
-
-    // RODAPÉ
-    doc.setFontSize(8);
-    doc.text("Gerado em: " + new Date().toLocaleDateString(), 12, 290);
-
-    doc.save("relatorio_premium.pdf");
-  };
-}
-
-// ================= PWA =================
-//if ("serviceWorker" in navigator) {
-  //navigator.serviceWorker.register("sw.js");
-}
+carregar();
 
 </script>
 
