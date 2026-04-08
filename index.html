@@ -210,33 +210,28 @@ function gerarPDF(idSel){
   const logo = new Image();
   logo.src = "icon-512.png";
 
-  // LOGO
-  doc.addImage(logo, "PNG", 150, 10, 40, 20);
+  logo.onload = function(){
 
-  // TÍTULO
-  doc.setFontSize(18);
-  doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 20);
+    doc.addImage(logo, "PNG", 150, 10, 40, 20);
 
-  doc.setFontSize(14);
-  doc.text("Recibo de Pagamento", 20, 30);
+    doc.setFontSize(18);
+    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 20);
 
-  doc.line(20, 35, 190, 35);
+    doc.setFontSize(14);
+    doc.text("Recibo de Pagamento", 20, 30);
 
-  doc.setFontSize(12);
-  doc.text("Nome: " + a[1], 20, 50);
-  doc.text("CPF: " + (a[2] || "-"), 20, 60);
-  doc.text("Telefone: " + (a[3] || "-"), 20, 70);
+    doc.line(20, 35, 190, 35);
 
-  doc.text("Mês: " + (a[6] || "-"), 20, 90);
-  doc.text("Valor: R$ " + (a[7] || "0"), 20, 100);
+    doc.setFontSize(12);
+    doc.text("Nome: " + a[1], 20, 50);
+    doc.text("Mês: " + a[6], 20, 60);
+    doc.text("Valor: R$ " + a[7], 20, 70);
+    doc.text("Status: " + a[8], 20, 80);
 
-  doc.setTextColor(a[8] === "Pago" ? 0 : 200, a[8] === "Pago" ? 150 : 0, 0);
-  doc.text("Status: " + a[8], 20, 115);
+    doc.text("Emitido em: " + hoje, 20, 100);
 
-  doc.setTextColor(100);
-  doc.text("Emitido em: " + hoje, 20, 130);
-
-  doc.save("recibo_"+a[1]+".pdf");
+    doc.save("recibo_"+a[1]+".pdf");
+  };
 }
 
 async function carregar(){
