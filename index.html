@@ -9,6 +9,7 @@
 
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box;transition:.2s}
@@ -177,8 +178,7 @@ button{
 <div class="dashboard">
 
   <div class="card-top glass">
-    <span>Total</span>
-    <b id="total">R$ 0</b>
+    <canvas id="graficoFinanceiro"></canvas>
   </div>
 
   <div class="card-top glass">
@@ -239,6 +239,7 @@ button{
 const URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 let mostrarDevedores=false;
+let grafico;
 
 // INIT
 carregar();
@@ -263,30 +264,32 @@ async function carregar(){
     alert("Erro ao conectar com a planilha");
     console.error(e);
   }
+  
+  renderizar();
+  calcular();
+  atualizarGrafico();
+
 }
 
 // ================= UI =================
 function calcular(){
-  let total=0,pagos=0,pendentes=0,aberto=0,previsto=0;
-
-  function calcular(){
-  let totalValor=0;
-  let pagosQtd=0;
-  let pendentesQtd=0;
-  let aberto=0;
-  let previsto=0;
+  let totalValor = 0;
+  let pagosQtd = 0;
+  let pendentesQtd = 0;
+  let abertoValor = 0;
+  let previstoValor = 0;
 
   dadosGlobal.forEach(a=>{
     const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
+    const status = (a[8] || "Pendente").trim();
 
-    previsto += valor;
+    previstoValor += valor;
 
     if(status === "Pago"){
       totalValor += valor;
       pagosQtd++;
     }else{
-      aberto += valor;
+      abertoValor += valor;
       pendentesQtd++;
     }
   });
@@ -294,9 +297,13 @@ function calcular(){
   document.getElementById("total").innerText = "R$ " + totalValor.toFixed(2);
   document.getElementById("pagos").innerText = pagosQtd;
   document.getElementById("pendentes").innerText = pendentesQtd;
-  document.getElementById("aberto").innerText = "R$ " + aberto.toFixed(2);
-  document.getElementById("previsto").innerText = "R$ " + previsto.toFixed(2);
-}
+  document.getElementById("aberto").innerText = "R$ " + abertoValor.toFixed(2);
+
+  // segurança extra
+  const previstoEl = document.getElementById("previsto");
+  if(previstoEl){
+    previstoEl.innerText = "R$ " + previstoValor.toFixed(2);
+  }
 }
 
 // ================= RENDER =================
@@ -395,6 +402,42 @@ function editar(idSel){
   status.value=a[8]||"Pendente";
 
   abrirForm();
+}
+
+function atualizarGrafico(){
+  let pago = 0;
+  let pendente = 0;
+
+  dadosGlobal.forEach(a=>{
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
+
+    if(status === "Pago") pago += valor;
+    else pendente += valor;
+  });
+
+  const ctx = document.getElementById("graficoFinanceiro");
+
+  if(grafico){
+    grafico.destroy();
+  }
+
+  grafico = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Pago", "Pendente"],
+      datasets: [{
+        data: [pago, pendente],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins:{
+        legend:{display:false}
+      },
+      cutout: "70%"
+    }
+  });
 }
 
 // ================= AÇÕES =================
