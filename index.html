@@ -190,32 +190,58 @@ carregar();
 
 // ================= API =================
 async function carregar(){
-  const res=await fetch(URL);
-  const dados=await res.json();
-  dadosGlobal=dados.slice(1);
-  renderizar();
-  calcular();
+  try{
+    const res = await fetch(URL);
+
+    if(!res.ok){
+      throw new Error("Erro na API");
+    }
+
+    const dados = await res.json();
+
+    dadosGlobal = dados.slice(1);
+
+    renderizar();
+    calcular();
+
+  }catch(e){
+    alert("Erro ao conectar com a planilha");
+    console.error(e);
+  }
 }
 
 // ================= UI =================
 function calcular(){
   let total=0,pagos=0,pendentes=0,aberto=0,previsto=0;
 
+  function calcular(){
+  let totalValor=0;
+  let pagosQtd=0;
+  let pendentesQtd=0;
+  let aberto=0;
+  let previsto=0;
+
   dadosGlobal.forEach(a=>{
-    const valor=Number(a[7])||0;
-    const status=a[8]||"Pendente";
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
 
-    previsto+=valor;
+    previsto += valor;
 
-    if(status==="Pago"){total+=valor;pagos++}
-    else{aberto+=valor;pendentes++}
+    if(status === "Pago"){
+      totalValor += valor;
+      pagosQtd++;
+    }else{
+      aberto += valor;
+      pendentesQtd++;
+    }
   });
 
-  total.innerText="R$ "+total.toFixed(2);
-  pagos.innerText=pagos;
-  pendentes.innerText=pendentes;
-  aberto.innerText="R$ "+aberto.toFixed(2);
-  previsto.innerText="R$ "+previsto.toFixed(2);
+  document.getElementById("total").innerText = "R$ " + totalValor.toFixed(2);
+  document.getElementById("pagos").innerText = pagosQtd;
+  document.getElementById("pendentes").innerText = pendentesQtd;
+  document.getElementById("aberto").innerText = "R$ " + aberto.toFixed(2);
+  document.getElementById("previsto").innerText = "R$ " + previsto.toFixed(2);
+}
 }
 
 // ================= RENDER =================
