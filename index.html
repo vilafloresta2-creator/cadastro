@@ -75,6 +75,8 @@ button{
   background:#fff;
   padding:15px;
   border-radius:20px 20px 0 0;
+  max-height:90vh;
+  overflow:auto;
 }
 
 input,select{
@@ -126,13 +128,22 @@ input,select{
 <div class="form-box" id="formBox">
 <form id="form">
 <input type="hidden" id="id">
+
 <input id="nome" placeholder="Nome">
+
+<input id="cpf" placeholder="CPF">
+<input id="telefone" placeholder="Telefone">
+<input id="email" placeholder="Email">
+<input id="endereco" placeholder="Endereço">
+
 <input id="mes" placeholder="03-2026">
 <input id="valor" placeholder="Valor">
+
 <select id="status">
 <option value="Pago">Pago</option>
 <option value="Pendente">Pendente</option>
 </select>
+
 <button class="btn">Salvar</button>
 </form>
 </div>
