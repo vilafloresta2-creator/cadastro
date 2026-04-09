@@ -92,13 +92,16 @@ button{
 .btn-danger{background:#ef4444}
 
 .form-box{
-  display:none;
   position:fixed;
-  bottom:0;
+  bottom:-100%; /* 👈 ESSENCIAL */
   left:0;
   right:0;
   background:#fff;
   padding:15px;
+  border-radius:20px 20px 0 0;
+  transition:0.3s ease;
+  z-index:999;
+  display:block; /* 👈 importante */
 }
 
 input,select{
@@ -336,7 +339,7 @@ function gerarPDF(idSel){
   logo.src="logo.png";
 
   logo.onload=function(){
-    doc.addImage(logo,"PNG",150,10,40,20);
+    doc.addImage(logo,"PNG",150,10,20,20);
 
     doc.text("Recibo",20,20);
     doc.text("Nome: "+a[1],20,40);
@@ -375,7 +378,7 @@ toast("Salvo com sucesso 💰");
 function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  modoEdicao = true;
+  modoEdicao=true;
 
   id.value=a[0];
   nome.value=a[1];
@@ -387,7 +390,7 @@ function editar(idSel){
   valor.value=a[7]||"";
   document.getElementById("status").value = a[8] || "Pendente";
 
-  abrirForm(false); // 👈 NÃO LIMPA
+  abrirForm(false);
 }
 
 async function pagar(idSel){
@@ -440,7 +443,9 @@ function abrirForm(novo=true){
   }
 
   overlay.style.display="block";
-  formBox.style.display="block";
+
+  // força render antes da animação
+  formBox.style.bottom="-100%";
 
   setTimeout(()=>{
     formBox.style.bottom="0";
@@ -452,7 +457,6 @@ function fecharForm(){
   formBox.style.bottom="-100%";
 
   setTimeout(()=>{
-    formBox.style.display="none";
     overlay.style.display="none";
   },300);
 }
