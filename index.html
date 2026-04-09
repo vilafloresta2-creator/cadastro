@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>App Associados</title>
+
+<title>Financeiro Associados</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,7 +13,7 @@
 *{box-sizing:border-box}
 
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  font-family:Arial;
   margin:0;
   background:#eef2f7;
 }
@@ -22,12 +23,10 @@ header{
   color:#fff;
   padding:15px;
   text-align:center;
-  font-weight:600;
 }
 
 .container{padding:15px;max-width:600px;margin:auto}
 
-/* DASHBOARD */
 .dashboard{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -37,26 +36,22 @@ header{
 .card-top{
   background:#fff;
   padding:12px;
-  border-radius:14px;
+  border-radius:12px;
 }
 
-.card-top b{font-size:18px}
-
-/* CARD */
 .card{
   background:#fff;
-  padding:15px;
-  border-radius:16px;
-  margin-top:12px;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
 }
 
 .card.pago{border-left:5px solid green}
 .card.pendente{border-left:5px solid red}
 
-/* BOTÕES */
 button{
-  border:none;
   padding:8px;
+  border:none;
   border-radius:8px;
   color:#fff;
 }
@@ -65,7 +60,6 @@ button{
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
 
-/* FORM */
 .form-box{
   display:none;
   position:fixed;
@@ -74,9 +68,6 @@ button{
   right:0;
   background:#fff;
   padding:15px;
-  border-radius:20px 20px 0 0;
-  max-height:90vh;
-  overflow:auto;
 }
 
 input,select{
@@ -105,15 +96,15 @@ input,select{
 
 <div class="container">
 
-<!-- DASHBOARD -->
 <div class="dashboard">
   <div class="card-top"><span>Total</span><b id="total">R$ 0</b></div>
-  <div class="card-top"><span>Recebido</span><b id="pagos">0</b></div>
+  <div class="card-top"><span>Pagos</span><b id="pagos">0</b></div>
   <div class="card-top"><span>Pendentes</span><b id="pendentes">0</b></div>
   <div class="card-top"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
 </div>
 
-<!-- GRÁFICO -->
+<select id="filtroMes"></select>
+
 <canvas id="grafico"></canvas>
 
 <input id="busca" placeholder="Buscar...">
@@ -121,63 +112,75 @@ input,select{
 
 </div>
 
-<button onclick="gerarRelatorio()" class="btn">📊 Relatório</button>
-<button onclick="gerarDevedores()" class="btn">⚠️ Devedores</button>
 <button class="floating" onclick="abrirForm()">+</button>
 
 <div class="form-box" id="formBox">
 <form id="form">
 <input type="hidden" id="id">
-
-<input id="nome" placeholder="Nome">
-
+<input id="nome" placeholder="Nome" required>
 <input id="cpf" placeholder="CPF">
 <input id="telefone" placeholder="Telefone">
 <input id="email" placeholder="Email">
 <input id="endereco" placeholder="Endereço">
-
 <input id="mes" placeholder="03-2026">
 <input id="valor" placeholder="Valor">
-
 <select id="status">
 <option value="Pago">Pago</option>
 <option value="Pendente">Pendente</option>
 </select>
-
 <button class="btn">Salvar</button>
 </form>
 </div>
 
 <script>
-
-const URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
+const URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 let grafico;
 
-/* ===================== CARREGAR ===================== */
+/* ================= LOAD ================= */
 async function carregar(){
-  const res = await fetch(URL);
-  const dados = await res.json();
-  dadosGlobal = dados.slice(1);
+  const res=await fetch(URL);
+  const dados=await res.json();
+  dadosGlobal=dados.slice(1);
 
+  carregarMeses();
   renderizar();
   calcular();
   atualizarGrafico();
 }
 
-/* ===================== CALCULO ===================== */
+/* ================= MESES ================= */
+function carregarMeses(){
+  const select=document.getElementById("filtroMes");
+
+  const meses=[...new Set(dadosGlobal.map(a=>a[6]).filter(Boolean))];
+
+  select.innerHTML='<option value="">Todos</option>';
+
+  meses.forEach(m=>{
+    select.innerHTML+=`<option value="${m}">${m}</option>`;
+  });
+}
+
+/* ================= CALCULO ================= */
 function calcular(){
-  let total=0, pagos=0, pendentes=0, aberto=0;
+
+  const mesSel=document.getElementById("filtroMes").value;
+
+  let total=0,pagos=0,pendentes=0,aberto=0;
 
   dadosGlobal.forEach(a=>{
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
+
+    if(mesSel && a[6]!==mesSel) return;
+
+    const valor=Number(a[7])||0;
+    const status=a[8]||"Pendente";
 
     if(status==="Pago"){
-      total += valor;
+      total+=valor;
       pagos++;
     }else{
-      aberto += valor;
+      aberto+=valor;
       pendentes++;
     }
   });
@@ -188,50 +191,62 @@ function calcular(){
   set("aberto","R$ "+aberto.toFixed(2));
 }
 
-/* ===================== UTIL ===================== */
+/* ================= UTIL ================= */
 function set(id,val){
   const el=document.getElementById(id);
   if(el) el.innerText=val;
 }
 
-/* ===================== RENDER ===================== */
+/* ================= RENDER ================= */
 function renderizar(filtro=""){
+
+  const mesSel=document.getElementById("filtroMes").value;
+
   lista.innerHTML="";
 
-  dadosGlobal.forEach(a=>{
+  dadosGlobal
+  .filter(a=>{
+    const nomeOk=(a[1]||"").toLowerCase().includes(filtro);
+    const mesOk=!mesSel || a[6]===mesSel;
+    return nomeOk && mesOk;
+  })
+  .forEach(a=>{
 
-  const status = a[8] || "Pendente";
+    const status=a[8]||"Pendente";
 
-  const botoes = status !== "Pago"
-    ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
-    : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
+    const botoes = status!=="Pago"
+      ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
+      : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
 
-  const card=document.createElement("div");
-  card.className="card "+(status==="Pago"?"pago":"pendente");
+    const card=document.createElement("div");
+    card.className="card "+(status==="Pago"?"pago":"pendente");
 
-  card.innerHTML=`
-    <b>${a[1]}</b>
-    <div>${a[6]}</div>
-    <div>R$ ${a[7]}</div>
-    <div>${status}</div>
+    card.innerHTML=`
+      <b>${a[1]}</b>
+      <div>${a[6]}</div>
+      <div>R$ ${a[7]}</div>
+      <div>${status}</div>
 
-    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+      <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+      ${botoes}
+      <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+    `;
 
-    ${botoes}
-
-    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-  `;
-
-  lista.appendChild(card);
-});
+    lista.appendChild(card);
+  });
 }
 
-/* ===================== GRAFICO ===================== */
+/* ================= GRAFICO ================= */
 function atualizarGrafico(){
-  let pago=0, pendente=0;
+
+  const mesSel=document.getElementById("filtroMes").value;
+
+  let pago=0,pendente=0;
 
   dadosGlobal.forEach(a=>{
-    const valor = Number(a[7])||0;
+    if(mesSel && a[6]!==mesSel) return;
+
+    const valor=Number(a[7])||0;
     if(a[8]==="Pago") pago+=valor;
     else pendente+=valor;
   });
@@ -245,134 +260,47 @@ function atualizarGrafico(){
     data:{
       labels:["Pago","Pendente"],
       datasets:[{data:[pago,pendente]}]
-    },
-    options:{cutout:"70%"}
-  });
-}
-
-/* ================== RELATORIOS ===================== */
-
-function gerarRelatorio(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y=20;
-
-  doc.text("Relatório Geral",20,y);
-  y+=10;
-
-  dadosGlobal.forEach(a=>{
-    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]} - ${a[8]}`,20,y);
-    y+=6;
-
-    if(y>280){
-      doc.addPage();
-      y=20;
     }
   });
-
-  doc.save("relatorio.pdf");
 }
 
-function gerarDevedores(){
-  const lista = dadosGlobal.filter(a=>a[8]!=="Pago");
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y=20;
-
-  doc.text("Devedores",20,y);
-  y+=10;
-
-  lista.forEach(a=>{
-    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]}`,20,y);
-    y+=6;
-  });
-
-  doc.save("devedores.pdf");
-}
-
+/* ================= PDF ================= */
 function gerarPDF(idSel){
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc=new jsPDF();
 
-  const a = dadosGlobal.find(x=>x[0]==idSel);
-  const hoje = new Date().toLocaleDateString();
+  const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  const logo = new Image();
-  logo.src = "logo.png"; // coloque seu logo aqui
+  const logo=new Image();
+  logo.src="logo.png";
 
-  logo.onload = function(){
+  logo.onload=function(){
+    doc.addImage(logo,"PNG",150,10,40,20);
 
-    // LOGO
-    doc.addImage(logo, "PNG", 150, 10, 40, 20);
+    doc.text("Recibo",20,20);
+    doc.text("Nome: "+a[1],20,40);
+    doc.text("Valor: R$ "+a[7],20,50);
 
-    // TÍTULO
-    doc.setFontSize(18);
-    doc.setTextColor(40);
-    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 20);
-
-    // SUBTÍTULO
-    doc.setFontSize(13);
-    doc.setTextColor(80);
-    doc.text("Recibo de Pagamento", 20, 30);
-
-    // LINHA
-    doc.setDrawColor(200);
-    doc.line(20, 35, 190, 35);
-
-    // DADOS
-    doc.setFontSize(12);
-    doc.setTextColor(20);
-
-    doc.text("Nome:", 20, 50);
-    doc.text(a[1], 60, 50);
-
-    doc.text("Mês:", 20, 60);
-    doc.text(a[6] || "-", 60, 60);
-
-    doc.text("Valor:", 20, 70);
-    doc.text("R$ " + a[7], 60, 70);
-
-    doc.text("Status:", 20, 80);
-    doc.text(a[8], 60, 80);
-
-    // DESTAQUE VALOR
-    doc.setFontSize(16);
-    doc.setTextColor(34,197,94);
-    doc.text("R$ " + a[7], 150, 70);
-
-    // RODAPÉ
-    doc.setFontSize(10);
-    doc.setTextColor(120);
-    doc.text("Emitido em: " + hoje, 20, 110);
-    doc.text("Documento gerado automaticamente", 20, 115);
-
-    // CAIXA VISUAL
-    doc.setDrawColor(220);
-    doc.rect(15, 40, 180, 80);
-
-    doc.save("recibo_"+a[1]+".pdf");
-  };
+    doc.save("recibo.pdf");
+  }
 }
 
-/* ===================== AÇÕES ===================== */
+/* ================= ACOES ================= */
 form.addEventListener("submit",async e=>{
   e.preventDefault();
 
   const obj={
-  acao:id.value?"editar":"adicionar",
-  id:id.value,
-  nome:nome.value,
-  cpf: cpf.value || "",
-  telefone: telefone.value || "",
-  email: email.value || "",
-  endereco: endereco.value || "",
-  mes:mes.value,
-  valor:valor.value,
-  status: document.getElementById("status").value
-};
+    acao:id.value?"editar":"adicionar",
+    id:id.value,
+    nome:nome.value,
+    cpf:cpf.value,
+    telefone:telefone.value,
+    email:email.value,
+    endereco:endereco.value,
+    mes:mes.value,
+    valor:valor.value,
+    status:status.value
+  };
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
 
@@ -392,7 +320,7 @@ function editar(idSel){
   endereco.value=a[5]||"";
   mes.value=a[6]||"";
   valor.value=a[7]||"";
-  document.getElementById("status").value = a[8] || "Pendente";
+  status.value=a[8]||"Pendente";
 
   abrirForm();
 }
@@ -427,46 +355,21 @@ async function excluir(idSel){
   carregar();
 }
 
-/* ===================== UI ===================== */
+/* ================= UI ================= */
 busca.addEventListener("input",e=>{
   renderizar(e.target.value.toLowerCase());
+});
+
+filtroMes.addEventListener("change",()=>{
+  renderizar(busca.value.toLowerCase());
+  calcular();
+  atualizarGrafico();
 });
 
 function abrirForm(){formBox.style.display="block"}
 function fecharForm(){formBox.style.display="none"}
 
 carregar();
-
-// ================== MÁSCARAS ==================
-
-cpf.addEventListener("input", e=>{
-  let v = e.target.value.replace(/\D/g,"");
-
-  if(v.length > 11) v = v.slice(0,11);
-
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-
-  e.target.value = v;
-});
-
-telefone.addEventListener("input", e=>{
-  let v = e.target.value.replace(/\D/g,"");
-
-  if(v.length > 11) v = v.slice(0,11);
-
-  if(v.length <= 10){
-    v = v.replace(/(\d{2})(\d)/,"($1) $2");
-    v = v.replace(/(\d{4})(\d)/,"$1-$2");
-  }else{
-    v = v.replace(/(\d{2})(\d)/,"($1) $2");
-    v = v.replace(/(\d{5})(\d)/,"$1-$2");
-  }
-
-  e.target.value = v;
-});
-
 </script>
 
 </body>
