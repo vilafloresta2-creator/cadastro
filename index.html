@@ -25,6 +25,32 @@ header{
   text-align:center;
 }
 
+#overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(3px);
+  display:none;
+  z-index:998;
+}
+
+#toast{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:#22c55e;
+  color:#fff;
+  padding:12px 20px;
+  border-radius:20px;
+  opacity:0;
+  transition:0.3s;
+  z-index:9999;
+}
+
 .container{padding:15px;max-width:600px;margin:auto}
 
 .dashboard{
@@ -44,6 +70,11 @@ header{
   padding:12px;
   margin-top:10px;
   border-radius:12px;
+  transition:0.2s;
+}
+
+.card:active{
+  transform:scale(0.97);
 }
 
 .card.pago{border-left:5px solid green}
@@ -92,7 +123,9 @@ input,select{
 
 <body>
 
-<header>Vila Floresta 2</header>
+<header>Cadastro Moradores Vila Floresta 2</header>
+<div id="overlay" onclick="fecharForm()"></div>
+<div id="toast">Salvo com sucesso</div>
 
 <div class="container">
 
@@ -137,6 +170,7 @@ input,select{
 const URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 let grafico;
+let modoEdicao = false;
 
 /* ================= LOAD ================= */
 async function carregar(){
@@ -152,9 +186,15 @@ async function carregar(){
 
 /* ================= CANCELAR ================= */
 function cancelar(){
-  form.reset();        // limpa campos
-  id.value = "";       // sai do modo edição
-  fecharForm();        // fecha tela
+
+  if(!modoEdicao){
+    form.reset();
+  }
+
+  id.value="";
+  modoEdicao = false;
+
+  fecharForm();
 }
 
 /* ================= MESES ================= */
@@ -244,6 +284,19 @@ function renderizar(filtro=""){
   });
 }
 
+function toast(msg="Salvo com sucesso"){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+
+  t.style.opacity="1";
+  t.style.transform="translateX(-50%) translateY(0)";
+
+  setTimeout(()=>{
+    t.style.opacity="0";
+    t.style.transform="translateX(-50%) translateY(100px)";
+  },2000);
+}
+
 /* ================= GRAFICO ================= */
 function atualizarGrafico(){
 
@@ -312,6 +365,8 @@ form.addEventListener("submit",async e=>{
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
 
+toast("Salvo com sucesso 💰");
+
   form.reset();
   fecharForm();
   carregar();
@@ -320,18 +375,19 @@ form.addEventListener("submit",async e=>{
 function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  id.value = a[0];
-  nome.value = a[1];
-  cpf.value = a[2] || "";
-  telefone.value = a[3] || "";
-  email.value = a[4] || "";
-  endereco.value = a[5] || "";
-  mes.value = a[6] || "";
-  valor.value = a[7] || "";
+  modoEdicao = true;
 
+  id.value=a[0];
+  nome.value=a[1];
+  cpf.value=a[2]||"";
+  telefone.value=a[3]||"";
+  email.value=a[4]||"";
+  endereco.value=a[5]||"";
+  mes.value=a[6]||"";
+  valor.value=a[7]||"";
   document.getElementById("status").value = a[8] || "Pendente";
 
-  abrirForm();
+  abrirForm(false); // 👈 NÃO LIMPA
 }
 
 async function pagar(idSel){
@@ -375,12 +431,30 @@ filtroMes.addEventListener("change",()=>{
   atualizarGrafico();
 });
 
-function abrirForm(){formBox.style.display="block"}
-function fecharForm(){
-  formBox.style.display = "none";
+function abrirForm(novo=true){
 
-  form.reset();      // garante limpeza
-  id.value = "";     // garante novo cadastro
+  if(novo){
+    form.reset();
+    id.value="";
+    modoEdicao=false;
+  }
+
+  overlay.style.display="block";
+  formBox.style.display="block";
+
+  setTimeout(()=>{
+    formBox.style.bottom="0";
+  },10);
+}
+
+function fecharForm(){
+
+  formBox.style.bottom="-100%";
+
+  setTimeout(()=>{
+    formBox.style.display="none";
+    overlay.style.display="none";
+  },300);
 }
 
 carregar();
