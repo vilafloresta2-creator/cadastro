@@ -157,7 +157,7 @@ input,select{
 <input type="hidden" id="id">
 <input id="nome" placeholder="Nome" required>
 <input id="cpf" placeholder="CPF">
-<input id="telefone" placeholder="Telefone">
+<input id="telefone" placeholder="(00) 00000-0000">
 <input id="email" placeholder="Email">
 <input id="endereco" placeholder="Endereço">
 <input id="mes" placeholder="03-2026">
@@ -359,7 +359,7 @@ function gerarPDF(idSel){
     doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 10, 15);
 
     // LOGO DIREITA
-    doc.addImage(logo, "PNG", 170, 5, 30, 15);
+    doc.addImage(logo, "PNG", 170, 5, 20, 20);
 
     // RESET COR
     doc.setTextColor(0,0,0);
@@ -406,6 +406,23 @@ function gerarPDF(idSel){
 function gerarRelatorio(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  const logo = new Image();
+  logo.src = "logo.png";
+
+  logo.onload = function(){
+
+    // 🔷 CABEÇALHO
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, 210, 25, "F");
+
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(14);
+    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 10, 15);
+
+    // LOGO DIREITA
+    doc.addImage(logo, "PNG", 170, 5, 20, 20);
+  }
 
   let y = 20;
 
@@ -483,12 +500,31 @@ function enviarWhatsApp(idSel){
 
   const a = dadosGlobal.find(x => x[0] == idSel);
 
-  const numero = (a[3] || "").replace(/\D/g, ""); // telefone
+  let numero = (a[3] || "").replace(/\D/g, "");
+
+  if(!numero){
+    alert("Telefone não cadastrado!");
+    return;
+  }
+
+  // remove zero inicial se tiver
+  if(numero.startsWith("0")){
+    numero = numero.substring(1);
+  }
+
+  // garante DDD + 9 dígitos
+  if(numero.length < 10){
+    alert("Telefone inválido!");
+    return;
+  }
+
+  // adiciona Brasil
+  if(!numero.startsWith("55")){
+    numero = "55" + numero;
+  }
 
   const mensagem =
 `Olá ${a[1]} 😊
-
-Segue seu pagamento:
 
 📅 Mês: ${a[6]}
 💰 Valor: R$ ${a[7]}
@@ -496,7 +532,7 @@ Segue seu pagamento:
 
 Obrigado!`;
 
-  const url = `https://wa.me/55${numero}?text=${encodeURIComponent(mensagem)}`;
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
 
   window.open(url, "_blank");
 }
@@ -525,6 +561,19 @@ toast("Salvo com sucesso 💰");
   form.reset();
   fecharForm();
   carregar();
+});
+
+telefone.addEventListener("input", e => {
+  let v = e.target.value.replace(/\D/g, "");
+
+  if(v.length > 11) v = v.slice(0,11);
+
+  if(v.length > 6)
+    v = v.replace(/(\d{2})(\d{5})(\d+)/, "($1) $2-$3");
+  else if(v.length > 2)
+    v = v.replace(/(\d{2})(\d+)/, "($1) $2");
+
+  e.target.value = v;
 });
 
 function editar(idSel){
