@@ -335,11 +335,11 @@ function gerarPDF(idSel){
 
   const { jsPDF } = window.jspdf;
 
-  // 👇 tamanho menor (meia folha)
+  // 📄 A5 horizontal (15 x 21 cm)
   const doc = new jsPDF({
-    orientation: "portrait",
+    orientation: "landscape",
     unit: "mm",
-    format: [105, 148] // A6 (meia folha)
+    format: "a5"
   });
 
   const a = dadosGlobal.find(x => x[0] == idSel);
@@ -350,37 +350,53 @@ function gerarPDF(idSel){
 
   logo.onload = function(){
 
-    // LOGO CENTRAL
-    doc.addImage(logo, "PNG", 30, 8, 20, 20);
+    // 🔷 CABEÇALHO
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, 210, 25, "F");
+
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(14);
+    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 10, 15);
+
+    // LOGO DIREITA
+    doc.addImage(logo, "PNG", 170, 5, 30, 15);
+
+    // RESET COR
+    doc.setTextColor(0,0,0);
 
     // TÍTULO
-    doc.setFontSize(12);
-    doc.text("RECIBO", 52, 32, { align: "center" });
+    doc.setFontSize(16);
+    doc.text("RECIBO DE PAGAMENTO", 105, 40, { align: "center" });
 
-    doc.setDrawColor(180);
-    doc.line(10, 36, 95, 36);
+    doc.setDrawColor(200);
+    doc.line(20, 45, 190, 45);
 
-    // CONTEÚDO
-    doc.setFontSize(9);
+    // 📦 BOX PRINCIPAL
+    doc.roundedRect(20, 55, 170, 60, 4, 4);
 
-    doc.text("Nome:", 10, 45);
-    doc.text(a[1], 10, 50);
+    doc.setFontSize(11);
 
-    doc.text("Mês:", 10, 60);
-    doc.text(a[6], 10, 65);
+    // COLUNA ESQUERDA
+    doc.text("Recebemos de:", 25, 70);
+    doc.text(a[1], 25, 78);
 
-    doc.text("Valor:", 10, 75);
-    doc.text("R$ " + Number(a[7]).toFixed(2), 10, 80);
+    doc.text("Referente ao mês:", 25, 90);
+    doc.text(a[6], 25, 98);
 
-    doc.text("Status:", 10, 90);
-    doc.text(a[8], 10, 95);
+    // COLUNA DIREITA
+    doc.text("Valor Pago:", 120, 70);
+    doc.text("R$ " + Number(a[7]).toFixed(2), 120, 78);
 
-    // RODAPÉ
-    doc.setFontSize(8);
-    doc.text("Emitido em: " + hoje, 10, 110);
+    doc.text("Status:", 120, 90);
+    doc.text(a[8], 120, 98);
 
-    doc.line(25, 130, 80, 130);
-    doc.text("Assinatura", 52, 135, { align: "center" });
+    // 📅 RODAPÉ
+    doc.setFontSize(10);
+    doc.text("Emitido em: " + hoje, 20, 130);
+
+    // ASSINATURA
+    doc.line(130, 130, 190, 130);
+    doc.text("Responsável", 160, 135, { align: "center" });
 
     doc.save("recibo_"+a[1]+".pdf");
   };
