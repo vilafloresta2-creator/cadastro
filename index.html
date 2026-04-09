@@ -198,19 +198,18 @@ function set(id,val){
 function renderizar(filtro=""){
   lista.innerHTML="";
 
-  dadosGlobal
-  .filter(a=>a[1].toLowerCase().includes(filtro))
-  .forEach(a=>{
+  dadosGlobal.forEach(a=>{
 
-    const status=a[8]||"Pendente";
-    const botoes = status !== "Pago"
-  ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
-  : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
-  : `<button class="btn" style="background:#22c55e" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`
-    const card=document.createElement("div");
-    card.className="card "+(status==="Pago"?"pago":"pendente");
+  const status = a[8] || "Pendente";
 
-    card.innerHTML=`
+  const botoes = status !== "Pago"
+    ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
+    : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
+
+  const card=document.createElement("div");
+  card.className="card "+(status==="Pago"?"pago":"pendente");
+
+  card.innerHTML=`
     <b>${a[1]}</b>
     <div>${a[6]}</div>
     <div>R$ ${a[7]}</div>
@@ -221,10 +220,10 @@ function renderizar(filtro=""){
     ${botoes}
 
     <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-    `;
+  `;
 
-    lista.appendChild(card);
-  });
+  lista.appendChild(card);
+});
 }
 
 /* ===================== GRAFICO ===================== */
