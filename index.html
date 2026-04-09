@@ -299,7 +299,7 @@ form.addEventListener("submit",async e=>{
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
-    status:status.value
+    status: document.getElementById("status").value
   };
 
   await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
@@ -312,15 +312,16 @@ form.addEventListener("submit",async e=>{
 function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  id.value=a[0];
-  nome.value=a[1];
-  cpf.value=a[2]||"";
-  telefone.value=a[3]||"";
-  email.value=a[4]||"";
-  endereco.value=a[5]||"";
-  mes.value=a[6]||"";
-  valor.value=a[7]||"";
-  status.value=a[8]||"Pendente";
+  id.value = a[0];
+  nome.value = a[1];
+  cpf.value = a[2] || "";
+  telefone.value = a[3] || "";
+  email.value = a[4] || "";
+  endereco.value = a[5] || "";
+  mes.value = a[6] || "";
+  valor.value = a[7] || "";
+
+  document.getElementById("status").value = a[8] || "Pendente";
 
   abrirForm();
 }
