@@ -153,7 +153,7 @@ input,select{
 const URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 let grafico;
-
+logo.src = "logo.png";
 /* ===================== CARREGAR ===================== */
 async function carregar(){
   const res = await fetch(URL);
@@ -203,19 +203,24 @@ function renderizar(filtro=""){
   .forEach(a=>{
 
     const status=a[8]||"Pendente";
-
+    const botoes = status !== "Pago"
+  ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
+  : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
+  : `<button class="btn" style="background:#22c55e" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`
     const card=document.createElement("div");
     card.className="card "+(status==="Pago"?"pago":"pendente");
 
     card.innerHTML=`
-      <b>${a[1]}</b>
-      <div>${a[6]}</div>
-      <div>R$ ${a[7]}</div>
-      <div>${status}</div>
+    <b>${a[1]}</b>
+    <div>${a[6]}</div>
+    <div>R$ ${a[7]}</div>
+    <div>${status}</div>
 
-      <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-      <button class="btn" onclick="pagar('${a[0]}')">Pagar</button>
-      <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+
+    ${botoes}
+
+    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
     `;
 
     lista.appendChild(card);
@@ -289,6 +294,69 @@ function gerarDevedores(){
   doc.save("devedores.pdf");
 }
 
+function gerarPDF(idSel){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const a = dadosGlobal.find(x=>x[0]==idSel);
+  const hoje = new Date().toLocaleDateString();
+
+  const logo = new Image();
+  logo.src = "logo.png"; // coloque seu logo aqui
+
+  logo.onload = function(){
+
+    // LOGO
+    doc.addImage(logo, "PNG", 150, 10, 40, 20);
+
+    // TÍTULO
+    doc.setFontSize(18);
+    doc.setTextColor(40);
+    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 20, 20);
+
+    // SUBTÍTULO
+    doc.setFontSize(13);
+    doc.setTextColor(80);
+    doc.text("Recibo de Pagamento", 20, 30);
+
+    // LINHA
+    doc.setDrawColor(200);
+    doc.line(20, 35, 190, 35);
+
+    // DADOS
+    doc.setFontSize(12);
+    doc.setTextColor(20);
+
+    doc.text("Nome:", 20, 50);
+    doc.text(a[1], 60, 50);
+
+    doc.text("Mês:", 20, 60);
+    doc.text(a[6] || "-", 60, 60);
+
+    doc.text("Valor:", 20, 70);
+    doc.text("R$ " + a[7], 60, 70);
+
+    doc.text("Status:", 20, 80);
+    doc.text(a[8], 60, 80);
+
+    // DESTAQUE VALOR
+    doc.setFontSize(16);
+    doc.setTextColor(34,197,94);
+    doc.text("R$ " + a[7], 150, 70);
+
+    // RODAPÉ
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text("Emitido em: " + hoje, 20, 110);
+    doc.text("Documento gerado automaticamente", 20, 115);
+
+    // CAIXA VISUAL
+    doc.setDrawColor(220);
+    doc.rect(15, 40, 180, 80);
+
+    doc.save("recibo_"+a[1]+".pdf");
+  };
+}
 
 /* ===================== AÇÕES ===================== */
 form.addEventListener("submit",async e=>{
@@ -369,6 +437,36 @@ function abrirForm(){formBox.style.display="block"}
 function fecharForm(){formBox.style.display="none"}
 
 carregar();
+
+// ================== MÁSCARAS ==================
+
+cpf.addEventListener("input", e=>{
+  let v = e.target.value.replace(/\D/g,"");
+
+  if(v.length > 11) v = v.slice(0,11);
+
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+
+  e.target.value = v;
+});
+
+telefone.addEventListener("input", e=>{
+  let v = e.target.value.replace(/\D/g,"");
+
+  if(v.length > 11) v = v.slice(0,11);
+
+  if(v.length <= 10){
+    v = v.replace(/(\d{2})(\d)/,"($1) $2");
+    v = v.replace(/(\d{4})(\d)/,"$1-$2");
+  }else{
+    v = v.replace(/(\d{2})(\d)/,"($1) $2");
+    v = v.replace(/(\d{5})(\d)/,"$1-$2");
+  }
+
+  e.target.value = v;
+});
 
 </script>
 
