@@ -129,6 +129,7 @@ input,select{
 <option value="Pendente">Pendente</option>
 </select>
 <button class="btn">Salvar</button>
+<button type="button" class="btn-danger" onclick="cancelar()">Cancelar</button>
 </form>
 </div>
 
@@ -147,6 +148,13 @@ async function carregar(){
   renderizar();
   calcular();
   atualizarGrafico();
+}
+
+/* ================= CANCELAR ================= */
+function cancelar(){
+  form.reset();        // limpa campos
+  id.value = "";       // sai do modo edição
+  fecharForm();        // fecha tela
 }
 
 /* ================= MESES ================= */
@@ -367,8 +375,17 @@ filtroMes.addEventListener("change",()=>{
   atualizarGrafico();
 });
 
-function abrirForm(){formBox.style.display="block"}
-function fecharForm(){formBox.style.display="none"}
+function abrirForm(){
+  form.reset();
+  id.value = "";
+  formBox.style.display = "block";
+}
+function fecharForm(){
+  formBox.style.display = "none";
+
+  form.reset();      // garante limpeza
+  id.value = "";     // garante novo cadastro
+}
 
 carregar();
 </script>
