@@ -279,7 +279,7 @@ function renderizar(filtro=""){
       <div>${a[6]}</div>
       <div>R$ ${a[7]}</div>
       <div>${status}</div>
-
+      <button class="btn" onclick="enviarWhatsApp('${a[0]}')">📲 WhatsApp</button>
       <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
       ${botoes}
       <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
@@ -334,7 +334,13 @@ function atualizarGrafico(){
 function gerarPDF(idSel){
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+
+  // 👇 tamanho menor (meia folha)
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: [105, 148] // A6 (meia folha)
+  });
 
   const a = dadosGlobal.find(x => x[0] == idSel);
   const hoje = new Date().toLocaleDateString();
@@ -344,39 +350,37 @@ function gerarPDF(idSel){
 
   logo.onload = function(){
 
-    // LOGO
-    doc.addImage(logo, "PNG", 80, 10, 25, 25);
+    // LOGO CENTRAL
+    doc.addImage(logo, "PNG", 30, 8, 20, 20);
 
-    // TITULO
-    doc.setFontSize(18);
-    doc.text("RECIBO DE PAGAMENTO", 105, 45, { align: "center" });
-
-    doc.setDrawColor(200);
-    doc.line(20, 50, 190, 50);
-
-    // BOX
-    doc.roundedRect(20, 60, 170, 80, 5, 5);
-
+    // TÍTULO
     doc.setFontSize(12);
+    doc.text("RECIBO", 52, 32, { align: "center" });
 
-    doc.text("Recebemos de:", 25, 75);
-    doc.text(a[1], 25, 82);
+    doc.setDrawColor(180);
+    doc.line(10, 36, 95, 36);
 
-    doc.text("Referente ao mês:", 25, 95);
-    doc.text(a[6], 25, 102);
+    // CONTEÚDO
+    doc.setFontSize(9);
 
-    doc.text("Valor pago:", 25, 115);
-    doc.text("R$ " + Number(a[7]).toFixed(2), 25, 122);
+    doc.text("Nome:", 10, 45);
+    doc.text(a[1], 10, 50);
 
-    doc.text("Status:", 25, 135);
-    doc.text(a[8], 25, 142);
+    doc.text("Mês:", 10, 60);
+    doc.text(a[6], 10, 65);
+
+    doc.text("Valor:", 10, 75);
+    doc.text("R$ " + Number(a[7]).toFixed(2), 10, 80);
+
+    doc.text("Status:", 10, 90);
+    doc.text(a[8], 10, 95);
 
     // RODAPÉ
-    doc.setFontSize(10);
-    doc.text("Emitido em: " + hoje, 20, 160);
+    doc.setFontSize(8);
+    doc.text("Emitido em: " + hoje, 10, 110);
 
-    doc.line(60, 180, 150, 180);
-    doc.text("Assinatura", 90, 185, { align: "center" });
+    doc.line(25, 130, 80, 130);
+    doc.text("Assinatura", 52, 135, { align: "center" });
 
     doc.save("recibo_"+a[1]+".pdf");
   };
@@ -457,6 +461,28 @@ function gerarDevedores(){
   });
 
   doc.save("devedores.pdf");
+}
+
+function enviarWhatsApp(idSel){
+
+  const a = dadosGlobal.find(x => x[0] == idSel);
+
+  const numero = (a[3] || "").replace(/\D/g, ""); // telefone
+
+  const mensagem =
+`Olá ${a[1]} 😊
+
+Segue seu pagamento:
+
+📅 Mês: ${a[6]}
+💰 Valor: R$ ${a[7]}
+✅ Status: ${a[8]}
+
+Obrigado!`;
+
+  const url = `https://wa.me/55${numero}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(url, "_blank");
 }
 
 /* ================= ACOES ================= */
