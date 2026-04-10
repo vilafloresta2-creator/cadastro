@@ -129,6 +129,7 @@ input,select{
 <header>Cadastro Moradores Vila Floresta 2</header>
 <div id="overlay" onclick="fecharForm()"></div>
 <div id="toast">Salvo com sucesso</div>
+<div id="modalRelatorio" class="modal"></div>
 
 <div class="container">
 
@@ -142,7 +143,7 @@ input,select{
 <select id="filtroMes"></select>
 
 <canvas id="grafico"></canvas>
-<button class="btn" onclick="gerarRelatorio()">📊 Relatório Geral</button>
+<button class="btn" onclick="verRelatorio()">📊 Ver Relatório</button>
 <button class="btn" onclick="gerarDevedores()">⚠️ Devedores</button>
 <button class="btn" onclick="exportarBackup()">💾 Exportar Backup</button>
 <button class="btn" onclick="abrirRestaurar()">📂 Restaurar Backup</button>
@@ -262,6 +263,50 @@ function exportarBackupAutomatico(){
   URL.revokeObjectURL(url);
 }
 
+function verRelatorio(){
+
+  let html = `
+    <h3>Relatório Financeiro</h3>
+    <div style="max-height:300px; overflow:auto;">
+  `;
+
+  let total = 0;
+  let aberto = 0;
+
+  dadosGlobal.forEach(a => {
+
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
+
+    if(status === "Pago") total += valor;
+    else aberto += valor;
+
+    html += `
+      <div style="border-bottom:1px solid #eee; padding:8px 0;">
+        <b>${a[1]}</b><br>
+        ${a[6]} - R$ ${valor.toFixed(2)} - ${status}
+      </div>
+    `;
+  });
+
+  html += `
+    </div>
+
+    <p><b>Total:</b> R$ ${total.toFixed(2)}</p>
+    <p><b>Em aberto:</b> R$ ${aberto.toFixed(2)}</p>
+
+    <button class="btn" onclick="gerarRelatorio()">📄 Exportar PDF</button>
+    <button class="btn-danger" onclick="fecharRelatorio()">Fechar</button>
+  `;
+
+  modalRelatorio.innerHTML = html;
+  modalRelatorio.style.display = "block";
+}
+
+function fecharRelatorio(){
+  modalRelatorio.style.display = "none";
+}
+
 /* ================= CANCELAR ================= */
 function cancelar(){
 
@@ -347,16 +392,60 @@ function renderizar(filtro=""){
     const card=document.createElement("div");
     card.className="card "+(status==="Pago"?"pago":"pendente");
 
-    card.innerHTML=`
-      <b>${a[1]}</b>
-      <div>${a[6]}</div>
-      <div>R$ ${a[7]}</div>
-      <div>${status}</div>
-      <button class="btn" onclick="enviarWhatsApp('${a[0]}')">📲 WhatsApp</button>
-      <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-      ${botoes}
-      <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-    `;
+    card.innerHTML = `
+
+  <div onclick="ver('${a[0]}')">
+    <b style="font-size:16px">${a[1]}</b>
+
+    <div style="margin-top:4px; font-size:13px; color:#555;">
+      ${a[6] || "-"} • R$ ${Number(a[7] || 0).toFixed(2)}
+    </div>
+
+    <div style="margin-top:6px">
+      <span style="
+        padding:4px 10px;
+        border-radius:20px;
+        font-size:12px;
+        background:${status==='Pago'?'#dcfce7':'#fee2e2'};
+        color:${status==='Pago'?'#166534':'#991b1b'};
+      ">
+        ${status}
+      </span>
+    </div>
+  </div>
+
+  <div class="actions">
+
+    <button class="btn-edit"
+      onclick="event.stopPropagation(); editar('${a[0]}')">
+      Editar
+    </button>
+
+    ${
+      status !== "Pago"
+      ? `<button class="btn"
+          onclick="event.stopPropagation(); pagar('${a[0]}')">
+          Pagar
+        </button>`
+      : `<button class="btn"
+          onclick="event.stopPropagation(); gerarPDF('${a[0]}')">
+          📄 Recibo
+        </button>`
+    }
+
+    <button class="btn"
+      onclick="event.stopPropagation(); enviarWhatsApp('${a[0]}')">
+      📲 WhatsApp
+    </button>
+
+    <button class="btn-danger"
+      onclick="event.stopPropagation(); excluir('${a[0]}')">
+      Excluir
+    </button>
+
+  </div>
+
+`;
 
     lista.appendChild(card);
   });
