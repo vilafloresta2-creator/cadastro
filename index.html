@@ -262,42 +262,6 @@ function exportarBackupAutomatico(){
   URL.revokeObjectURL(url);
 }
 
-/* ================= BACKUP AUTO ================= */
-function backupAutomatico(){
-
-  const hoje = new Date().toISOString().slice(0,10); // 2026-04-10
-
-  const ultimoBackup = localStorage.getItem("backup_data");
-
-  // se já fez hoje, não repete
-  if(ultimoBackup !== hoje){
-  // salva local
-  ...
-
-  // salva na nuvem
-  backupNuvem();
-}
-
-  // pega backups antigos
-  let backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
-
-  // adiciona novo
-  backups.push({
-    data: hoje,
-    dados: dadosGlobal
-  });
-
-  // mantém só os últimos 7 dias (pode ajustar)
-  if(backups.length > 7){
-    backups.shift();
-  }
-
-  localStorage.setItem("backup_historico", JSON.stringify(backups));
-  localStorage.setItem("backup_data", hoje);
-
-  console.log("Backup automático realizado:", hoje);
-}
-
 /* ================= CANCELAR ================= */
 function cancelar(){
 
@@ -726,6 +690,7 @@ async function excluir(idSel){
   carregar();
 }
 
+/* ===================== BACKUP NA NUVEM ===================== */
 async function backupNuvem(){
 
   try{
@@ -738,11 +703,42 @@ async function backupNuvem(){
       })
     });
 
-    toast("Backup na nuvem ☁️");
+    console.log("Backup na nuvem OK ☁️");
 
   }catch(e){
     console.error("Erro backup nuvem", e);
   }
+}
+
+
+/* ===================== BACKUP AUTOMÁTICO ===================== */
+function backupAutomatico(){
+
+  const hoje = new Date().toISOString().slice(0,10);
+  const ultimoBackup = localStorage.getItem("backup_data");
+
+  // evita duplicar no mesmo dia
+  if(ultimoBackup === hoje) return;
+
+  let backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
+
+  backups.push({
+    data: hoje,
+    dados: dadosGlobal
+  });
+
+  // mantém últimos 7 dias
+  if(backups.length > 7){
+    backups.shift();
+  }
+
+  localStorage.setItem("backup_historico", JSON.stringify(backups));
+  localStorage.setItem("backup_data", hoje);
+
+  console.log("Backup local OK 💾");
+
+  // 👇 salva também na nuvem
+  backupNuvem();
 }
 
 /* ================= UI ================= */
