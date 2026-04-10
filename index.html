@@ -176,7 +176,7 @@ input,select{
 </div>
 
 <script>
-const URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 let grafico;
 let modoEdicao = false;
@@ -185,7 +185,7 @@ let modoEdicao = false;
 async function carregar(){
 
   try{
-    const res = await fetch(URL);
+    const res = await fetch(API_URL);
     const dados = await res.json();
 
     dadosGlobal = dados.slice(1);
@@ -610,7 +610,7 @@ form.addEventListener("submit",async e=>{
     status: document.getElementById("status").value
   };
 
-  await fetch(URL,{method:"POST",body:JSON.stringify(obj)});
+  await fetch(API_URL,{method:"POST",body:JSON.stringify(obj)});
 
 toast("Salvo com sucesso 💰");
 
@@ -653,7 +653,7 @@ function editar(idSel){
 async function pagar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  await fetch(URL,{
+  await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       acao:"editar",
@@ -678,7 +678,7 @@ async function excluir(idSel){
 
   if(!confirmar) return;
 
-  await fetch(URL,{
+  await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       acao:"excluir",
@@ -695,7 +695,7 @@ async function backupNuvem(){
 
   try{
 
-    await fetch(URL,{
+    await fetch(API_URL,{
       method:"POST",
       body:JSON.stringify({
         acao:"backup",
@@ -805,7 +805,7 @@ document.getElementById("fileRestore").addEventListener("change", async function
       // ENVIA ITEM POR ITEM PARA A PLANILHA
       for(const item of dados){
 
-        await fetch(URL,{
+        await fetch(API_URL,{
           method:"POST",
           body:JSON.stringify({
             acao:"adicionar",
