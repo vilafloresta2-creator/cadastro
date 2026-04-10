@@ -144,6 +144,10 @@ input,select{
 <canvas id="grafico"></canvas>
 <button class="btn" onclick="gerarRelatorio()">📊 Relatório Geral</button>
 <button class="btn" onclick="gerarDevedores()">⚠️ Devedores</button>
+<button class="btn" onclick="exportarBackup()">💾 Exportar Backup</button>
+<button class="btn" onclick="abrirRestaurar()">📂 Restaurar Backup</button>
+
+<input type="file" id="fileRestore" accept=".json" style="display:none">
 
 <input id="busca" placeholder="Buscar...">
 <div id="lista"></div>
@@ -179,14 +183,119 @@ let modoEdicao = false;
 
 /* ================= LOAD ================= */
 async function carregar(){
-  const res=await fetch(URL);
-  const dados=await res.json();
-  dadosGlobal=dados.slice(1);
 
-  carregarMeses();
+  try{
+    const res = await fetch(URL);
+    const dados = await res.json();
+
+    dadosGlobal = dados.slice(1);
+
+    // salva backup
+    localStorage.setItem("backup_associados", JSON.stringify(dadosGlobal));
+
+  }catch(e){
+
+    console.warn("Erro ao carregar API, usando backup local");
+
+    const backup = localStorage.getItem("backup_associados");
+
+    if(backup){
+      dadosGlobal = JSON.parse(backup);
+      toast("Modo offline (backup) ⚠️");
+    }else{
+      dadosGlobal = [];
+    }
+  }
+
   renderizar();
   calcular();
   atualizarGrafico();
+  backupAutomatico();
+}
+
+/* ================= abrir backup ================= */
+function abrirRestaurar(){
+  document.getElementById("fileRestore").click();
+}
+
+/* ================= exportar Backup ================= */
+function exportarBackup(){
+
+  if(!dadosGlobal.length){
+    alert("Não há dados para exportar!");
+    return;
+  }
+
+  const dados = JSON.stringify(dadosGlobal, null, 2);
+
+  const blob = new Blob([dados], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "backup_associados.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+  toast("Backup exportado com sucesso 💾");
+}
+
+/* ================= Exportar Backup auto ================= */
+function exportarBackupAutomatico(){
+
+  const backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
+
+  if(!backups.length){
+    alert("Nenhum backup disponível!");
+    return;
+  }
+
+  const blob = new Blob([JSON.stringify(backups, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "backup_automatico.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/* ================= BACKUP AUTO ================= */
+function backupAutomatico(){
+
+  const hoje = new Date().toISOString().slice(0,10); // 2026-04-10
+
+  const ultimoBackup = localStorage.getItem("backup_data");
+
+  // se já fez hoje, não repete
+  if(ultimoBackup !== hoje){
+  // salva local
+  ...
+
+  // salva na nuvem
+  backupNuvem();
+}
+
+  // pega backups antigos
+  let backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
+
+  // adiciona novo
+  backups.push({
+    data: hoje,
+    dados: dadosGlobal
+  });
+
+  // mantém só os últimos 7 dias (pode ajustar)
+  if(backups.length > 7){
+    backups.shift();
+  }
+
+  localStorage.setItem("backup_historico", JSON.stringify(backups));
+  localStorage.setItem("backup_data", hoje);
+
+  console.log("Backup automático realizado:", hoje);
 }
 
 /* ================= CANCELAR ================= */
@@ -359,7 +468,7 @@ function gerarPDF(idSel){
     doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 10, 15);
 
     // LOGO DIREITA
-    doc.addImage(logo, "PNG", 170, 5, 30, 15);
+    doc.addImage(logo, "PNG", 170, 5, 17, 17);
 
     // RESET COR
     doc.setTextColor(0,0,0);
@@ -600,11 +709,40 @@ async function pagar(idSel){
 }
 
 async function excluir(idSel){
+
+  const confirmar = confirm("Tem certeza que deseja excluir este cadastro?");
+
+  if(!confirmar) return;
+
   await fetch(URL,{
     method:"POST",
-    body:JSON.stringify({acao:"excluir",id:idSel})
+    body:JSON.stringify({
+      acao:"excluir",
+      id:idSel
+    })
   });
+
+  toast("Cadastro excluído 🗑️");
   carregar();
+}
+
+async function backupNuvem(){
+
+  try{
+
+    await fetch(URL,{
+      method:"POST",
+      body:JSON.stringify({
+        acao:"backup",
+        dados:dadosGlobal
+      })
+    });
+
+    toast("Backup na nuvem ☁️");
+
+  }catch(e){
+    console.error("Erro backup nuvem", e);
+  }
 }
 
 /* ================= UI ================= */
@@ -646,6 +784,61 @@ function fecharForm(){
 }
 
 carregar();
+
+document.getElementById("fileRestore").addEventListener("change", async function(e){
+
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = async function(evt){
+
+    try{
+
+      const dados = JSON.parse(evt.target.result);
+
+      if(!Array.isArray(dados)){
+        alert("Arquivo inválido!");
+        return;
+      }
+
+      const confirmar = confirm("⚠️ Isso irá adicionar os dados do backup.\nDeseja continuar?");
+      if(!confirmar) return;
+
+      // ENVIA ITEM POR ITEM PARA A PLANILHA
+      for(const item of dados){
+
+        await fetch(URL,{
+          method:"POST",
+          body:JSON.stringify({
+            acao:"adicionar",
+            nome:item[1] || "",
+            cpf:item[2] || "",
+            telefone:item[3] || "",
+            email:item[4] || "",
+            endereco:item[5] || "",
+            mes:item[6] || "",
+            valor:item[7] || "",
+            status:item[8] || "Pendente"
+          })
+        });
+
+      }
+
+      alert("✅ Backup restaurado com sucesso!");
+      carregar();
+
+    }catch(err){
+      alert("❌ Erro ao ler arquivo!");
+    }
+
+  };
+
+  reader.readAsText(file);
+
+});
+
 </script>
 
 </body>
