@@ -1,74 +1,99 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Financeiro</title>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+<title>Vila Floresta 2</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#eef2f7}
+body{font-family:Arial;margin:0;background:#eef2f7}
 header{background:#2563eb;color:#fff;padding:15px;text-align:center}
-.container{padding:15px;max-width:600px;margin:auto}
+.container{padding:15px;max-width:700px;margin:auto}
 
 .dashboard{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
+  margin-bottom:10px;
 }
-.card-top{background:#fff;padding:10px;border-radius:10px}
-
-.card{background:#fff;padding:12px;border-radius:12px;margin-top:10px}
-.pago{border-left:5px solid green}
-.pendente{border-left:5px solid red}
-
-button{border:none;padding:8px;border-radius:6px;color:#fff}
-.btn{background:#2563eb}
-.btn-edit{background:#f59e0b}
-.btn-danger{background:#ef4444}
-.btn-light{background:#e5e7eb;color:#111}
 
 .floating{
   position:fixed;bottom:20px;right:20px;
   width:60px;height:60px;border-radius:50%;
   background:#2563eb;color:#fff;font-size:30px;
+  border:none;z-index:1200;
 }
 
+.card-top{background:#fff;padding:12px;border-radius:12px}
+.card-top.destaque{background:#2563eb;color:#fff}
+
+.card{background:#fff;padding:15px;border-radius:12px;margin-top:10px}
+
+button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;cursor:pointer}
+.btn{background:#2563eb}
+.btn-edit{background:#f59e0b}
+.btn-danger{background:#ef4444}
+.btn-light{background:#e5e7eb;color:#111}
+
 .form-box{
-  display:none;position:fixed;bottom:0;left:0;right:0;
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
   background:#fff;padding:15px;border-radius:20px 20px 0 0;
   max-height:90vh;overflow:auto;z-index:2000;
 }
 
 .overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.4);z-index:1500;
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.4);
+  z-index:1500;
 }
 
-input,select{width:100%;padding:10px;margin:5px 0}
-.form-actions{display:flex;gap:10px}
+.modal{
+  display:none;
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+  border-radius:12px;
+  z-index:2000;
+}
 
 .menu-toggle{
-  position:fixed;top:10px;left:10px;
-  background:#2563eb;color:#fff;border:none;
-  padding:10px;border-radius:6px;z-index:1200;
-}
-
-.menu-box{
-  position:fixed;top:0;left:0;width:220px;height:100%;
-  background:#fff;transform:translateX(-100%);
-  transition:.3s;z-index:1400;padding:15px;
+  position:fixed;top:5px;left:15px;
+  width:35px;height:37px;border-radius:10px;
+  background:#2016ab;color:#fff;font-size:20px;
+  border:none;z-index:1200;
 }
 
 .menu-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.5);z-index:1300;
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:1300;
+}
+
+.menu-box{
+  position:fixed;top:0;left:0;width:250px;height:100%;
+  background:#fff;padding:20px;
+  transform:translateX(-100%);
+  transition:.3s;
+  z-index:1400;
+}
+
+.menu-box div{
+  padding:14px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
 }
 </style>
 
@@ -76,51 +101,59 @@ input,select{width:100%;padding:10px;margin:5px 0}
 
 <body>
 
-<header>Financeiro</header>
-
 <button class="menu-toggle" onclick="abrirMenu()">☰</button>
+
+<header>Cadastro Moradores Vila Floresta 2</header>
+
+<div class="container">
+
+<button class="floating" onclick="abrirForm()">+</button>
 
 <div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
 
 <div id="menuBox" class="menu-box">
+  <h3>Menu</h3>
   <div onclick="acaoMenu(verRelatorio)">📊 Relatório</div>
+  <div onclick="acaoMenu(verDevedores)">⚠️ Devedores</div>
+  <div onclick="acaoMenu(exportarBackup)">💾 Backup</div>
 </div>
-
-<div class="container">
 
 <div class="dashboard">
-  <div class="card-top"><b id="total">R$ 0</b><br>Total</div>
-  <div class="card-top"><b id="pagos">0</b><br>Pagos</div>
-  <div class="card-top"><b id="pendentes">0</b><br>Pendentes</div>
-  <div class="card-top"><b id="aberto">R$ 0</b><br>Em aberto</div>
+  <div class="card-top"><span>Total</span><b id="total">R$ 0</b></div>
+  <div class="card-top"><span>Pagos</span><b id="pagos">0</b></div>
+  <div class="card-top"><span>Pendentes</span><b id="pendentes">0</b></div>
+  <div class="card-top destaque"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
 </div>
 
-<input id="busca" placeholder="Buscar...">
 <div id="lista"></div>
 
 </div>
 
-<button class="floating" onclick="abrirForm()">+</button>
+<!-- FORM -->
 
-<div id="overlay" class="overlay" onclick="fecharForm()"></div>
+<div id="overlay" class="overlay"></div>
 
-<div class="form-box" id="formBox">
-<h3 id="formTitulo">Cadastro</h3>
+<div id="formBox" class="form-box">
+<h3 id="formTitulo">Novo Cadastro</h3>
 
 <form id="form">
 <input type="hidden" id="id">
 <input id="nome" placeholder="Nome" required>
-<input id="mes" placeholder="Mês">
+<input id="cpf" placeholder="CPF">
+<input id="telefone" placeholder="Telefone">
+<input id="email" placeholder="Email">
+<input id="endereco" placeholder="Endereço">
+<input id="mes" placeholder="03-2026">
 <input id="valor" placeholder="Valor">
 
 <select id="status">
-<option>Pago</option>
-<option>Pendente</option>
+<option value="Pago">Pago</option>
+<option value="Pendente">Pendente</option>
 </select>
 
-<div class="form-actions">
-<button class="btn">Salvar</button>
-<button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
+<div style="display:flex;gap:10px;margin-top:10px;">
+<button class="btn" style="flex:1">Salvar</button>
+<button type="button" class="btn-light" style="flex:1" onclick="fecharForm()">Cancelar</button>
 </div>
 
 </form>
@@ -128,18 +161,41 @@ input,select{width:100%;padding:10px;margin:5px 0}
 
 <!-- MODAL -->
 
-<div id="modal" class="overlay" style="display:none; z-index:3000;">
-  <div style="background:#fff;margin:50px auto;padding:15px;width:90%;max-width:500px;border-radius:10px;">
-    <div id="modalConteudo"></div>
-    <button onclick="fecharModal()" class="btn-light" style="width:100%;margin-top:10px;">Fechar</button>
-  </div>
-</div>
+<div id="modal" class="modal"></div>
 
 <script>
+const API_URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
+let dadosGlobal=[];
 
-let dadosGlobal = [];
+/* CARREGAR */
+async function carregar(){
+  const res=await fetch(API_URL);
+  const dados=await res.json();
+  dadosGlobal=dados.slice(1);
+  renderizar();
+}
+
+/* CALCULAR */
+function calcular(){
+  let total=0,pagos=0,pendentes=0,aberto=0;
+
+  dadosGlobal.forEach(a=>{
+    const v=Number(a[7])||0;
+    if(a[8]==="Pago"){total+=v;pagos++}
+    else{aberto+=v;pendentes++}
+  });
+
+  set("total","R$ "+total.toFixed(2));
+  set("pagos",pagos);
+  set("pendentes",pendentes);
+  set("aberto","R$ "+aberto.toFixed(2));
+}
+
+function set(id,val){
+  const el=document.getElementById(id);
+  if(el) el.innerText=val;
+}
 
 /* MENU */
 function abrirMenu(){
@@ -155,22 +211,43 @@ function acaoMenu(fn){
   setTimeout(fn,200);
 }
 
-/* MODAL */
-function abrirModal(html){
-  modalConteudo.innerHTML = html;
-  modal.style.display = "block";
-}
-function fecharModal(){
-  modal.style.display = "none";
+/* RENDER */
+function renderizar(){
+  lista.innerHTML="";
+
+  dadosGlobal.forEach(a=>{
+    const id=a[0];
+    const nome=a[1];
+    const valor=Number(a[7])||0;
+    const status=a[8];
+
+    const botoes = status!=="Pago"
+      ? `<button class="btn" onclick="event.stopPropagation(); pagar('${id}')">Pagar</button>`
+      : `<button class="btn" onclick="event.stopPropagation(); gerarPDF('${id}')">📄 Recibo</button>`;
+
+    lista.innerHTML+=`
+      <div class="card">
+        <b>${nome}</b><br>
+        ${a[6]}<br>
+        R$ ${valor.toFixed(2)}<br>
+        ${status}<br>
+
+        <button class="btn-edit" onclick="event.stopPropagation(); editar('${id}')">Editar</button>
+        ${botoes}
+        <button class="btn-danger" onclick="event.stopPropagation(); excluir('${id}')">Excluir</button>
+      </div>
+    `;
+  });
+
+  calcular();
 }
 
 /* FORM */
-function abrirForm(edicao=false){
+function abrirForm(ed=false){
   formBox.style.display="block";
   overlay.style.display="block";
-  formTitulo.innerText = edicao ? "Editar" : "Novo";
+  formTitulo.innerText=ed?"Editar":"Novo";
 }
-
 function fecharForm(){
   formBox.style.display="none";
   overlay.style.display="none";
@@ -178,190 +255,118 @@ function fecharForm(){
   id.value="";
 }
 
-/* RENDER */
-function renderizar(filtro=""){
-  lista.innerHTML="";
+/* EDITAR */
+function editar(idSel){
+  const a=dadosGlobal.find(x=>x[0]==idSel);
+  id.value=a[0];
+  nome.value=a[1];
+  cpf.value=a[2]||"";
+  telefone.value=a[3]||"";
+  email.value=a[4]||"";
+  endereco.value=a[5]||"";
+  mes.value=a[6];
+  valor.value=a[7];
+  status.value=a[8];
+  abrirForm(true);
+}
 
-  dadosGlobal
-  .filter(a=>a.nome.toLowerCase().includes(filtro))
-  .forEach(a=>{
-
-    const card=document.createElement("div");
-    card.className="card "+(a.status==="Pago"?"pago":"pendente");
-
-    card.innerHTML=`
-      <b>${a.nome}</b>
-      <div>${a.mes}</div>
-      <div>R$ ${Number(a.valor).toFixed(2)}</div>
-      <div>${a.status}</div>
-
-      <button class="btn-edit" onclick="event.stopPropagation(); editar(${a.id})">Editar</button>
-      <button class="btn" onclick="event.stopPropagation(); pagar(${a.id})">Pagar</button>
-      <button class="btn-danger" onclick="event.stopPropagation(); excluir(${a.id})">Excluir</button>
-    `;
-
-    lista.appendChild(card);
+/* PAGAR */
+async function pagar(idSel){
+  const a=dadosGlobal.find(x=>x[0]==idSel);
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({...{
+      acao:"editar",
+      id:a[0],
+      nome:a[1],
+      cpf:a[2],
+      telefone:a[3],
+      email:a[4],
+      endereco:a[5],
+      mes:a[6],
+      valor:a[7],
+      status:"Pago"
+    }})
   });
-
-  calcular();
+  carregar();
 }
 
-/* CALCULO */
-function calcular(){
-  let total=0,pagos=0,pendentes=0,aberto=0;
-
-  dadosGlobal.forEach(a=>{
-    if(a.status==="Pago"){
-      total+=Number(a.valor);
-      pagos++;
-    }else{
-      aberto+=Number(a.valor);
-      pendentes++;
-    }
+/* EXCLUIR */
+async function excluir(idSel){
+  if(!confirm("Excluir?"))return;
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({acao:"excluir",id:idSel})
   });
-
-  total.innerText="R$ "+total.toFixed(2);
-  pagos.innerText=pagos;
-  pendentes.innerText=pendentes;
-  aberto.innerText="R$ "+aberto.toFixed(2);
+  carregar();
 }
 
-/* CARREGAR NUVEM */
-async function carregar(){
-  const res = await fetch(API_URL);
-  const dados = await res.json();
-
-  dadosGlobal = dados.slice(1).map(a=>({
-    id:a[0],
-    nome:a[1],
-    mes:a[6],
-    valor:a[7],
-    status:a[8]
-  }));
-
-  renderizar();
-}
-
-/* SALVAR */
-form.addEventListener("submit", async e=>{
+/* SUBMIT */
+form.addEventListener("submit",async e=>{
   e.preventDefault();
-
-  const obj = {
-    acao: id.value ? "editar" : "adicionar",
-    id:id.value,
-    nome:nome.value,
-    mes:mes.value,
-    valor:valor.value,
-    status:status.value
-  };
 
   await fetch(API_URL,{
     method:"POST",
-    body: JSON.stringify(obj)
+    body:JSON.stringify({
+      acao:id.value?"editar":"adicionar",
+      id:id.value,
+      nome:nome.value,
+      cpf:cpf.value.replace(/\D/g,""),
+      telefone:telefone.value.replace(/\D/g,""),
+      email:email.value,
+      endereco:endereco.value,
+      mes:mes.value,
+      valor:valor.value,
+      status:status.value
+    })
   });
 
   fecharForm();
   carregar();
 });
 
-/* EDITAR */
-function editar(idSel){
-  const a=dadosGlobal.find(x=>x.id==idSel);
-
-  id.value=a.id;
-  nome.value=a.nome;
-  mes.value=a.mes;
-  valor.value=a.valor;
-  status.value=a.status;
-
-  abrirForm(true);
-}
-
-/* PAGAR */
-async function pagar(idSel){
-  const a=dadosGlobal.find(x=>x.id==idSel);
-
-  await fetch(API_URL,{
-    method:"POST",
-    body: JSON.stringify({
-      acao:"editar",
-      id:a.id,
-      nome:a.nome,
-      mes:a.mes,
-      valor:a.valor,
-      status:"Pago"
-    })
-  });
-
-  carregar();
-}
-
-/* EXCLUIR */
-async function excluir(idSel){
-  if(!confirm("Excluir?")) return;
-
-  await fetch(API_URL,{
-    method:"POST",
-    body: JSON.stringify({
-      acao:"excluir",
-      id:idSel
-    })
-  });
-
-  carregar();
+/* RECIBO */
+function gerarPDF(idSel){
+  const a=dadosGlobal.find(x=>x[0]==idSel);
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF("landscape");
+  doc.text("RECIBO",140,20,null,null,"center");
+  doc.text(`Nome: ${a[1]}`,20,50);
+  doc.text(`Valor: R$ ${a[7]}`,20,60);
+  doc.save("recibo.pdf");
 }
 
 /* RELATORIO */
 function verRelatorio(){
-  abrirModal(`
-    <h3>Relatório</h3>
-    <button onclick="exportarRelatorioPDF()" class="btn">Exportar PDF</button>
-    <div id="tabelaRelatorio"></div>
-  `);
-  renderTabela();
+  abrirModal("<h3>Relatório</h3><button onclick='fecharModal()'>Fechar</button>");
 }
 
-function renderTabela(){
-  let html="<table width=100%><tr><th>Nome</th><th>Mês</th><th>Valor</th><th>Status</th></tr>";
-
-  dadosGlobal.forEach(a=>{
-    html+=`<tr>
-      <td>${a.nome}</td>
-      <td>${a.mes}</td>
-      <td>R$ ${Number(a.valor).toFixed(2)}</td>
-      <td>${a.status}</td>
-    </tr>`;
+/* DEVEDORES */
+function verDevedores(){
+  const lista=dadosGlobal.filter(a=>a[8]!=="Pago");
+  let html="<h3>Devedores</h3>";
+  lista.forEach(a=>{
+    html+=`${a[1]} - R$ ${a[7]}<br>`;
   });
-
-  html+="</table>";
-  tabelaRelatorio.innerHTML=html;
+  html+=`<br><button onclick="fecharModal()">Fechar</button>`;
+  abrirModal(html);
 }
 
-/* PDF */
-function exportarRelatorioPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.text("Relatório Financeiro", 14, 15);
-
-  if(doc.autoTable){
-    doc.autoTable({
-      head:[["Nome","Mês","Valor","Status"]],
-      body:dadosGlobal.map(a=>[a.nome,a.mes,"R$ "+a.valor,a.status])
-    });
-  }
-
-  doc.save("relatorio.pdf");
+/* MODAL */
+function abrirModal(html){
+  modal.innerHTML=html;
+  modal.style.display="block";
+  overlay.style.display="block";
+}
+function fecharModal(){
+  modal.style.display="none";
+  overlay.style.display="none";
 }
 
-/* BUSCA */
-busca.addEventListener("input",e=>{
-  renderizar(e.target.value.toLowerCase());
-});
+overlay.onclick=()=>fecharForm();
 
 /* INIT */
 carregar();
-
 </script>
 
 </body>
