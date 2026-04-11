@@ -106,12 +106,12 @@ input,select{
 
 .menu-toggle{
   position:fixed;
-  top:15px;
+  top:10px;
   left:15px;
   width:45px;
   height:45px;
   border-radius:10px;
-  background:#2563eb;
+  background:#2016ab;
   color:#fff;
   font-size:22px;
   border:none;
@@ -387,7 +387,7 @@ function gerarPDF(idSel){
   logo.onload = function(){
 
     // LOGO
-    doc.addImage(logo, "PNG", 10, 20, 20, 20);
+    doc.addImage(logo, "PNG", 10, 9, 20, 20);
 
     // TÍTULO
     doc.setFontSize(16);
@@ -418,7 +418,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 15, 145);
+    doc.text("Responsável", 20, 130);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
