@@ -109,9 +109,9 @@ input,select{
   top:7px;
   left:15px;
   width:35px;
-  height:35px;
+  height:30px;
   border-radius:10px;
-  background:#2016ab;
+  /* background:#2016ab;*/
   color:#fff;
   font-size:20px;
   border:none;
@@ -418,7 +418,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 40, 120);
+    doc.text("Responsável", 40, 135);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
