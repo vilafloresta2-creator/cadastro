@@ -64,23 +64,47 @@ button{
 .btn{background:#2563eb}
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
+.btn-light{
+  background:#e5e7eb;
+  color:#111;
+}
+
+.btn-light:hover{
+  background:#d1d5db;
+}
 
 .form-box{
   display:none;
+  max-height:90vh;
+  overflow:auto;
   position:fixed;
   bottom:0;
   left:0;
   right:0;
-  background:#ef4444;
+  background:#fff;
   padding:15px;
   border-radius:20px 20px 0 0;
   z-index: 2000;
 }
 
-input,select{
+.form-box input,
+.form-box select{
   width:100%;
   padding:10px;
-  margin:5px 0;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:14px;
+}
+
+.form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.form-actions button{
+  flex:1;
 }
 
 .overlay{
@@ -252,7 +276,7 @@ input,select{
 </select>
 
 <button class="btn">Salvar</button>
-<button type="button" onclick="fecharForm()">Cancelar</button>
+<button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
 
 </form>
 </div>
@@ -595,6 +619,10 @@ function verRelatorio(){
       <option value="">Todos os meses</option>
       ${meses.map(m=>`<option value="${m}">${m}</option>`).join("")}
     </select>
+    <button onclick="exportarRelatorioPDF()" 
+      style="margin-bottom:10px; padding:8px; background:#16a34a; color:#fff; border:none; border-radius:6px;">
+      📄 Exportar PDF
+    </button>
 
     <div id="tabelaRelatorio"></div>
   `;
@@ -603,6 +631,51 @@ function verRelatorio(){
 
   // render inicial
   renderTabelaRelatorio();
+}
+
+function exportarRelatorioPDF(){
+
+  const filtro = document.getElementById("filtroMes")?.value;
+
+  let lista = dadosGlobal;
+
+  if(filtro){
+    lista = lista.filter(a => a[6] === filtro);
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  doc.setFontSize(14);
+  doc.text("Relatório Financeiro", 20, y);
+
+  y += 10;
+
+  doc.setFontSize(10);
+
+  lista.forEach(a=>{
+    doc.text(
+      `${a[1]} | ${a[6]} | R$ ${Number(a[7]).toFixed(2)} | ${a[8]}`,
+      20,
+      y
+    );
+    y += 6;
+
+    if(y > 280){
+      doc.addPage();
+      y = 20;
+    }
+  });
+
+  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
+
+  y += 10;
+  doc.setFontSize(12);
+  doc.text(`Total: R$ ${total.toFixed(2)}`, 20, y);
+
+  doc.save("relatorio.pdf");
 }
 
 /* ================= DEVEDORES ================= */
