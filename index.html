@@ -165,6 +165,10 @@ input,select{
   cursor:pointer;
 }
 
+.sidebar:hover{
+  width:200px;
+}
+
 </style>
 </head>
 
@@ -376,7 +380,7 @@ function gerarPDF(idSel){
   logo.onload = function(){
 
     // LOGO
-    doc.addImage(logo, "PNG", 10, 10, 20, 20);
+    doc.addImage(logo, "PNG", 10, 15, 20, 20);
 
     // TÍTULO
     doc.setFontSize(16);
@@ -407,7 +411,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 10, 135);
+    doc.text("Responsável", 10, 130);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
