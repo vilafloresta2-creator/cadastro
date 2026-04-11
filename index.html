@@ -248,6 +248,38 @@ button{
 const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal = [];
 
+/* ===================== ABRIR TELAS ===================== */
+function abrirTela(tela){
+
+  // esconde tudo
+  document.querySelectorAll(".tela").forEach(t=>{
+    t.style.display = "none";
+  });
+
+  // mostra a escolhida
+  const el = document.getElementById(tela);
+  if(el) el.style.display = "block";
+}
+
+/* ===================== VER DEVEDORES ===================== */
+function verDevedores(){
+
+  const devedores = dadosGlobal.filter(a => a[8] !== "Pago");
+
+  let texto = "DEVEDORES:\n\n";
+
+  devedores.forEach(a=>{
+    texto += `${a[1]} - R$ ${a[7]}\n`;
+  });
+
+  alert(texto);
+}
+
+/* ===================== VER RELATÓRIOS ===================== */
+function verRelatorio(){
+  alert("Relatório ainda não configurado");
+}
+
 /* ===================== MÁSCARAS ===================== */
 function maskCPF(v){
   v = v.replace(/\D/g,"").slice(0,11);
