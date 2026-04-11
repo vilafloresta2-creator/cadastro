@@ -675,15 +675,6 @@ function exportarRelatorioPDF(){
       1: { halign: "center" },
       3: { halign: "center" }
     }
-    didParseCell: function (data) {
-  if (data.column.index === 3) {
-    if (data.cell.raw === "Pago") {
-      data.cell.styles.textColor = [34,197,94];
-    } else {
-      data.cell.styles.textColor = [239,68,68];
-    }
-  }
-}
   });
 
   // TOTAL
@@ -696,6 +687,15 @@ function exportarRelatorioPDF(){
     doc.lastAutoTable.finalY + 10
   );
 
+  didParseCell: function (data) {
+  if (data.column.index === 3) {
+    if (data.cell.raw === "Pago") {
+      data.cell.styles.textColor = [34,197,94];
+    } else {
+      data.cell.styles.textColor = [239,68,68];
+    }
+  }
+}
   doc.save("relatorio.pdf");
 }
 
