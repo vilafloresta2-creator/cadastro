@@ -181,8 +181,9 @@ input,select{
 <div class="container">
 
 <button class="floating" onclick="abrirForm()">+</button>
-<button class="btn" onclick="verRelatorio()">📊 Relatório</button>
-<button class="btn" onclick="verDevedores()">⚠️ Devedores</button>
+<!-- <button class="btn" onclick="verRelatorio()">📊 Relatório</button>
+     <button class="btn" onclick="verDevedores()">⚠️ Devedores</button>
+-->
 
 <div class="dashboard">
 
@@ -241,6 +242,7 @@ input,select{
 <!-- MODAL -->
 <div id="modal" class="modal"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
@@ -354,21 +356,53 @@ function gerarPDF(idSel){
   if(!a) return;
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape");
+  const doc = new jsPDF("landscape", "mm", [150, 210]); // 15x21 cm
 
-  doc.setFontSize(18);
-  doc.text("RECIBO DE PAGAMENTO", 105, 30, null, null, "center");
+  const logo = new Image();
+  logo.src = "logo.png";
 
-  doc.setFontSize(12);
+  logo.onload = function(){
 
-  doc.text(`Nome: ${a[1]}`, 20, 60);
-  doc.text(`Mês: ${a[6]}`, 20, 70);
-  doc.text(`Valor: R$ ${a[7]}`, 20, 80);
-  doc.text(`Status: ${a[8]}`, 20, 90);
+    // LOGO
+    doc.addImage(logo, "PNG", 10, 10, 20, 20);
 
-  doc.text("Assinatura: __________________________", 20, 120);
+    // TÍTULO
+    doc.setFontSize(16);
+    doc.text("RECIBO DE PAGAMENTO", 105, 20, null, null, "center");
 
-  doc.save("recibo.pdf");
+    // LINHA
+    doc.setDrawColor(200);
+    doc.line(10, 30, 200, 30);
+
+    // DADOS
+    doc.setFontSize(11);
+
+    doc.text(`Nome: ${a[1]}`, 10, 50);
+    doc.text(`CPF: ${a[2] || "-"}`, 10, 60);
+    doc.text(`Telefone: ${a[3] || "-"}`, 10, 70);
+
+    doc.text(`Mês: ${a[6]}`, 120, 50);
+    doc.text(`Valor: R$ ${Number(a[7]).toFixed(2)}`, 120, 60);
+    doc.text(`Status: ${a[8]}`, 120, 70);
+
+    // DESTAQUE VALOR
+    doc.setFontSize(18);
+    doc.text(`R$ ${Number(a[7]).toFixed(2)}`, 105, 95, null, null, "center");
+
+    // TEXTO
+    doc.setFontSize(10);
+    doc.text("Recebemos o valor acima referente ao período informado.", 10, 110);
+
+    // ASSINATURA
+    doc.line(10, 130, 100, 130);
+    doc.text("Responsável", 10, 135);
+
+    // DATA
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    doc.text(`Data: ${hoje}`, 150, 135);
+
+    doc.save("recibo.pdf");
+  };
 }
 
 /* ================= FORM ================= */
