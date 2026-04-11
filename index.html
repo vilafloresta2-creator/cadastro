@@ -514,7 +514,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 60, 130);
+    doc.text("Responsável", 40, 150);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
@@ -661,7 +661,7 @@ function exportarRelatorioPDF(){
     doc.setFontSize(16);
     doc.text("Relatório Financeiro", 105, 15, null, null, "center");
 
-    // SUBTÍTULO (MÊS)
+    // SUBTÍTULO
     doc.setFontSize(10);
     doc.text(
       filtro ? `Mês: ${filtro}` : "Todos os meses",
@@ -672,8 +672,8 @@ function exportarRelatorioPDF(){
       "center"
     );
 
-    // TABELA
-    doc.autoTable({
+    // 🔥 TABELA (FORMA COMPATÍVEL)
+    window.jspdf.jsPDF.API.autoTable.call(doc, {
       head: [["Nome", "Mês", "Valor", "Status"]],
       body: lista.map(a => [
         a[1],
