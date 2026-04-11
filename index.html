@@ -74,17 +74,9 @@ button{
 }
 
 .form-box{
-  display:none;
   max-height:90vh;
   overflow:auto;
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:15px;
-  border-radius:20px 20px 0 0;
-  z-index: 2000;
+  z-index:2000;
 }
 
 .form-box input,
@@ -510,7 +502,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 40, 120);
+    doc.text("Responsável", 40, 130);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
