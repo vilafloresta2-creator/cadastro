@@ -1,19 +1,14 @@
-<!DOCTYPE html> 
-
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
 <title>Vila Floresta 2</title>
 
 <style>
 body{font-family:Arial;margin:0;background:#eef2f7}
 header{background:#2563eb;color:#fff;padding:15px;text-align:center}
+
 .container{padding:15px;max-width:700px;margin:auto}
 
 .dashboard{
@@ -24,41 +19,82 @@ header{background:#2563eb;color:#fff;padding:15px;text-align:center}
 }
 
 .floating{
-  position:fixed;bottom:20px;right:20px;
-  width:60px;height:60px;border-radius:50%;
-  background:#2563eb;color:#fff;font-size:30px;
-  border:none;z-index:1200;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:30px;
+  border:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  z-index:1200;
 }
 
-.card-top{background:#fff;padding:12px;border-radius:12px}
-.card-top.destaque{background:#2563eb;color:#fff}
+.card-top{
+  background:#fff;
+  padding:12px;
+  border-radius:12px;
+}
 
-.card{background:#fff;padding:15px;border-radius:12px;margin-top:10px}
+.card-top.destaque{
+  background:#2563eb;
+  color:#fff;
+}
 
-button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;cursor:pointer}
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+button{
+  border:none;
+  padding:6px 10px;
+  margin:3px;
+  border-radius:6px;
+  color:#fff;
+  cursor:pointer;
+}
+
 .btn{background:#2563eb}
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
-.btn-light{background:#e5e7eb;color:#111}
 
 .form-box{
   display:none;
-  position:fixed;bottom:0;left:0;right:0;
-  background:#fff;padding:15px;border-radius:20px 20px 0 0;
-  max-height:90vh;overflow:auto;z-index:2000;
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:15px;
+  border-radius:20px 20px 0 0;
+  z-index: 2000;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
 }
 
 .overlay{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,0.4);
-  z-index:1500;
+  z-index: 1500;
 }
 
 .modal{
   display:none;
   position:fixed;
-  top:50%;left:50%;
+  top:50%;
+  left:50%;
   transform:translate(-50%,-50%);
   background:#fff;
   padding:20px;
@@ -69,34 +105,73 @@ button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;curs
 }
 
 .menu-toggle{
-  position:fixed;top:5px;left:15px;
-  width:35px;height:37px;border-radius:10px;
-  background:#2016ab;color:#fff;font-size:20px;
-  border:none;z-index:1200;
+  position:fixed;
+  top:7px;
+  left:15px;
+  width:35px;
+  height:35px;
+  border-radius:10px;
+  background:#2016ab;
+  color:#fff;
+  font-size:20px;
+  border:none;
+  z-index:1200;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.menu-btn{
+  padding:15px;
+  cursor:pointer;
+}
+
+.menu-item{
+  padding:15px;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.menu-item:hover{
+  background:#334155;
+}
+
+.menu-item span{
+  display:none;
 }
 
 .menu-overlay{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,0.5);
   z-index:1300;
 }
 
 .menu-box{
-  position:fixed;top:0;left:0;width:250px;height:100%;
-  background:#fff;padding:20px;
-  transform:translateX(-100%);
-  transition:.3s;
+  position:fixed;
+  top:0;
+  left:0;
+  width:250px;
+  height:100%;
+  background:#fff;
+  padding:20px;
+  transform:translateX(-100%); /* 🔥 ESCONDE CORRETAMENTE */
+  transition:0.3s;
   z-index:1400;
 }
 
 .menu-box div{
-  padding:14px;
+  padding:12px;
   border-bottom:1px solid #eee;
   cursor:pointer;
 }
-</style>
 
+.sidebar:hover{
+  width:200px;
+}
+
+</style>
 </head>
 
 <body>
@@ -110,7 +185,6 @@ button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;curs
 <button class="floating" onclick="abrirForm()">+</button>
 
 <div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
-
 <div id="menuBox" class="menu-box">
   <h3>Menu</h3>
   <div onclick="acaoMenu(verRelatorio)">📊 Relatório</div>
@@ -119,10 +193,27 @@ button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;curs
 </div>
 
 <div class="dashboard">
-  <div class="card-top"><span>Total</span><b id="total">R$ 0</b></div>
-  <div class="card-top"><span>Pagos</span><b id="pagos">0</b></div>
-  <div class="card-top"><span>Pendentes</span><b id="pendentes">0</b></div>
-  <div class="card-top destaque"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
+
+  <div class="card-top">
+    <span>Total</span>
+    <b id="total">R$ 0</b>
+  </div>
+
+  <div class="card-top">
+    <span>Pagos</span>
+    <b id="pagos">0</b>
+  </div>
+
+  <div class="card-top">
+    <span>Pendentes</span>
+    <b id="pendentes">0</b>
+  </div>
+
+  <div class="card-top destaque">
+    <span>Em aberto</span>
+    <b id="aberto">R$ 0</b>
+  </div>
+
 </div>
 
 <div id="lista"></div>
@@ -130,13 +221,11 @@ button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;curs
 </div>
 
 <!-- FORM -->
-
-<div id="overlay" class="overlay"></div>
+<div id="overlay" class="overlay" onclick="fecharForm()"></div>
 
 <div id="formBox" class="form-box">
-<h3 id="formTitulo">Novo Cadastro</h3>
-
 <form id="form">
+
 <input type="hidden" id="id">
 <input id="nome" placeholder="Nome" required>
 <input id="cpf" placeholder="CPF">
@@ -151,39 +240,63 @@ button{border:none;padding:6px 10px;margin:3px;border-radius:6px;color:#fff;curs
 <option value="Pendente">Pendente</option>
 </select>
 
-<div style="display:flex;gap:10px;margin-top:10px;">
-<button class="btn" style="flex:1">Salvar</button>
-<button type="button" class="btn-light" style="flex:1" onclick="fecharForm()">Cancelar</button>
-</div>
+<button class="btn">Salvar</button>
+<button type="button" onclick="fecharForm()">Cancelar</button>
 
 </form>
 </div>
 
 <!-- MODAL -->
-
 <div id="modal" class="modal"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 
+const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
 let dadosGlobal=[];
 
-/* CARREGAR */
+/* ================= CARREGAR ================= */
 async function carregar(){
-  const res=await fetch(API_URL);
-  const dados=await res.json();
-  dadosGlobal=dados.slice(1);
+  const res = await fetch(API_URL);
+  const dados = await res.json();
+  dadosGlobal = dados.slice(1);
+  console.log("Dados carregados:", dadosGlobal); // debug
   renderizar();
+  calcular();
 }
 
-/* CALCULAR */
+/* ================= ABRIR MENU ================= */
+function abrirMenu(){
+  document.getElementById("menuOverlay").style.display = "block";
+  document.getElementById("menuBox").style.transform = "translateX(0)";
+}
+
+function fecharMenu(){
+  document.getElementById("menuOverlay").style.display = "none";
+  document.getElementById("menuBox").style.transform = "translateX(-100%)";
+}
+
+function acaoMenu(fn){
+  fecharMenu();   // fecha o cinza
+  setTimeout(fn, 200); // executa depois da animação
+}
+
+/* ================= CALCULAR ================= */
 function calcular(){
-  let total=0,pagos=0,pendentes=0,aberto=0;
+
+  let total=0, pagos=0, pendentes=0, aberto=0;
 
   dadosGlobal.forEach(a=>{
-    const v=Number(a[7])||0;
-    if(a[8]==="Pago"){total+=v;pagos++}
-    else{aberto+=v;pendentes++}
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
+
+    if(status==="Pago"){
+      total += valor;
+      pagos++;
+    }else{
+      aberto += valor;
+      pendentes++;
+    }
   });
 
   set("total","R$ "+total.toFixed(2));
@@ -197,85 +310,162 @@ function set(id,val){
   if(el) el.innerText=val;
 }
 
-/* MENU */
-function abrirMenu(){
-  menuOverlay.style.display="block";
-  menuBox.style.transform="translateX(0)";
-}
-function fecharMenu(){
-  menuOverlay.style.display="none";
-  menuBox.style.transform="translateX(-100%)";
-}
-function acaoMenu(fn){
-  fecharMenu();
-  setTimeout(fn,200);
+/* ================= MENU LATERAL ================= */
+function toggleMenu(){
+  const s = document.getElementById("sidebar");
+  s.classList.toggle("active");
 }
 
-/* RENDER */
+/* ================= EXPORTAR BACKUP ================= */
+function exportarBackup(){
+  const blob = new Blob([JSON.stringify(dadosGlobal)], {type:"application/json"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "backup.json";
+  link.click();
+}
+
+/* ================= RENDER ================= */
 function renderizar(){
-  lista.innerHTML="";
+
+  const lista = document.getElementById("lista");
+  if(!lista) return;
+
+  lista.innerHTML = "";
+
+  if(!dadosGlobal || dadosGlobal.length === 0){
+    lista.innerHTML = "<p>Nenhum cadastro encontrado</p>";
+    return;
+  }
 
   dadosGlobal.forEach(a=>{
-    const id=a[0];
-    const nome=a[1];
-    const valor=Number(a[7])||0;
-    const status=a[8];
 
-    const botoes = status!=="Pago"
-      ? `<button class="btn" onclick="event.stopPropagation(); pagar('${id}')">Pagar</button>`
-      : `<button class="btn" onclick="event.stopPropagation(); gerarPDF('${id}')">📄 Recibo</button>`;
+    const id = a[0];
+    const nome = a[1] || "Sem nome";
+    const mes = a[6] || "-";
+    const valor = Number(a[7]) || 0;
+    const status = a[8] || "Pendente";
 
-    lista.innerHTML+=`
-      <div class="card">
+    const cor = status === "Pago" ? "#22c55e" : "#ef4444";
+
+    const botoes = status !== "Pago"
+      ? `<button class="btn" onclick="pagar('${id}')">Pagar</button>`
+      : `<button class="btn" onclick="gerarPDF('${id}')">📄 Recibo</button>`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div style="border-left:5px solid ${cor}; padding-left:10px">
         <b>${nome}</b><br>
-        ${a[6]}<br>
-        R$ ${valor.toFixed(2)}<br>
-        ${status}<br>
+        <small>${mes}</small><br>
+        <b>R$ ${valor.toFixed(2)}</b><br>
+        <span style="color:${cor}">${status}</span><br>
 
-        <button class="btn-edit" onclick="event.stopPropagation(); editar('${id}')">Editar</button>
+        <button class="btn-edit" onclick="editar('${id}')">Editar</button>
         ${botoes}
-        <button class="btn-danger" onclick="event.stopPropagation(); excluir('${id}')">Excluir</button>
+        <button class="btn-danger" onclick="excluir('${id}')">Excluir</button>
       </div>
     `;
+
+    lista.appendChild(card);
   });
-
-  calcular();
 }
 
-/* FORM */
-function abrirForm(ed=false){
-  formBox.style.display="block";
-  overlay.style.display="block";
-  formTitulo.innerText=ed?"Editar":"Novo";
+/* ================= GERAR PDF ================= */
+function gerarPDF(idSel){
+
+  const a = dadosGlobal.find(x=>x[0]==idSel);
+  if(!a) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape", "mm", [150, 210]); // 15x21 cm
+
+  const logo = new Image();
+  logo.src = "logo.png";
+
+  logo.onload = function(){
+
+    // LOGO
+    doc.addImage(logo, "PNG", 10, 7, 20, 20);
+
+    // TÍTULO
+    doc.setFontSize(16);
+    doc.text("RECIBO DE PAGAMENTO", 105, 20, null, null, "center");
+
+    // LINHA
+    doc.setDrawColor(200);
+    doc.line(10, 30, 200, 30);
+
+    // DADOS
+    doc.setFontSize(11);
+
+    doc.text(`Nome: ${a[1]}`, 10, 50);
+    doc.text(`CPF: ${a[2] || "-"}`, 10, 60);
+    doc.text(`Telefone: ${a[3] || "-"}`, 10, 70);
+
+    doc.text(`Mês: ${a[6]}`, 120, 50);
+    doc.text(`Valor: R$ ${Number(a[7]).toFixed(2)}`, 120, 60);
+    doc.text(`Status: ${a[8]}`, 120, 70);
+
+    // DESTAQUE VALOR
+    doc.setFontSize(18);
+    doc.text(`R$ ${Number(a[7]).toFixed(2)}`, 105, 95, null, null, "center");
+
+    // TEXTO
+    doc.setFontSize(10);
+    doc.text("Recebemos o valor acima referente ao período informado.", 10, 110);
+
+    // ASSINATURA
+    doc.line(10, 130, 100, 130);
+    doc.text("Responsável", 40, 120);
+
+    // DATA
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    doc.text(`Data: ${hoje}`, 150, 135);
+
+    doc.save("recibo.pdf");
+  };
 }
+
+/* ================= FORM ================= */
+function abrirForm(edicao=false){
+
+  document.getElementById("formBox").style.display="block";
+  document.getElementById("overlay").style.display="block";
+  document.getElementById("formTitulo").innerText =
+    edicao ? "Editar Cadastro" : "Novo Cadastro";
+}
+
 function fecharForm(){
-  formBox.style.display="none";
   overlay.style.display="none";
+  formBox.style.display="none";
   form.reset();
   id.value="";
 }
 
-/* EDITAR */
+/* ================= EDITAR ================= */
 function editar(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
-  id.value=a[0];
-  nome.value=a[1];
-  cpf.value=a[2]||"";
-  telefone.value=a[3]||"";
-  email.value=a[4]||"";
-  endereco.value=a[5]||"";
-  mes.value=a[6];
-  valor.value=a[7];
-  status.value=a[8];
+  const a = dadosGlobal.find(x => x[0] == idSel);
+  if(!a) return;
+  document.getElementById("id").value = a[0];
+  document.getElementById("nome").value = a[1];
+  document.getElementById("cpf").value = a[2] || "";
+  document.getElementById("telefone").value = a[3] || "";
+  document.getElementById("email").value = a[4] || "";
+  document.getElementById("endereco").value = a[5] || "";
+  document.getElementById("mes").value = a[6] || "";
+  document.getElementById("valor").value = a[7] || "";
+  document.getElementById("status").value = a[8] || "Pendente";
   abrirForm(true);
 }
 
-/* PAGAR */
+/* ================= PAGAR ================= */
 async function pagar(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
+  const a = dadosGlobal.find(x=>x[0]==idSel);
   await fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({...{
+    body:JSON.stringify({
       acao:"editar",
       id:a[0],
       nome:a[1],
@@ -286,14 +476,14 @@ async function pagar(idSel){
       mes:a[6],
       valor:a[7],
       status:"Pago"
-    }})
+    })
   });
   carregar();
 }
 
-/* EXCLUIR */
+/* ================= EXCLUIR ================= */
 async function excluir(idSel){
-  if(!confirm("Excluir?"))return;
+  if(!confirm("Deseja excluir?")) return;
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({acao:"excluir",id:idSel})
@@ -301,72 +491,80 @@ async function excluir(idSel){
   carregar();
 }
 
-/* SUBMIT */
-form.addEventListener("submit",async e=>{
+/* ================= SUBMIT ================= */
+form.addEventListener("submit", async e=>{
   e.preventDefault();
-
+  const obj={
+    acao:id.value?"editar":"adicionar",
+    id:id.value,
+    nome:nome.value,
+    cpf: String(cpf.value || "").replace(/\D/g,""),
+    telefone: String(telefone.value || "").replace(/\D/g,""),
+    email:email.value,
+    endereco:endereco.value,
+    mes:mes.value,
+    valor:valor.value,
+    status: document.getElementById("status").value
+  };
   await fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({
-      acao:id.value?"editar":"adicionar",
-      id:id.value,
-      nome:nome.value,
-      cpf:cpf.value.replace(/\D/g,""),
-      telefone:telefone.value.replace(/\D/g,""),
-      email:email.value,
-      endereco:endereco.value,
-      mes:mes.value,
-      valor:valor.value,
-      status:status.value
-    })
+    body:JSON.stringify(obj)
   });
-
   fecharForm();
   carregar();
 });
 
-/* RECIBO */
-function gerarPDF(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
-  const { jsPDF }=window.jspdf;
-  const doc=new jsPDF("landscape");
-  doc.text("RECIBO",140,20,null,null,"center");
-  doc.text(`Nome: ${a[1]}`,20,50);
-  doc.text(`Valor: R$ ${a[7]}`,20,60);
-  doc.save("recibo.pdf");
-}
-
-/* RELATORIO */
+/* ================= RELATORIO ================= */
 function verRelatorio(){
-  abrirModal("<h3>Relatório</h3><button onclick='fecharModal()'>Fechar</button>");
-}
-
-/* DEVEDORES */
-function verDevedores(){
-  const lista=dadosGlobal.filter(a=>a[8]!=="Pago");
-  let html="<h3>Devedores</h3>";
-  lista.forEach(a=>{
-    html+=`${a[1]} - R$ ${a[7]}<br>`;
+  let html="<h3>Relatório</h3>";
+  dadosGlobal.forEach(a=>{
+    html+=`${a[1]} - R$ ${a[7]} - ${a[8]}<br>`;
   });
-  html+=`<br><button onclick="fecharModal()">Fechar</button>`;
   abrirModal(html);
 }
 
-/* MODAL */
+/* ================= DEVEDORES ================= */
+function verDevedores(){
+  let html="<h3>Devedores</h3>";
+  dadosGlobal
+  .filter(a=>a[8]!=="Pago")
+  .forEach(a=>{
+    html+=`${a[1]} - R$ ${a[7]}<br>`;
+  });
+  abrirModal(html);
+}
+
+/* ================= MODAL ================= */
 function abrirModal(html){
   modal.innerHTML=html;
   modal.style.display="block";
   overlay.style.display="block";
 }
-function fecharModal(){
+overlay.onclick=()=>{
   modal.style.display="none";
-  overlay.style.display="none";
-}
+  fecharForm();
+};
 
-overlay.onclick=()=>fecharForm();
+/* ================= MASCARAS ================= */
+cpf.addEventListener("input", e=>{
+  e.target.value = e.target.value
+    .replace(/\D/g,"")
+    .replace(/(\d{3})(\d)/,"$1.$2")
+    .replace(/(\d{3})(\d)/,"$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+});
+telefone.addEventListener("input", e=>{
+  let v = e.target.value.replace(/\D/g,"");
+  if(v.length>10)
+    v=v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
+  else
+    v=v.replace(/(\d{2})(\d{4})(\d)/,"($1) $2-$3");
+  e.target.value=v;
+});
 
 /* INIT */
 carregar();
+
 </script>
 
 </body>
