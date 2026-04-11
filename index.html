@@ -202,6 +202,30 @@ button{
   <option value="Pendente">Pendente</option>
 </select>
 
+<form id="form">
+
+    <input type="hidden" id="id">
+
+    <input id="nome" placeholder="Nome" required>
+    <input id="cpf" placeholder="CPF">
+    <input id="telefone" placeholder="Telefone">
+    <input id="email" placeholder="Email">
+    <input id="endereco" placeholder="Endereço">
+    <input id="mes" placeholder="Mês (03-2026)">
+    <input id="valor" placeholder="Valor">
+
+    <select id="status">
+      <option value="Pago">Pago</option>
+      <option value="Pendente">Pendente</option>
+    </select>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">Salvar</button>
+      <button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
+    </div>
+
+  </form>
+
 <!-- LISTA -->
 <div id="tela-lista" class="tela">
   <input id="busca" placeholder="Buscar...">
@@ -508,7 +532,7 @@ function backupAutomatico(){
   localStorage.setItem("backup_data",hoje);
 }
 
-/* INIT */
+/* ===================== INIT ===================== */
 busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
 
 abrirTela("dashboard");
@@ -522,8 +546,84 @@ telefone.addEventListener("input", e=>{
   e.target.value = maskTelefone(e.target.value);
 });
 
-cpf: cpf.value.replace(/\D/g,""),
-telefone: telefone.value.replace(/\D/g,""),
+window.addEventListener("DOMContentLoaded", () => {
+
+  // inputs
+  const cpfInput = document.getElementById("cpf");
+  const telInput = document.getElementById("telefone");
+
+  // máscara CPF
+  if(cpfInput){
+    cpfInput.addEventListener("input", e=>{
+      e.target.value = maskCPF(e.target.value);
+    });
+  }
+
+  // máscara telefone
+  if(telInput){
+    telInput.addEventListener("input", e=>{
+      e.target.value = maskTelefone(e.target.value);
+    });
+  }
+
+  // busca
+  const buscaInput = document.getElementById("busca");
+  if(buscaInput){
+    buscaInput.addEventListener("input", e=>{
+      renderizar(e.target.value.toLowerCase());
+    });
+  }
+
+  // start app
+  abrirTela("dashboard");
+  carregar();
+
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  const form = document.getElementById("form");
+
+  if(form){
+    form.addEventListener("submit", async e=>{
+      e.preventDefault();
+
+      const obj = {
+        acao: id.value ? "editar" : "adicionar",
+        id: id.value,
+        nome: nome.value,
+
+        // 🔥 limpa máscara aqui
+        cpf: cpf.value.replace(/\D/g,""),
+        telefone: telefone.value.replace(/\D/g,""),
+
+        email: email.value,
+        endereco: endereco.value,
+        mes: mes.value,
+        valor: valor.value,
+        status: document.getElementById("status").value
+      };
+
+      try{
+
+        await fetch(API_URL,{
+          method:"POST",
+          body: JSON.stringify(obj)
+        });
+
+        form.reset();
+        fecharForm();
+        carregar();
+
+      }catch(e){
+        alert("Erro ao salvar");
+        console.error(e);
+      }
+
+    });
+  }
+
+});
 
 </script>
 
@@ -536,29 +636,7 @@ telefone: telefone.value.replace(/\D/g,""),
     <button onclick="fecharForm()" class="btn-close">✕</button>
   </div>
 
-  <form id="form">
-
-    <input type="hidden" id="id">
-
-    <input id="nome" placeholder="Nome" required>
-    <input id="cpf" placeholder="CPF">
-    <input id="telefone" placeholder="Telefone">
-    <input id="email" placeholder="Email">
-    <input id="endereco" placeholder="Endereço">
-    <input id="mes" placeholder="Mês (03-2026)">
-    <input id="valor" placeholder="Valor">
-
-    <select id="status">
-      <option value="Pago">Pago</option>
-      <option value="Pendente">Pendente</option>
-    </select>
-
-    <div class="form-actions">
-      <button type="submit" class="btn">Salvar</button>
-      <button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
-    </div>
-
-  </form>
+  
 </div>
 
 </body>
