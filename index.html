@@ -67,12 +67,81 @@ input,select{
   max-width:400px;
   border-radius:12px;
 }
+
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:60px;
+  background:#1e293b;
+  color:#fff;
+  transition:0.3s;
+  overflow:hidden;
+  z-index:1000;
+}
+
+.sidebar:hover{
+  width:200px;
+}
+
+.menu-btn{
+  padding:15px;
+  cursor:pointer;
+}
+
+.menu-item{
+  padding:15px;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.menu-item:hover{
+  background:#334155;
+}
+
+.menu-item span{
+  display:none;
+}
+
+.sidebar:hover .menu-item span{
+  display:inline;
+}
+
 </style>
 </head>
 
 <body>
 
-<header>Vila Floresta 2</header>
+<div class="sidebar" id="sidebar">
+
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+  <div class="menu-item" onclick="carregar()">
+    🏠 <span>Início</span>
+  </div>
+
+  <div class="menu-item" onclick="verRelatorio()">
+    📊 <span>Relatório</span>
+  </div>
+
+  <div class="menu-item" onclick="verDevedores()">
+    ⚠️ <span>Devedores</span>
+  </div>
+
+  <div class="menu-item" onclick="exportarBackup()">
+    💾 <span>Backup</span>
+  </div>
+
+  <div class="menu-item" onclick="restaurarBackup()">
+    ♻️ <span>Restaurar</span>
+  </div>
+
+</div>
+
+<header>Cadastro Moradores Vila Floresta 2</header>
 
 <div class="container">
 
@@ -123,37 +192,67 @@ async function carregar(){
   const res = await fetch(API_URL);
   const dados = await res.json();
   dadosGlobal = dados.slice(1);
+  console.log("Dados carregados:", dadosGlobal); // debug
   renderizar();
+}
+
+/* ================= MENU LATERAL ================= */
+function toggleMenu(){
+  const s = document.getElementById("sidebar");
+  s.classList.toggle("active");
+}
+
+/* ================= EXPORTAR BACKUP ================= */
+function exportarBackup(){
+  const blob = new Blob([JSON.stringify(dadosGlobal)], {type:"application/json"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "backup.json";
+  link.click();
 }
 
 /* ================= RENDER ================= */
 function renderizar(){
 
   const lista = document.getElementById("lista");
-  lista.innerHTML="";
+  if(!lista) return;
+
+  lista.innerHTML = "";
+
+  if(!dadosGlobal || dadosGlobal.length === 0){
+    lista.innerHTML = "<p>Nenhum cadastro encontrado</p>";
+    return;
+  }
 
   dadosGlobal.forEach(a=>{
 
+    const id = a[0];
+    const nome = a[1] || "Sem nome";
+    const mes = a[6] || "-";
+    const valor = Number(a[7]) || 0;
     const status = a[8] || "Pendente";
 
-const cor = status === "Pago" ? "green" : "red";
+    const cor = status === "Pago" ? "#22c55e" : "#ef4444";
 
-const botoes = status !== "Pago"
-  ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
-  : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
+    const botoes = status !== "Pago"
+      ? `<button class="btn" onclick="pagar('${id}')">Pagar</button>`
+      : `<button class="btn" onclick="gerarPDF('${id}')">📄 Recibo</button>`;
 
-card.innerHTML = `
-  <div style="border-left:5px solid ${cor}; padding-left:10px">
-    <b>${a[1]}</b><br>
-    ${a[6]}<br>
-    <b>R$ ${a[7]}</b><br>
-    <span style="color:${cor}">${status}</span><br>
+    const card = document.createElement("div");
+    card.className = "card";
 
-    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-    ${botoes}
-    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-  </div>
-`;
+    card.innerHTML = `
+      <div style="border-left:5px solid ${cor}; padding-left:10px">
+        <b>${nome}</b><br>
+        <small>${mes}</small><br>
+        <b>R$ ${valor.toFixed(2)}</b><br>
+        <span style="color:${cor}">${status}</span><br>
+
+        <button class="btn-edit" onclick="editar('${id}')">Editar</button>
+        ${botoes}
+        <button class="btn-danger" onclick="excluir('${id}')">Excluir</button>
+      </div>
+    `;
 
     lista.appendChild(card);
   });
@@ -188,7 +287,6 @@ function abrirForm(edicao=false){
 
   document.getElementById("formBox").style.display="block";
   document.getElementById("overlay").style.display="block";
-
   document.getElementById("formTitulo").innerText =
     edicao ? "Editar Cadastro" : "Novo Cadastro";
 }
@@ -202,10 +300,8 @@ function fecharForm(){
 
 /* ================= EDITAR ================= */
 function editar(idSel){
-
   const a = dadosGlobal.find(x => x[0] == idSel);
   if(!a) return;
-
   document.getElementById("id").value = a[0];
   document.getElementById("nome").value = a[1];
   document.getElementById("cpf").value = a[2] || "";
@@ -215,15 +311,12 @@ function editar(idSel){
   document.getElementById("mes").value = a[6] || "";
   document.getElementById("valor").value = a[7] || "";
   document.getElementById("status").value = a[8] || "Pendente";
-
   abrirForm(true);
 }
 
 /* ================= PAGAR ================= */
 async function pagar(idSel){
-
   const a = dadosGlobal.find(x=>x[0]==idSel);
-
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
@@ -239,72 +332,59 @@ async function pagar(idSel){
       status:"Pago"
     })
   });
-
   carregar();
 }
 
 /* ================= EXCLUIR ================= */
 async function excluir(idSel){
-
   if(!confirm("Deseja excluir?")) return;
-
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({acao:"excluir",id:idSel})
   });
-
   carregar();
 }
 
 /* ================= SUBMIT ================= */
 form.addEventListener("submit", async e=>{
   e.preventDefault();
-
   const obj={
     acao:id.value?"editar":"adicionar",
     id:id.value,
     nome:nome.value,
-    cpf:cpf.value.replace(/\D/g,""),
-    telefone:telefone.value.replace(/\D/g,""),
+    cpf: String(cpf.value || "").replace(/\D/g,""),
+    telefone: String(telefone.value || "").replace(/\D/g,""),
     email:email.value,
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
     status: document.getElementById("status").value
   };
-
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify(obj)
   });
-
   fecharForm();
   carregar();
 });
 
 /* ================= RELATORIO ================= */
 function verRelatorio(){
-
   let html="<h3>Relatório</h3>";
-
   dadosGlobal.forEach(a=>{
     html+=`${a[1]} - R$ ${a[7]} - ${a[8]}<br>`;
   });
-
   abrirModal(html);
 }
 
 /* ================= DEVEDORES ================= */
 function verDevedores(){
-
   let html="<h3>Devedores</h3>";
-
   dadosGlobal
   .filter(a=>a[8]!=="Pago")
   .forEach(a=>{
     html+=`${a[1]} - R$ ${a[7]}<br>`;
   });
-
   abrirModal(html);
 }
 
@@ -314,7 +394,6 @@ function abrirModal(html){
   modal.style.display="block";
   overlay.style.display="block";
 }
-
 overlay.onclick=()=>{
   modal.style.display="none";
   fecharForm();
@@ -328,7 +407,6 @@ cpf.addEventListener("input", e=>{
     .replace(/(\d{3})(\d)/,"$1.$2")
     .replace(/(\d{3})(\d{1,2})$/,"$1-$2");
 });
-
 telefone.addEventListener("input", e=>{
   let v = e.target.value.replace(/\D/g,"");
   if(v.length>10)
