@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <title>Vila Floresta 2</title>
 
 <style>
@@ -106,10 +107,10 @@ input,select{
 
 .menu-toggle{
   position:fixed;
-  top:7px;
+  top:5px;
   left:15px;
   width:35px;
-  height:35px;
+  height:37px;
   border-radius:10px;
   background:#2016ab;
   color:#fff;
@@ -162,9 +163,13 @@ input,select{
 }
 
 .menu-box div{
-  padding:12px;
+  padding:14px;
   border-bottom:1px solid #eee;
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:15px;
 }
 
 .sidebar:hover{
@@ -187,9 +192,15 @@ input,select{
 <div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
 <div id="menuBox" class="menu-box">
   <h3>Menu</h3>
-  <div onclick="acaoMenu(verRelatorio)">📊 Relatório</div>
-  <div onclick="acaoMenu(verDevedores)">⚠️ Devedores</div>
-  <div onclick="acaoMenu(exportarBackup)">💾 Backup</div>
+    <div onclick="acaoMenu(verRelatorio)">
+      <i class="fa-solid fa-chart-line"></i> Relatório
+    </div>
+    <div onclick="acaoMenu(verDevedores)">
+      <i class="fa-solid fa-triangle-exclamation"></i> Devedores
+    </div>
+    <div onclick="acaoMenu(exportarBackup)">
+      <i class="fa-solid fa-cloud-arrow-down"></i> Backup
+    </div>
 </div>
 
 <div class="dashboard">
@@ -372,6 +383,63 @@ function renderizar(){
   });
 }
 
+function renderTabelaRelatorio(){
+
+  const filtro = document.getElementById("filtroMes")?.value;
+
+  let lista = dadosGlobal;
+
+  if(filtro){
+    lista = lista.filter(a => a[6] === filtro);
+  }
+
+  let html = `
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <tr style="background:#f1f5f9;">
+        <th align="left">Nome</th>
+        <th>Mês</th>
+        <th>Valor</th>
+        <th>Status</th>
+      </tr>
+  `;
+
+  lista.forEach(a=>{
+    const cor = a[8] === "Pago" ? "green" : "red";
+
+    html += `
+      <tr>
+        <td>${a[1]}</td>
+        <td align="center">${a[6]}</td>
+        <td align="right">R$ ${Number(a[7]).toFixed(2)}</td>
+        <td align="center" style="color:${cor}">
+          ${a[8]}
+        </td>
+      </tr>
+    `;
+  });
+
+  // 🔥 AQUI ENTRA O TOTAL
+  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
+
+  html += `
+    <tr style="font-weight:bold; background:#f9fafb;">
+      <td colspan="2">Total</td>
+      <td align="right">R$ ${total.toFixed(2)}</td>
+      <td></td>
+    </tr>
+  `;
+
+  html += "</table>";
+
+  document.getElementById("tabelaRelatorio").innerHTML = html;
+
+  // evento do filtro
+  const select = document.getElementById("filtroMes");
+  if(select){
+    select.onchange = renderTabelaRelatorio;
+  }
+}
+
 /* ================= GERAR PDF ================= */
 function gerarPDF(idSel){
 
@@ -516,21 +584,56 @@ form.addEventListener("submit", async e=>{
 
 /* ================= RELATORIO ================= */
 function verRelatorio(){
-  let html="<h3>Relatório</h3>";
-  dadosGlobal.forEach(a=>{
-    html+=`${a[1]} - R$ ${a[7]} - ${a[8]}<br>`;
-  });
+
+  // pegar meses únicos
+  const meses = [...new Set(dadosGlobal.map(a=>a[6]).filter(Boolean))];
+
+  let html = `
+    <h3>Relatório</h3>
+
+    <select id="filtroMes" style="width:100%; padding:8px; margin-bottom:10px;">
+      <option value="">Todos os meses</option>
+      ${meses.map(m=>`<option value="${m}">${m}</option>`).join("")}
+    </select>
+
+    <div id="tabelaRelatorio"></div>
+  `;
+
   abrirModal(html);
+
+  // render inicial
+  renderTabelaRelatorio();
 }
 
 /* ================= DEVEDORES ================= */
 function verDevedores(){
-  let html="<h3>Devedores</h3>";
+
+  let html = `
+    <h3>Devedores</h3>
+
+    <table style="width:100%; border-collapse:collapse;">
+      <tr style="background:#f1f5f9;">
+        <th align="left">Nome</th>
+        <th>Mês</th>
+        <th>Valor</th>
+      </tr>
+  `;
+
   dadosGlobal
-  .filter(a=>a[8]!=="Pago")
+  .filter(a=>a[8] !== "Pago")
   .forEach(a=>{
-    html+=`${a[1]} - R$ ${a[7]}<br>`;
+
+    html += `
+      <tr>
+        <td>${a[1]}</td>
+        <td align="center">${a[6]}</td>
+        <td align="right">R$ ${Number(a[7]).toFixed(2)}</td>
+      </tr>
+    `;
   });
+
+  html += "</table>";
+
   abrirModal(html);
 }
 
