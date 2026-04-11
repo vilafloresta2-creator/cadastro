@@ -101,6 +101,7 @@ input,select{
   width:90%;
   max-width:400px;
   border-radius:12px;
+  z-index:2000;
 }
 
 .menu-toggle{
@@ -150,11 +151,12 @@ input,select{
 .menu-box{
   position:fixed;
   top:0;
-  left:-250px;
+  left:0;
   width:250px;
   height:100%;
   background:#fff;
   padding:20px;
+  transform:translateX(-100%); /* 🔥 ESCONDE CORRETAMENTE */
   transition:0.3s;
   z-index:1400;
 }
@@ -185,9 +187,9 @@ input,select{
 <div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
 <div id="menuBox" class="menu-box">
   <h3>Menu</h3>
-  <div onclick="verRelatorio()">📊 Relatório</div>
-  <div onclick="verDevedores()">⚠️ Devedores</div>
-  <div onclick="exportarBackup()">💾 Backup</div>
+  <div onclick="acaoMenu(verRelatorio)">📊 Relatório</div>
+  <div onclick="acaoMenu(verDevedores)">⚠️ Devedores</div>
+  <div onclick="acaoMenu(exportarBackup)">💾 Backup</div>
 </div>
 
 <div class="dashboard">
@@ -266,12 +268,17 @@ async function carregar(){
 /* ================= ABRIR MENU ================= */
 function abrirMenu(){
   document.getElementById("menuOverlay").style.display = "block";
-  document.getElementById("menuBox").style.left = "0";
+  document.getElementById("menuBox").style.transform = "translateX(0)";
 }
 
 function fecharMenu(){
   document.getElementById("menuOverlay").style.display = "none";
-  document.getElementById("menuBox").style.left = "-250px";
+  document.getElementById("menuBox").style.transform = "translateX(-100%)";
+}
+
+function acaoMenu(fn){
+  fecharMenu();   // fecha o cinza
+  setTimeout(fn, 200); // executa depois da animação
 }
 
 /* ================= CALCULAR ================= */
@@ -380,7 +387,7 @@ function gerarPDF(idSel){
   logo.onload = function(){
 
     // LOGO
-    doc.addImage(logo, "PNG", 10, 15, 20, 20);
+    doc.addImage(logo, "PNG", 10, 20, 20, 20);
 
     // TÍTULO
     doc.setFontSize(16);
@@ -411,7 +418,7 @@ function gerarPDF(idSel){
 
     // ASSINATURA
     doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 10, 130);
+    doc.text("Responsável", 15, 145);
 
     // DATA
     const hoje = new Date().toLocaleDateString("pt-BR");
