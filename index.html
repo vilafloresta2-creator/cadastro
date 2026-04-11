@@ -93,6 +93,70 @@ button{
   max-height:80vh;
   overflow:auto;
 }
+
+/* OVERLAY */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index:998;
+}
+
+/* FORM STYLE NUBANK */
+.form-sheet{
+  position:fixed;
+  bottom:-100%;
+  left:0;
+  right:0;
+  background:#fff;
+  border-radius:20px 20px 0 0;
+  padding:20px;
+  z-index:999;
+  transition:0.3s;
+}
+
+.form-sheet.active{
+  bottom:0;
+}
+
+/* HEADER */
+.form-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.btn-close{
+  background:none;
+  color:#333;
+  font-size:18px;
+}
+
+/* INPUT */
+.form-sheet input,
+.form-sheet select{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+/* ACTIONS */
+.form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.btn-light{
+  background:#e5e7eb;
+  color:#333;
+}
+
 </style>
 </head>
 
@@ -112,7 +176,7 @@ button{
 <!-- CONTENT -->
 <div class="content">
 
-<header><h2>Vila Floresta 2</h2></header>
+<header><h2>Cadastro Moradores Vila Floresta 2</h2></header>
 
 <!-- DASHBOARD -->
 <div id="tela-dashboard" class="tela">
@@ -123,6 +187,20 @@ button{
     <div class="card-top"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
   </div>
 </div>
+
+<input type="hidden" id="id">
+<input id="nome">
+<input id="cpf">
+<input id="telefone">
+<input id="email">
+<input id="endereco">
+<input id="mes">
+<input id="valor">
+
+<select id="status">
+  <option value="Pago">Pago</option>
+  <option value="Pendente">Pendente</option>
+</select>
 
 <!-- LISTA -->
 <div id="tela-lista" class="tela">
@@ -156,6 +234,56 @@ function abrirTela(nome){
   if(nome==="grafico") atualizarGrafico();
 }
 
+function abrirForm(edicao = false){
+
+  document.getElementById("formBox").classList.add("active");
+  document.getElementById("overlay").style.display = "block";
+
+  document.getElementById("formTitulo").innerText =
+    edicao ? "Editar Cadastro" : "Novo Cadastro";
+}
+
+function fecharForm(){
+
+  document.getElementById("formBox").classList.remove("active");
+  document.getElementById("overlay").style.display = "none";
+
+  form.reset();
+  id.value = "";
+}
+
+/* PAGAR */
+async function pagar(idSel){
+
+  const a = dadosGlobal.find(x => x[0] == idSel);
+  if(!a) return;
+
+  try{
+
+    await fetch(API_URL,{
+      method:"POST",
+      body: JSON.stringify({
+        acao:"editar",
+        id:a[0],
+        nome:a[1],
+        cpf:a[2],
+        telefone:a[3],
+        email:a[4],
+        endereco:a[5],
+        mes:a[6],
+        valor:a[7],
+        status:"Pago"
+      })
+    });
+
+    carregar();
+
+  }catch(e){
+    alert("Erro ao atualizar pagamento");
+    console.error(e);
+  }
+}
+
 /* LOAD */
 async function carregar(){
   const res = await fetch(API_URL);
@@ -165,6 +293,49 @@ async function carregar(){
   renderizar();
   calcular();
   backupAutomatico();
+}
+
+/* EXCLUIR */
+async function excluir(idSel){
+
+  const confirmar = confirm("Tem certeza que deseja excluir?");
+  if(!confirmar) return;
+
+  try{
+
+    await fetch(API_URL,{
+      method:"POST",
+      body: JSON.stringify({
+        acao:"excluir",
+        id:idSel
+      })
+    });
+
+    carregar();
+
+  }catch(e){
+    alert("Erro ao excluir");
+    console.error(e);
+  }
+}
+
+/* EDITAR */
+function editar(idSel){
+
+  const a = dadosGlobal.find(x => x[0] == idSel);
+  if(!a) return;
+
+  id.value = a[0];
+  nome.value = a[1];
+  cpf.value = a[2] || "";
+  telefone.value = a[3] || "";
+  email.value = a[4] || "";
+  endereco.value = a[5] || "";
+  mes.value = a[6] || "";
+  valor.value = a[7] || "";
+  document.getElementById("status").value = a[8] || "Pendente";
+
+  abrirForm(true);
 }
 
 /* DASH */
@@ -243,6 +414,31 @@ function atualizarGrafico(){
   });
 }
 
+/* MASCARAS */
+function maskCPF(v){
+  v = v.replace(/\D/g,"");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  return v;
+}
+
+function maskTelefone(v){
+  v = v.replace(/\D/g,"");
+
+  if(v.length <= 10){
+    // fixo
+    v = v.replace(/(\d{2})(\d)/,"($1) $2");
+    v = v.replace(/(\d{4})(\d)/,"$1-$2");
+  }else{
+    // celular
+    v = v.replace(/(\d{2})(\d)/,"($1) $2");
+    v = v.replace(/(\d{5})(\d)/,"$1-$2");
+  }
+
+  return v;
+}
+
 /* WHATS */
 function enviarWhatsApp(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
@@ -318,7 +514,52 @@ busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
 abrirTela("dashboard");
 carregar();
 
+cpf.addEventListener("input", e=>{
+  e.target.value = maskCPF(e.target.value);
+});
+
+telefone.addEventListener("input", e=>{
+  e.target.value = maskTelefone(e.target.value);
+});
+
+cpf: cpf.value.replace(/\D/g,""),
+telefone: telefone.value.replace(/\D/g,""),
+
 </script>
+
+<div id="overlay" class="overlay" onclick="fecharForm()"></div>
+
+<div id="formBox" class="form-sheet">
+
+  <div class="form-header">
+    <h3 id="formTitulo">Novo Cadastro</h3>
+    <button onclick="fecharForm()" class="btn-close">✕</button>
+  </div>
+
+  <form id="form">
+
+    <input type="hidden" id="id">
+
+    <input id="nome" placeholder="Nome" required>
+    <input id="cpf" placeholder="CPF">
+    <input id="telefone" placeholder="Telefone">
+    <input id="email" placeholder="Email">
+    <input id="endereco" placeholder="Endereço">
+    <input id="mes" placeholder="Mês (03-2026)">
+    <input id="valor" placeholder="Valor">
+
+    <select id="status">
+      <option value="Pago">Pago</option>
+      <option value="Pendente">Pendente</option>
+    </select>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">Salvar</button>
+      <button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
+    </div>
+
+  </form>
+</div>
 
 </body>
 </html>
