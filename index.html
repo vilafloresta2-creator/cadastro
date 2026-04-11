@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <title>Vila Floresta 2</title>
 
@@ -665,17 +666,41 @@ function exportarRelatorioPDF(){
 
   // tabela
   doc.autoTable({
-    head: head,
-    body: body,
-    startY: 20,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [37, 99, 235] }, // azul
-    columnStyles: {
-      2: { halign: "right" }, // valor alinhado direita
-      1: { halign: "center" },
-      3: { halign: "center" }
+  head: [["Nome", "Mês", "Valor", "Status"]],
+  body: lista.map(a => [
+    a[1],
+    a[6],
+    "R$ " + Number(a[7]).toFixed(2),
+    a[8]
+  ]),
+  startY: 20,
+  styles: { fontSize: 10 },
+
+  headStyles: { fillColor: [37, 99, 235] },
+
+  columnStyles: {
+    1: { halign: "center" },
+    2: { halign: "right" },
+    3: { halign: "center" }
+  },
+
+  didParseCell: function (data) {
+
+    // só mexe na coluna STATUS
+    if (data.column.index === 3) {
+
+      if (data.cell.raw === "Pago") {
+        data.cell.styles.textColor = [34,197,94]; // verde
+      }
+
+      if (data.cell.raw === "Pendente") {
+        data.cell.styles.textColor = [239,68,68]; // vermelho
+      }
+
     }
-  });
+  }
+
+});
 
   // TOTAL
   const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
@@ -687,15 +712,6 @@ function exportarRelatorioPDF(){
     doc.lastAutoTable.finalY + 10
   );
 
-  didParseCell: function (data) {
-  if (data.column.index === 3) {
-    if (data.cell.raw === "Pago") {
-      data.cell.styles.textColor = [34,197,94];
-    } else {
-      data.cell.styles.textColor = [239,68,68];
-    }
-  }
-}
   doc.save("relatorio.pdf");
 }
 
