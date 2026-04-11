@@ -245,383 +245,179 @@ button{
 
 <script>
 
-/* CONFIG */
 const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
-let dadosGlobal=[];
-let grafico;
+let dadosGlobal = [];
 
-/* NAV */
-function abrirTela(nome){
-  document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
-  document.getElementById("tela-"+nome).classList.add("ativa");
-
-  if(nome==="grafico") atualizarGrafico();
+/* ===================== MÁSCARAS ===================== */
+function maskCPF(v){
+  v = v.replace(/\D/g,"").slice(0,11);
+  if(v.length > 9) return v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, "$1.$2.$3-$4");
+  if(v.length > 6) return v.replace(/(\d{3})(\d{3})(\d{0,3})/, "$1.$2.$3");
+  if(v.length > 3) return v.replace(/(\d{3})(\d{0,3})/, "$1.$2");
+  return v;
 }
 
-function abrirForm(edicao = false){
-
-  document.getElementById("formBox").classList.add("active");
-  document.getElementById("overlay").style.display = "block";
-
-  document.getElementById("formTitulo").innerText =
-    edicao ? "Editar Cadastro" : "Novo Cadastro";
+function maskTelefone(v){
+  v = v.replace(/\D/g,"").slice(0,11);
+  if(v.length > 10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+  if(v.length > 6) return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+  if(v.length > 2) return v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+  return v;
 }
 
-function fecharForm(){
-
-  document.getElementById("formBox").classList.remove("active");
-  document.getElementById("overlay").style.display = "none";
-
-  form.reset();
-  id.value = "";
-}
-
-/* PAGAR */
-async function pagar(idSel){
-
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  if(!a) return;
-
-  try{
-
-    await fetch(API_URL,{
-      method:"POST",
-      body: JSON.stringify({
-        acao:"editar",
-        id:a[0],
-        nome:a[1],
-        cpf:a[2],
-        telefone:a[3],
-        email:a[4],
-        endereco:a[5],
-        mes:a[6],
-        valor:a[7],
-        status:"Pago"
-      })
-    });
-
-    carregar();
-
-  }catch(e){
-    alert("Erro ao atualizar pagamento");
-    console.error(e);
-  }
-}
-
-/* LOAD */
+/* ===================== CARREGAR ===================== */
 async function carregar(){
   const res = await fetch(API_URL);
   const dados = await res.json();
   dadosGlobal = dados.slice(1);
-
   renderizar();
-  calcular();
-  backupAutomatico();
 }
 
-/* EXCLUIR */
-async function excluir(idSel){
-
-  const confirmar = confirm("Tem certeza que deseja excluir?");
-  if(!confirmar) return;
-
-  try{
-
-    await fetch(API_URL,{
-      method:"POST",
-      body: JSON.stringify({
-        acao:"excluir",
-        id:idSel
-      })
-    });
-
-    carregar();
-
-  }catch(e){
-    alert("Erro ao excluir");
-    console.error(e);
-  }
-}
-
-/* EDITAR */
-function editar(idSel){
-
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  if(!a) return;
-
-  id.value = a[0];
-  nome.value = a[1];
-  cpf.value = a[2] || "";
-  telefone.value = a[3] || "";
-  email.value = a[4] || "";
-  endereco.value = a[5] || "";
-  mes.value = a[6] || "";
-  valor.value = a[7] || "";
-  document.getElementById("status").value = a[8] || "Pendente";
-
-  abrirForm(true);
-}
-
-/* DASH */
-function calcular(){
-  let total=0,pagos=0,pendentes=0,aberto=0;
+/* ===================== RENDER ===================== */
+function renderizar(){
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
 
   dadosGlobal.forEach(a=>{
-    const v=Number(a[7])||0;
-    if(a[8]==="Pago"){total+=v;pagos++}
-    else{aberto+=v;pendentes++}
-  });
 
-  set("total","R$ "+total.toFixed(2));
-  set("pagos",pagos);
-  set("pendentes",pendentes);
-  set("aberto","R$ "+aberto.toFixed(2));
-}
+    const status = a[8] || "Pendente";
 
-function set(id,val){
-  const el=document.getElementById(id);
-  if(el) el.innerText=val;
-}
+    const botoes = status !== "Pago"
+      ? `<button onclick="pagar('${a[0]}')">Pagar</button>`
+      : `<button onclick="alert('Gerar recibo')">📄 Recibo</button>`;
 
-/* LISTA */
-function renderizar(f=""){
-  lista.innerHTML="";
+    const card = document.createElement("div");
+    card.className = "card";
 
-  dadosGlobal.filter(a=>a[1].toLowerCase().includes(f))
-  .forEach(a=>{
-
-    const status=a[8]||"Pendente";
-
-    const card=document.createElement("div");
-    card.className="card "+(status==="Pago"?"pago":"pendente");
-
-    card.innerHTML=`
+    card.innerHTML = `
       <b>${a[1]}</b>
-      <div>${a[6]} - R$ ${a[7]}</div>
+      <div>${a[6]}</div>
+      <div>R$ ${a[7]}</div>
+      <div>${status}</div>
 
-      <div class="actions">
-        <button class="btn-edit" onclick="event.stopPropagation();editar('${a[0]}')">Editar</button>
-
-        ${
-          status!=="Pago"
-          ? `<button class="btn" onclick="event.stopPropagation();pagar('${a[0]}')">Pagar</button>`
-          : `<button class="btn" onclick="event.stopPropagation();gerarPDF('${a[0]}')">📄</button>`
-        }
-
-        <button class="btn" onclick="event.stopPropagation();enviarWhatsApp('${a[0]}')">📲</button>
-        <button class="btn-danger" onclick="event.stopPropagation();excluir('${a[0]}')">X</button>
-      </div>
+      <button onclick="editar('${a[0]}')">Editar</button>
+      ${botoes}
+      <button onclick="excluir('${a[0]}')">Excluir</button>
     `;
 
     lista.appendChild(card);
   });
 }
 
-/* GRAFICO */
-function atualizarGrafico(){
-  let p=0,d=0;
+/* ===================== EDITAR ===================== */
+function editar(idSel){
 
-  dadosGlobal.forEach(a=>{
-    const v=Number(a[7])||0;
-    if(a[8]==="Pago") p+=v;
-    else d+=v;
+  const a = dadosGlobal.find(x=>x[0]==idSel);
+  if(!a) return;
+
+  document.getElementById("id").value = a[0];
+  document.getElementById("nome").value = a[1];
+  document.getElementById("cpf").value = a[2] || "";
+  document.getElementById("telefone").value = a[3] || "";
+  document.getElementById("email").value = a[4] || "";
+  document.getElementById("endereco").value = a[5] || "";
+  document.getElementById("mes").value = a[6] || "";
+  document.getElementById("valor").value = a[7] || "";
+  document.getElementById("status").value = a[8] || "Pendente";
+
+  abrirForm();
+}
+
+/* ===================== PAGAR ===================== */
+async function pagar(idSel){
+
+  const a = dadosGlobal.find(x=>x[0]==idSel);
+  if(!a) return;
+
+  await fetch(API_URL,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"editar",
+      id:a[0],
+      nome:a[1],
+      cpf:a[2],
+      telefone:a[3],
+      email:a[4],
+      endereco:a[5],
+      mes:a[6],
+      valor:a[7],
+      status:"Pago"
+    })
   });
 
-  const ctx=document.getElementById("grafico");
-
-  if(grafico) grafico.destroy();
-
-  grafico=new Chart(ctx,{
-    type:"doughnut",
-    data:{labels:["Pago","Pendente"],datasets:[{data:[p,d]}]},
-    options:{cutout:"70%"}
-  });
+  carregar();
 }
 
-/* MASCARAS */
-function maskCPF(v){
-  v = v.replace(/\D/g,"");
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-  return v;
-}
+/* ===================== EXCLUIR ===================== */
+async function excluir(idSel){
 
-function maskTelefone(v){
-  v = v.replace(/\D/g,"");
+  if(!confirm("Deseja excluir?")) return;
 
-  if(v.length <= 10){
-    // fixo
-    v = v.replace(/(\d{2})(\d)/,"($1) $2");
-    v = v.replace(/(\d{4})(\d)/,"$1-$2");
-  }else{
-    // celular
-    v = v.replace(/(\d{2})(\d)/,"($1) $2");
-    v = v.replace(/(\d{5})(\d)/,"$1-$2");
-  }
-
-  return v;
-}
-
-/* WHATS */
-function enviarWhatsApp(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
-  let num=(a[3]||"").replace(/\D/g,"");
-  if(!num) return alert("Sem telefone");
-
-  if(!num.startsWith("55")) num="55"+num;
-
-  const msg=`Olá ${a[1]}%0AValor: R$ ${a[7]}`;
-  window.open(`https://wa.me/${num}?text=${msg}`);
-}
-
-/* PDF */
-function gerarPDF(idSel){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:"landscape"});
-
-  const a=dadosGlobal.find(x=>x[0]==idSel);
-
-  doc.text("RECIBO",20,20);
-  doc.text(a[1],20,40);
-  doc.text("R$ "+a[7],20,50);
-
-  doc.save("recibo.pdf");
-}
-
-/* RELATORIO */
-function verRelatorio(){
-  let html="<h3>Relatório</h3>";
-
-  dadosGlobal.forEach(a=>{
-    html+=`<div>${a[1]} - R$ ${a[7]}</div>`;
+  await fetch(API_URL,{
+    method:"POST",
+    body: JSON.stringify({acao:"excluir", id:idSel})
   });
 
-  html+=`<button onclick="gerarRelatorio()" class="btn">PDF</button>
-  <button onclick="fecharRelatorio()" class="btn-danger">Fechar</button>`;
-
-  modalRelatorio.innerHTML=html;
-  modalRelatorio.style.display="block";
+  carregar();
 }
 
-function verDevedores(){
-  let html="<h3>Devedores</h3>";
-
-  dadosGlobal.filter(a=>a[8]!=="Pago")
-  .forEach(a=>{
-    html+=`<div>${a[1]} - R$ ${a[7]}</div>`;
-  });
-
-  html+=`<button onclick="gerarDevedores()" class="btn">PDF</button>
-  <button onclick="fecharRelatorio()" class="btn-danger">Fechar</button>`;
-
-  modalRelatorio.innerHTML=html;
-  modalRelatorio.style.display="block";
+/* ===================== FORM ===================== */
+function abrirForm(){
+  document.getElementById("formBox").style.display="block";
 }
 
-function fecharRelatorio(){
-  modalRelatorio.style.display="none";
-}
-
-/* BACKUP */
-function backupAutomatico(){
-  const hoje=new Date().toISOString().slice(0,10);
-  if(localStorage.getItem("backup_data")===hoje) return;
-
-  localStorage.setItem("backup_associados",JSON.stringify(dadosGlobal));
-  localStorage.setItem("backup_data",hoje);
+function fecharForm(){
+  document.getElementById("formBox").style.display="none";
+  document.getElementById("form").reset();
 }
 
 /* ===================== INIT ===================== */
-busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
-
-abrirTela("dashboard");
-carregar();
-
-cpf.addEventListener("input", e=>{
-  e.target.value = maskCPF(e.target.value);
-});
-
-telefone.addEventListener("input", e=>{
-  e.target.value = maskTelefone(e.target.value);
-});
-
 window.addEventListener("DOMContentLoaded", () => {
 
-  // inputs
   const cpfInput = document.getElementById("cpf");
   const telInput = document.getElementById("telefone");
+  const form = document.getElementById("form");
 
-  // máscara CPF
+  // máscaras
   if(cpfInput){
     cpfInput.addEventListener("input", e=>{
       e.target.value = maskCPF(e.target.value);
     });
   }
 
-  // máscara telefone
   if(telInput){
     telInput.addEventListener("input", e=>{
       e.target.value = maskTelefone(e.target.value);
     });
   }
 
-  // busca
-  const buscaInput = document.getElementById("busca");
-  if(buscaInput){
-    buscaInput.addEventListener("input", e=>{
-      renderizar(e.target.value.toLowerCase());
-    });
-  }
+  // submit
+  form.addEventListener("submit", async e=>{
+    e.preventDefault();
 
-  // start app
-  abrirTela("dashboard");
+    const obj = {
+      acao: id.value ? "editar":"adicionar",
+      id: id.value,
+      nome: nome.value,
+      cpf: cpf.value.replace(/\D/g,""),
+      telefone: telefone.value.replace(/\D/g,""),
+      email: email.value,
+      endereco: endereco.value,
+      mes: mes.value,
+      valor: valor.value,
+      status: status.value
+    };
+
+    await fetch(API_URL,{
+      method:"POST",
+      body: JSON.stringify(obj)
+    });
+
+    fecharForm();
+    carregar();
+  });
+
   carregar();
-
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-
-  const form = document.getElementById("form");
-
-  if(form){
-    form.addEventListener("submit", async e=>{
-      e.preventDefault();
-
-      const obj = {
-        acao: id.value ? "editar" : "adicionar",
-        id: id.value,
-        nome: nome.value,
-
-        // 🔥 limpa máscara aqui
-        cpf: cpf.value.replace(/\D/g,""),
-        telefone: telefone.value.replace(/\D/g,""),
-
-        email: email.value,
-        endereco: endereco.value,
-        mes: mes.value,
-        valor: valor.value,
-        status: document.getElementById("status").value
-      };
-
-      try{
-
-        await fetch(API_URL,{
-          method:"POST",
-          body: JSON.stringify(obj)
-        });
-
-        form.reset();
-        fecharForm();
-        carregar();
-
-      }catch(e){
-        alert("Erro ao salvar");
-        console.error(e);
-      }
-
-    });
-  }
 
 });
 
