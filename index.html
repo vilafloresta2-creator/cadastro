@@ -136,32 +136,61 @@ function renderizar(){
 
     const status = a[8] || "Pendente";
 
-    const botoes = status !== "Pago"
-      ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
-      : `<button class="btn" onclick="alert('Recibo em breve')">📄 Recibo</button>`;
+const cor = status === "Pago" ? "green" : "red";
 
-    const card = document.createElement("div");
-    card.className="card";
+const botoes = status !== "Pago"
+  ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
+  : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
 
-    card.innerHTML=`
-      <b>${a[1]}</b><br>
-      ${a[6]}<br>
-      R$ ${a[7]}<br>
-      ${status}<br>
+card.innerHTML = `
+  <div style="border-left:5px solid ${cor}; padding-left:10px">
+    <b>${a[1]}</b><br>
+    ${a[6]}<br>
+    <b>R$ ${a[7]}</b><br>
+    <span style="color:${cor}">${status}</span><br>
 
-      <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
-      ${botoes}
-      <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
-    `;
+    <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+    ${botoes}
+    <button class="btn-danger" onclick="excluir('${a[0]}')">Excluir</button>
+  </div>
+`;
 
     lista.appendChild(card);
   });
 }
 
+/* ================= GERAR PDF ================= */
+function gerarPDF(idSel){
+
+  const a = dadosGlobal.find(x=>x[0]==idSel);
+  if(!a) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape");
+
+  doc.setFontSize(18);
+  doc.text("RECIBO DE PAGAMENTO", 105, 30, null, null, "center");
+
+  doc.setFontSize(12);
+
+  doc.text(`Nome: ${a[1]}`, 20, 60);
+  doc.text(`Mês: ${a[6]}`, 20, 70);
+  doc.text(`Valor: R$ ${a[7]}`, 20, 80);
+  doc.text(`Status: ${a[8]}`, 20, 90);
+
+  doc.text("Assinatura: __________________________", 20, 120);
+
+  doc.save("recibo.pdf");
+}
+
 /* ================= FORM ================= */
-function abrirForm(){
-  overlay.style.display="block";
-  formBox.style.display="block";
+function abrirForm(edicao=false){
+
+  document.getElementById("formBox").style.display="block";
+  document.getElementById("overlay").style.display="block";
+
+  document.getElementById("formTitulo").innerText =
+    edicao ? "Editar Cadastro" : "Novo Cadastro";
 }
 
 function fecharForm(){
@@ -174,19 +203,20 @@ function fecharForm(){
 /* ================= EDITAR ================= */
 function editar(idSel){
 
-  const a = dadosGlobal.find(x=>x[0]==idSel);
+  const a = dadosGlobal.find(x => x[0] == idSel);
+  if(!a) return;
 
-  id.value=a[0];
-  nome.value=a[1];
-  cpf.value=a[2]||"";
-  telefone.value=a[3]||"";
-  email.value=a[4]||"";
-  endereco.value=a[5]||"";
-  mes.value=a[6]||"";
-  valor.value=a[7]||"";
-  status.value=a[8]||"Pendente";
+  document.getElementById("id").value = a[0];
+  document.getElementById("nome").value = a[1];
+  document.getElementById("cpf").value = a[2] || "";
+  document.getElementById("telefone").value = a[3] || "";
+  document.getElementById("email").value = a[4] || "";
+  document.getElementById("endereco").value = a[5] || "";
+  document.getElementById("mes").value = a[6] || "";
+  document.getElementById("valor").value = a[7] || "";
+  document.getElementById("status").value = a[8] || "Pendente";
 
-  abrirForm();
+  abrirForm(true);
 }
 
 /* ================= PAGAR ================= */
@@ -240,7 +270,7 @@ form.addEventListener("submit", async e=>{
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
-    status:status.value
+    status: document.getElementById("status").value
   };
 
   await fetch(API_URL,{
