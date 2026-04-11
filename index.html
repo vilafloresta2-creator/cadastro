@@ -4,356 +4,177 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Financeiro Associados</title>
+<title>App Associados</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;font-family:Arial}
 
-body{
-  font-family:Arial;
-  margin:0;
-  background:#eef2f7;
-}
+body{margin:0;background:#eef2f7}
 
-header{
-  background:#2563eb;
+/* LAYOUT */
+.app{display:flex}
+
+/* SIDEBAR */
+.sidebar{
+  width:70px;
+  background:#1e293b;
   color:#fff;
+  height:100vh;
+  transition:.3s;
+  overflow:hidden;
+}
+.sidebar:hover{width:200px}
+
+.menu-item{
   padding:15px;
-  text-align:center;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
 }
+.menu-item span{opacity:0;transition:.3s}
+.sidebar:hover span{opacity:1}
 
-#overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(3px);
-  display:none;
-  z-index:998;
-}
+/* CONTENT */
+.content{flex:1;padding:15px}
 
-#toast{
-  position:fixed;
-  bottom:30px;
-  left:50%;
-  transform:translateX(-50%) translateY(100px);
-  background:#22c55e;
-  color:#fff;
-  padding:12px 20px;
-  border-radius:20px;
-  opacity:0;
-  transition:0.3s;
-  z-index:9999;
-}
+.tela{display:none}
+.tela.ativa{display:block}
 
-.container{padding:15px;max-width:600px;margin:auto}
-
+/* DASHBOARD */
 .dashboard{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
 }
-
 .card-top{
   background:#fff;
-  padding:12px;
+  padding:15px;
   border-radius:12px;
 }
 
+/* LISTA */
 .card{
   background:#fff;
   padding:12px;
-  margin-top:10px;
   border-radius:12px;
-  transition:0.2s;
+  margin-top:10px;
 }
-
-.card:active{
-  transform:scale(0.97);
-}
-
 .card.pago{border-left:5px solid green}
 .card.pendente{border-left:5px solid red}
 
+.actions{margin-top:8px;display:flex;gap:5px}
+
+/* BUTTON */
 button{
-  padding:8px;
   border:none;
+  padding:6px 10px;
   border-radius:8px;
   color:#fff;
+  cursor:pointer;
 }
-
 .btn{background:#2563eb}
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
 
-.form-box{
+/* MODAL */
+.modal{
+  display:none;
   position:fixed;
-  bottom:-100%; /* 👈 ESSENCIAL */
+  bottom:0;
   left:0;
   right:0;
   background:#fff;
-  padding:15px;
+  padding:20px;
   border-radius:20px 20px 0 0;
-  transition:0.3s ease;
   z-index:999;
-  display:block; /* 👈 importante */
-}
-
-input,select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-}
-
-.floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#2563eb;
-  color:#fff;
-  font-size:30px;
+  max-height:80vh;
+  overflow:auto;
 }
 </style>
 </head>
 
 <body>
 
-<header>Cadastro Moradores Vila Floresta 2</header>
-<div id="overlay" onclick="fecharForm()"></div>
-<div id="toast">Salvo com sucesso</div>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="menu-item" onclick="abrirTela('dashboard')">🏠 <span>Dashboard</span></div>
+  <div class="menu-item" onclick="abrirTela('lista')">👥 <span>Associados</span></div>
+  <div class="menu-item" onclick="abrirTela('grafico')">📊 <span>Gráfico</span></div>
+  <div class="menu-item" onclick="verRelatorio()">📄 <span>Relatório</span></div>
+  <div class="menu-item" onclick="verDevedores()">⚠️ <span>Devedores</span></div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<header><h2>Vila Floresta 2</h2></header>
+
+<!-- DASHBOARD -->
+<div id="tela-dashboard" class="tela">
+  <div class="dashboard">
+    <div class="card-top"><span>Total</span><b id="total">R$ 0</b></div>
+    <div class="card-top"><span>Recebido</span><b id="pagos">0</b></div>
+    <div class="card-top"><span>Pendentes</span><b id="pendentes">0</b></div>
+    <div class="card-top"><span>Em aberto</span><b id="aberto">R$ 0</b></div>
+  </div>
+</div>
+
+<!-- LISTA -->
+<div id="tela-lista" class="tela">
+  <input id="busca" placeholder="Buscar...">
+  <div id="lista"></div>
+</div>
+
+<!-- GRAFICO -->
+<div id="tela-grafico" class="tela">
+  <canvas id="grafico"></canvas>
+</div>
+
+</div>
+</div>
+
+<!-- MODAL -->
 <div id="modalRelatorio" class="modal"></div>
 
-<div class="container">
-
-<div class="dashboard">
-  <div class="card-top"><span>Total</span><span>     </span> <b id="total">R$ 0</b></div>
-  <div class="card-top"><span>Pagos</span><span>     </span> <b id="pagos">0</b></div>
-  <div class="card-top"><span>Pendentes</span><span>     </span> <b id="pendentes">0</b></div>
-  <div class="card-top"><span>Em aberto</span><span>     </span><b id="aberto">R$ 0</b></div>
-</div>
-
-<select id="filtroMes"></select>
-
-<canvas id="grafico"></canvas>
-<button class="btn" onclick="verRelatorio()">📊 Ver Relatório</button>
-<button class="btn" onclick="gerarDevedores()">⚠️ Devedores</button>
-<button class="btn" onclick="exportarBackup()">💾 Exportar Backup</button>
-<button class="btn" onclick="abrirRestaurar()">📂 Restaurar Backup</button>
-
-<input type="file" id="fileRestore" accept=".json" style="display:none">
-
-<input id="busca" placeholder="Buscar...">
-<div id="lista"></div>
-
-</div>
-
-<button class="floating" onclick="abrirForm()">+</button>
-
-<div class="form-box" id="formBox">
-<form id="form">
-<input type="hidden" id="id">
-<input id="nome" placeholder="Nome" required>
-<input id="cpf" placeholder="CPF">
-<input id="telefone" placeholder="(00) 00000-0000">
-<input id="email" placeholder="Email">
-<input id="endereco" placeholder="Endereço">
-<input id="mes" placeholder="03-2026">
-<input id="valor" placeholder="Valor">
-<select id="status">
-<option value="Pago">Pago</option>
-<option value="Pendente">Pendente</option>
-</select>
-<button class="btn">Salvar</button>
-<button type="button" class="btn-danger" onclick="cancelar()">Cancelar</button>
-</form>
-</div>
-
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
+
+/* CONFIG */
+const API_URL = "SUA_URL_AQUI";
 let dadosGlobal=[];
 let grafico;
-let modoEdicao = false;
 
-/* ================= LOAD ================= */
+/* NAV */
+function abrirTela(nome){
+  document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
+  document.getElementById("tela-"+nome).classList.add("ativa");
+
+  if(nome==="grafico") atualizarGrafico();
+}
+
+/* LOAD */
 async function carregar(){
-
-  try{
-    const res = await fetch(API_URL);
-    const dados = await res.json();
-
-    dadosGlobal = dados.slice(1);
-
-    // salva backup
-    localStorage.setItem("backup_associados", JSON.stringify(dadosGlobal));
-
-  }catch(e){
-
-    console.warn("Erro ao carregar API, usando backup local");
-
-    const backup = localStorage.getItem("backup_associados");
-
-    if(backup){
-      dadosGlobal = JSON.parse(backup);
-      toast("Modo offline (backup) ⚠️");
-    }else{
-      dadosGlobal = [];
-    }
-  }
+  const res = await fetch(API_URL);
+  const dados = await res.json();
+  dadosGlobal = dados.slice(1);
 
   renderizar();
   calcular();
-  atualizarGrafico();
   backupAutomatico();
 }
 
-/* ================= abrir backup ================= */
-function abrirRestaurar(){
-  document.getElementById("fileRestore").click();
-}
-
-/* ================= exportar Backup ================= */
-function exportarBackup(){
-
-  if(!dadosGlobal.length){
-    alert("Não há dados para exportar!");
-    return;
-  }
-
-  const dados = JSON.stringify(dadosGlobal, null, 2);
-
-  const blob = new Blob([dados], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "backup_associados.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-
-  toast("Backup exportado com sucesso 💾");
-}
-
-/* ================= Exportar Backup auto ================= */
-function exportarBackupAutomatico(){
-
-  const backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
-
-  if(!backups.length){
-    alert("Nenhum backup disponível!");
-    return;
-  }
-
-  const blob = new Blob([JSON.stringify(backups, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "backup_automatico.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-function verRelatorio(){
-
-  let html = `
-    <h3>Relatório Financeiro</h3>
-    <div style="max-height:300px; overflow:auto;">
-  `;
-
-  let total = 0;
-  let aberto = 0;
-
-  dadosGlobal.forEach(a => {
-
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    if(status === "Pago") total += valor;
-    else aberto += valor;
-
-    html += `
-      <div style="border-bottom:1px solid #eee; padding:8px 0;">
-        <b>${a[1]}</b><br>
-        ${a[6]} - R$ ${valor.toFixed(2)} - ${status}
-      </div>
-    `;
-  });
-
-  html += `
-    </div>
-
-    <p><b>Total:</b> R$ ${total.toFixed(2)}</p>
-    <p><b>Em aberto:</b> R$ ${aberto.toFixed(2)}</p>
-
-    <button class="btn" onclick="gerarRelatorio()">📄 Exportar PDF</button>
-    <button class="btn-danger" onclick="fecharRelatorio()">Fechar</button>
-  `;
-
-  modalRelatorio.innerHTML = html;
-  modalRelatorio.style.display = "block";
-}
-
-function fecharRelatorio(){
-  modalRelatorio.style.display = "none";
-}
-
-/* ================= CANCELAR ================= */
-function cancelar(){
-
-  if(!modoEdicao){
-    form.reset();
-  }
-
-  id.value="";
-  modoEdicao = false;
-
-  fecharForm();
-}
-
-/* ================= MESES ================= */
-function carregarMeses(){
-  const select=document.getElementById("filtroMes");
-
-  const meses=[...new Set(dadosGlobal.map(a=>a[6]).filter(Boolean))];
-
-  select.innerHTML='<option value="">Todos</option>';
-
-  meses.forEach(m=>{
-    select.innerHTML+=`<option value="${m}">${m}</option>`;
-  });
-}
-
-/* ================= CALCULO ================= */
+/* DASH */
 function calcular(){
-
-  const mesSel=document.getElementById("filtroMes").value;
-
   let total=0,pagos=0,pendentes=0,aberto=0;
 
   dadosGlobal.forEach(a=>{
-
-    if(mesSel && a[6]!==mesSel) return;
-
-    const valor=Number(a[7])||0;
-    const status=a[8]||"Pendente";
-
-    if(status==="Pago"){
-      total+=valor;
-      pagos++;
-    }else{
-      aberto+=valor;
-      pendentes++;
-    }
+    const v=Number(a[7])||0;
+    if(a[8]==="Pago"){total+=v;pagos++}
+    else{aberto+=v;pendentes++}
   });
 
   set("total","R$ "+total.toFixed(2));
@@ -362,121 +183,53 @@ function calcular(){
   set("aberto","R$ "+aberto.toFixed(2));
 }
 
-/* ================= UTIL ================= */
 function set(id,val){
   const el=document.getElementById(id);
   if(el) el.innerText=val;
 }
 
-/* ================= RENDER ================= */
-function renderizar(filtro=""){
-
-  const mesSel=document.getElementById("filtroMes").value;
-
+/* LISTA */
+function renderizar(f=""){
   lista.innerHTML="";
 
-  dadosGlobal
-  .filter(a=>{
-    const nomeOk=(a[1]||"").toLowerCase().includes(filtro);
-    const mesOk=!mesSel || a[6]===mesSel;
-    return nomeOk && mesOk;
-  })
+  dadosGlobal.filter(a=>a[1].toLowerCase().includes(f))
   .forEach(a=>{
 
     const status=a[8]||"Pendente";
 
-    const botoes = status!=="Pago"
-      ? `<button class="btn" onclick="pagar('${a[0]}')">Pagar</button>`
-      : `<button class="btn" onclick="gerarPDF('${a[0]}')">📄 Recibo</button>`;
-
     const card=document.createElement("div");
     card.className="card "+(status==="Pago"?"pago":"pendente");
 
-    card.innerHTML = `
+    card.innerHTML=`
+      <b>${a[1]}</b>
+      <div>${a[6]} - R$ ${a[7]}</div>
 
-  <div onclick="ver('${a[0]}')">
-    <b style="font-size:16px">${a[1]}</b>
+      <div class="actions">
+        <button class="btn-edit" onclick="event.stopPropagation();editar('${a[0]}')">Editar</button>
 
-    <div style="margin-top:4px; font-size:13px; color:#555;">
-      ${a[6] || "-"} • R$ ${Number(a[7] || 0).toFixed(2)}
-    </div>
+        ${
+          status!=="Pago"
+          ? `<button class="btn" onclick="event.stopPropagation();pagar('${a[0]}')">Pagar</button>`
+          : `<button class="btn" onclick="event.stopPropagation();gerarPDF('${a[0]}')">📄</button>`
+        }
 
-    <div style="margin-top:6px">
-      <span style="
-        padding:4px 10px;
-        border-radius:20px;
-        font-size:12px;
-        background:${status==='Pago'?'#dcfce7':'#fee2e2'};
-        color:${status==='Pago'?'#166534':'#991b1b'};
-      ">
-        ${status}
-      </span>
-    </div>
-  </div>
-
-  <div class="actions">
-
-    <button class="btn-edit"
-      onclick="event.stopPropagation(); editar('${a[0]}')">
-      Editar
-    </button>
-
-    ${
-      status !== "Pago"
-      ? `<button class="btn"
-          onclick="event.stopPropagation(); pagar('${a[0]}')">
-          Pagar
-        </button>`
-      : `<button class="btn"
-          onclick="event.stopPropagation(); gerarPDF('${a[0]}')">
-          📄 Recibo
-        </button>`
-    }
-
-    <button class="btn"
-      onclick="event.stopPropagation(); enviarWhatsApp('${a[0]}')">
-      📲 WhatsApp
-    </button>
-
-    <button class="btn-danger"
-      onclick="event.stopPropagation(); excluir('${a[0]}')">
-      Excluir
-    </button>
-
-  </div>
-
-`;
+        <button class="btn" onclick="event.stopPropagation();enviarWhatsApp('${a[0]}')">📲</button>
+        <button class="btn-danger" onclick="event.stopPropagation();excluir('${a[0]}')">X</button>
+      </div>
+    `;
 
     lista.appendChild(card);
   });
 }
 
-function toast(msg="Salvo com sucesso"){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-
-  t.style.opacity="1";
-  t.style.transform="translateX(-50%) translateY(0)";
-
-  setTimeout(()=>{
-    t.style.opacity="0";
-    t.style.transform="translateX(-50%) translateY(100px)";
-  },2000);
-}
-
-/* ================= GRAFICO ================= */
+/* GRAFICO */
 function atualizarGrafico(){
-
-  const mesSel=document.getElementById("filtroMes").value;
-
-  let pago=0,pendente=0;
+  let p=0,d=0;
 
   dadosGlobal.forEach(a=>{
-    if(mesSel && a[6]!==mesSel) return;
-
-    const valor=Number(a[7])||0;
-    if(a[8]==="Pago") pago+=valor;
-    else pendente+=valor;
+    const v=Number(a[7])||0;
+    if(a[8]==="Pago") p+=v;
+    else d+=v;
   });
 
   const ctx=document.getElementById("grafico");
@@ -485,444 +238,85 @@ function atualizarGrafico(){
 
   grafico=new Chart(ctx,{
     type:"doughnut",
-    data:{
-      labels:["Pago","Pendente"],
-      datasets:[{data:[pago,pendente]}]
-    }
+    data:{labels:["Pago","Pendente"],datasets:[{data:[p,d]}]},
+    options:{cutout:"70%"}
   });
 }
 
-/* ================= PDF ================= */
-function gerarPDF(idSel){
-
-  const { jsPDF } = window.jspdf;
-
-  // 📄 A5 horizontal (15 x 21 cm)
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a5"
-  });
-
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  const hoje = new Date().toLocaleDateString();
-
-  const logo = new Image();
-  logo.src = "logo.png";
-
-  logo.onload = function(){
-
-    // 🔷 CABEÇALHO
-    doc.setFillColor(37, 99, 235);
-    doc.rect(0, 0, 210, 25, "F");
-
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(14);
-    doc.text("ASSOCIAÇÃO VILA FLORESTA 2", 10, 15);
-
-    // LOGO DIREITA
-    doc.addImage(logo, "PNG", 170, 5, 17, 17);
-
-    // RESET COR
-    doc.setTextColor(0,0,0);
-
-    // TÍTULO
-    doc.setFontSize(16);
-    doc.text("RECIBO DE PAGAMENTO", 105, 40, { align: "center" });
-
-    doc.setDrawColor(200);
-    doc.line(20, 45, 190, 45);
-
-    // 📦 BOX PRINCIPAL
-    doc.roundedRect(20, 55, 170, 60, 4, 4);
-
-    doc.setFontSize(11);
-
-    // COLUNA ESQUERDA
-    doc.text("Recebemos de:", 25, 70);
-    doc.text(a[1], 25, 78);
-
-    doc.text("Referente ao mês:", 25, 90);
-    doc.text(a[6], 25, 98);
-
-    // COLUNA DIREITA
-    doc.text("Valor Pago:", 120, 70);
-    doc.text("R$ " + Number(a[7]).toFixed(2), 120, 78);
-
-    doc.text("Status:", 120, 90);
-    doc.text(a[8], 120, 98);
-
-    // 📅 RODAPÉ
-    doc.setFontSize(10);
-    doc.text("Emitido em: " + hoje, 20, 130);
-
-    // ASSINATURA
-    doc.line(130, 130, 190, 130);
-    doc.text("Responsável", 160, 135, { align: "center" });
-
-    doc.save("recibo_"+a[1]+".pdf");
-  };
-}
-
-/* =============== RELATORIO ================= */
-function gerarRelatorio(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 20;
-
-  doc.setFontSize(16);
-  doc.text("Relatório Financeiro", 20, y);
-
-  y += 10;
-
-  doc.setFontSize(10);
-  doc.text("Nome", 20, y);
-  doc.text("Mês", 90, y);
-  doc.text("Valor", 120, y);
-  doc.text("Status", 160, y);
-
-  y += 5;
-  doc.line(20, y, 190, y);
-  y += 5;
-
-  let total = 0;
-  let aberto = 0;
-
-  dadosGlobal.forEach(a => {
-
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    if(status === "Pago") total += valor;
-    else aberto += valor;
-
-    doc.text(a[1], 20, y);
-    doc.text(a[6] || "-", 90, y);
-    doc.text("R$ " + valor.toFixed(2), 120, y);
-    doc.text(status, 160, y);
-
-    y += 6;
-
-    if(y > 280){
-      doc.addPage();
-      y = 20;
-    }
-  });
-
-  y += 10;
-
-  doc.setFontSize(12);
-  doc.text("Total Recebido: R$ " + total.toFixed(2), 20, y);
-  y += 6;
-  doc.text("Em aberto: R$ " + aberto.toFixed(2), 20, y);
-
-  doc.save("relatorio.pdf");
-}
-
-function gerarDevedores(){
-  const lista = dadosGlobal.filter(a => a[8] !== "Pago");
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 20;
-
-  doc.setFontSize(16);
-  doc.text("Lista de Devedores", 20, y);
-
-  y += 10;
-
-  lista.forEach(a => {
-    doc.text(`${a[1]} - ${a[6]} - R$ ${a[7]}`, 20, y);
-    y += 6;
-  });
-
-  doc.save("devedores.pdf");
-}
-
+/* WHATS */
 function enviarWhatsApp(idSel){
+  const a=dadosGlobal.find(x=>x[0]==idSel);
+  let num=(a[3]||"").replace(/\D/g,"");
+  if(!num) return alert("Sem telefone");
 
-  const a = dadosGlobal.find(x => x[0] == idSel);
+  if(!num.startsWith("55")) num="55"+num;
 
-  let numero = (a[3] || "").replace(/\D/g, "");
-
-  if(!numero){
-    alert("Telefone não cadastrado!");
-    return;
-  }
-
-  // remove zero inicial se tiver
-  if(numero.startsWith("0")){
-    numero = numero.substring(1);
-  }
-
-  // garante DDD + 9 dígitos
-  if(numero.length < 10){
-    alert("Telefone inválido!");
-    return;
-  }
-
-  // adiciona Brasil
-  if(!numero.startsWith("55")){
-    numero = "55" + numero;
-  }
-
-  const mensagem =
-`Olá ${a[1]} 😊
-
-📅 Mês: ${a[6]}
-💰 Valor: R$ ${a[7]}
-✅ Status: ${a[8]}
-
-Obrigado!`;
-
-  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
-
-  window.open(url, "_blank");
+  const msg=`Olá ${a[1]}%0AValor: R$ ${a[7]}`;
+  window.open(`https://wa.me/${num}?text=${msg}`);
 }
 
-/* ================= ACOES ================= */
-form.addEventListener("submit",async e=>{
-  e.preventDefault();
+/* PDF */
+function gerarPDF(idSel){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:"landscape"});
 
-  const obj={
-    acao:id.value?"editar":"adicionar",
-    id:id.value,
-    nome:nome.value,
-    cpf:cpf.value,
-    telefone:telefone.value,
-    email:email.value,
-    endereco:endereco.value,
-    mes:mes.value,
-    valor:valor.value,
-    status: document.getElementById("status").value
-  };
-
-  await fetch(API_URL,{method:"POST",body:JSON.stringify(obj)});
-
-toast("Salvo com sucesso 💰");
-
-  form.reset();
-  fecharForm();
-  carregar();
-});
-
-telefone.addEventListener("input", e => {
-  let v = e.target.value.replace(/\D/g, "");
-
-  if(v.length > 11) v = v.slice(0,11);
-
-  if(v.length > 6)
-    v = v.replace(/(\d{2})(\d{5})(\d+)/, "($1) $2-$3");
-  else if(v.length > 2)
-    v = v.replace(/(\d{2})(\d+)/, "($1) $2");
-
-  e.target.value = v;
-});
-
-function editar(idSel){
   const a=dadosGlobal.find(x=>x[0]==idSel);
 
-  modoEdicao=true;
+  doc.text("RECIBO",20,20);
+  doc.text(a[1],20,40);
+  doc.text("R$ "+a[7],20,50);
 
-  id.value=a[0];
-  nome.value=a[1];
-  cpf.value=a[2]||"";
-  telefone.value=a[3]||"";
-  email.value=a[4]||"";
-  endereco.value=a[5]||"";
-  mes.value=a[6]||"";
-  valor.value=a[7]||"";
-  document.getElementById("status").value = a[8] || "Pendente";
-
-  abrirForm(false);
+  doc.save("recibo.pdf");
 }
 
-async function pagar(idSel){
-  const a=dadosGlobal.find(x=>x[0]==idSel);
+/* RELATORIO */
+function verRelatorio(){
+  let html="<h3>Relatório</h3>";
 
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"editar",
-      id:a[0],
-      nome:a[1],
-      cpf:a[2],
-      telefone:a[3],
-      email:a[4],
-      endereco:a[5],
-      mes:a[6],
-      valor:a[7],
-      status:"Pago"
-    })
+  dadosGlobal.forEach(a=>{
+    html+=`<div>${a[1]} - R$ ${a[7]}</div>`;
   });
 
-  carregar();
+  html+=`<button onclick="gerarRelatorio()" class="btn">PDF</button>
+  <button onclick="fecharRelatorio()" class="btn-danger">Fechar</button>`;
+
+  modalRelatorio.innerHTML=html;
+  modalRelatorio.style.display="block";
 }
 
-async function excluir(idSel){
+function verDevedores(){
+  let html="<h3>Devedores</h3>";
 
-  const confirmar = confirm("Tem certeza que deseja excluir este cadastro?");
-
-  if(!confirmar) return;
-
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"excluir",
-      id:idSel
-    })
+  dadosGlobal.filter(a=>a[8]!=="Pago")
+  .forEach(a=>{
+    html+=`<div>${a[1]} - R$ ${a[7]}</div>`;
   });
 
-  toast("Cadastro excluído 🗑️");
-  carregar();
+  html+=`<button onclick="gerarDevedores()" class="btn">PDF</button>
+  <button onclick="fecharRelatorio()" class="btn-danger">Fechar</button>`;
+
+  modalRelatorio.innerHTML=html;
+  modalRelatorio.style.display="block";
 }
 
-/* ===================== BACKUP NA NUVEM ===================== */
-async function backupNuvem(){
-
-  try{
-
-    await fetch(API_URL,{
-      method:"POST",
-      body:JSON.stringify({
-        acao:"backup",
-        dados:dadosGlobal
-      })
-    });
-
-    console.log("Backup na nuvem OK ☁️");
-
-  }catch(e){
-    console.error("Erro backup nuvem", e);
-  }
+function fecharRelatorio(){
+  modalRelatorio.style.display="none";
 }
 
-
-/* ===================== BACKUP AUTOMÁTICO ===================== */
+/* BACKUP */
 function backupAutomatico(){
+  const hoje=new Date().toISOString().slice(0,10);
+  if(localStorage.getItem("backup_data")===hoje) return;
 
-  const hoje = new Date().toISOString().slice(0,10);
-  const ultimoBackup = localStorage.getItem("backup_data");
-
-  // evita duplicar no mesmo dia
-  if(ultimoBackup === hoje) return;
-
-  let backups = JSON.parse(localStorage.getItem("backup_historico") || "[]");
-
-  backups.push({
-    data: hoje,
-    dados: dadosGlobal
-  });
-
-  // mantém últimos 7 dias
-  if(backups.length > 7){
-    backups.shift();
-  }
-
-  localStorage.setItem("backup_historico", JSON.stringify(backups));
-  localStorage.setItem("backup_data", hoje);
-
-  console.log("Backup local OK 💾");
-
-  // 👇 salva também na nuvem
-  backupNuvem();
+  localStorage.setItem("backup_associados",JSON.stringify(dadosGlobal));
+  localStorage.setItem("backup_data",hoje);
 }
 
-/* ================= UI ================= */
-busca.addEventListener("input",e=>{
-  renderizar(e.target.value.toLowerCase());
-});
+/* INIT */
+busca.addEventListener("input",e=>renderizar(e.target.value.toLowerCase()));
 
-filtroMes.addEventListener("change",()=>{
-  renderizar(busca.value.toLowerCase());
-  calcular();
-  atualizarGrafico();
-});
-
-function abrirForm(novo=true){
-
-  if(novo){
-    form.reset();
-    id.value="";
-    modoEdicao=false;
-  }
-
-  overlay.style.display="block";
-
-  // força render antes da animação
-  formBox.style.bottom="-100%";
-
-  setTimeout(()=>{
-    formBox.style.bottom="0";
-  },10);
-}
-
-function fecharForm(){
-
-  formBox.style.bottom="-100%";
-
-  setTimeout(()=>{
-    overlay.style.display="none";
-  },300);
-}
-
+abrirTela("dashboard");
 carregar();
-
-document.getElementById("fileRestore").addEventListener("change", async function(e){
-
-  const file = e.target.files[0];
-  if(!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = async function(evt){
-
-    try{
-
-      const dados = JSON.parse(evt.target.result);
-
-      if(!Array.isArray(dados)){
-        alert("Arquivo inválido!");
-        return;
-      }
-
-      const confirmar = confirm("⚠️ Isso irá adicionar os dados do backup.\nDeseja continuar?");
-      if(!confirmar) return;
-
-      // ENVIA ITEM POR ITEM PARA A PLANILHA
-      for(const item of dados){
-
-        await fetch(API_URL,{
-          method:"POST",
-          body:JSON.stringify({
-            acao:"adicionar",
-            nome:item[1] || "",
-            cpf:item[2] || "",
-            telefone:item[3] || "",
-            email:item[4] || "",
-            endereco:item[5] || "",
-            mes:item[6] || "",
-            valor:item[7] || "",
-            status:item[8] || "Pendente"
-          })
-        });
-
-      }
-
-      alert("✅ Backup restaurado com sucesso!");
-      carregar();
-
-    }catch(err){
-      alert("❌ Erro ao ler arquivo!");
-    }
-
-  };
-
-  reader.readAsText(file);
-
-});
 
 </script>
 
