@@ -103,21 +103,19 @@ input,select{
   border-radius:12px;
 }
 
-.sidebar{
+.menu-toggle{
   position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  width:60px;
-  background:#1e293b;
+  top:15px;
+  left:15px;
+  width:45px;
+  height:45px;
+  border-radius:10px;
+  background:#2563eb;
   color:#fff;
-  transition:0.3s;
-  overflow:hidden;
-  z-index:1000;
-}
-
-.sidebar:hover{
-  width:200px;
+  font-size:22px;
+  border:none;
+  z-index:1200;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
 .menu-btn{
@@ -141,8 +139,30 @@ input,select{
   display:none;
 }
 
-.sidebar:hover .menu-item span{
-  display:inline;
+.menu-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:1300;
+}
+
+.menu-box{
+  position:fixed;
+  top:0;
+  left:-250px;
+  width:250px;
+  height:100%;
+  background:#fff;
+  padding:20px;
+  transition:0.3s;
+  z-index:1400;
+}
+
+.menu-box div{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
 }
 
 </style>
@@ -150,40 +170,21 @@ input,select{
 
 <body>
 
-<div class="sidebar" id="sidebar">
-
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
-
-  <div class="menu-item" onclick="carregar()">
-    🏠 <span>Início</span>
-  </div>
-
-  <div class="menu-item" onclick="verRelatorio()">
-    📊 <span>Relatório</span>
-  </div>
-
-  <div class="menu-item" onclick="verDevedores()">
-    ⚠️ <span>Devedores</span>
-  </div>
-
-  <div class="menu-item" onclick="exportarBackup()">
-    💾 <span>Backup</span>
-  </div>
-
-  <div class="menu-item" onclick="restaurarBackup()">
-    ♻️ <span>Restaurar</span>
-  </div>
-
-</div>
+<button class="menu-toggle" onclick="abrirMenu()">☰</button>
 
 <header>Cadastro Moradores Vila Floresta 2</header>
 
 <div class="container">
 
 <button class="floating" onclick="abrirForm()">+</button>
-<!-- <button class="btn" onclick="verRelatorio()">📊 Relatório</button>
-     <button class="btn" onclick="verDevedores()">⚠️ Devedores</button>
--->
+
+<div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
+<div id="menuBox" class="menu-box">
+  <h3>Menu</h3>
+  <div onclick="verRelatorio()">📊 Relatório</div>
+  <div onclick="verDevedores()">⚠️ Devedores</div>
+  <div onclick="exportarBackup()">💾 Backup</div>
+</div>
 
 <div class="dashboard">
 
@@ -256,6 +257,17 @@ async function carregar(){
   console.log("Dados carregados:", dadosGlobal); // debug
   renderizar();
   calcular();
+}
+
+/* ================= ABRIR MENU ================= */
+function abrirMenu(){
+  document.getElementById("menuOverlay").style.display = "block";
+  document.getElementById("menuBox").style.left = "0";
+}
+
+function fecharMenu(){
+  document.getElementById("menuOverlay").style.display = "none";
+  document.getElementById("menuBox").style.left = "-250px";
 }
 
 /* ================= CALCULAR ================= */
