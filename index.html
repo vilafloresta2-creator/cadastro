@@ -469,8 +469,8 @@ function editar(idSel){
   if(!a) return;
   document.getElementById("id").value = a[0];
   document.getElementById("nome").value = a[1];
-  document.getElementById("cpf").value = a[2] || "";
-  document.getElementById("telefone").value = a[3] || "";
+  document.getElementById("cpf").value = maskCPF(a[2] || "");
+  document.getElementById("telefone").value = maskTelefone(a[3] || "");
   document.getElementById("email").value = a[4] || "";
   document.getElementById("endereco").value = a[5] || "";
   document.getElementById("mes").value = a[6] || "";
@@ -559,8 +559,15 @@ form.addEventListener("submit", async e=>{
   }
 
   const cpfLimpo = cpf.value.replace(/\D/g,"");
-  if(!validarCPF(cpf.value)){
+  // valida CPF real (se já tiver sua função)
+  if(cpfLimpo && !validarCPF(cpfLimpo)){
     alert("CPF inválido!");
+    return;
+  }
+
+  // 🔒 BLOQUEIO DE DUPLICADO
+  if(cpfLimpo && cpfJaExiste(cpfLimpo, id.value)){
+    alert("Já existe um cadastro com este CPF!");
     return;
   }
 
@@ -660,6 +667,17 @@ async function gerarMensalidadesAutomatico(){
   }
 
   gerandoMensalidade = false;
+}
+
+function cpfJaExiste(cpf, idAtual=""){
+  const cpfLimpo = String(cpf).replace(/\D/g,"");
+
+  return dadosGlobal.some(a => {
+    const cpfBanco = String(a[2] || "").replace(/\D/g,"");
+    const idBanco = a[0];
+
+    return cpfBanco === cpfLimpo && idBanco != idAtual;
+  });
 }
 
 /* ================= RELATORIO ================= */
