@@ -88,6 +88,16 @@ input,select{
 </div>
 
 <script>
+document.addEventListener("input", e=>{
+  if(e.target.id === "m_cpf"){
+    e.target.value = maskCPF(e.target.value);
+  }
+
+  if(e.target.id === "m_tel"){
+    e.target.value = maskTel(e.target.value);
+  }
+});
+
 const API = "https://script.google.com/macros/s/AKfycbwL51y2O7h7H3qfT9e2ZPZjy0nzakrV0T9QI-p1RCDIICxmdR-jNp39ufoOoDAxhb0M/exec";
 
 let associados = [];
@@ -247,7 +257,7 @@ function listarAssociados(){
     html += `
       <div class="card">
         <b>${a[1]}</b><br>
-        CPF: ${a[2]}<br>
+        CPF: ${maskCPF(a[2])}<br>
 
         <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
       </div>
@@ -258,25 +268,67 @@ function listarAssociados(){
 }
 
 /* ================= FORM ================= */
-function novo(){
-  const nome = prompt("Nome:");
-  const cpf = prompt("CPF:");
-  const tel = prompt("Telefone:");
-  const mensal = prompt("Mensalidade:");
+let editandoId = null;
 
-  salvar({nome,cpf,telefone:tel,mensalidade:mensal});
+function novo(){
+  editandoId = null;
+
+  modalTitulo.innerText = "Novo Associado";
+
+  m_nome.value = "";
+  m_cpf.value = "";
+  m_tel.value = "";
+  m_email.value = "";
+  m_endereco.value = "";
+  m_mensal.value = "";
+
+  modal.style.display = "block";
 }
 
 function editar(id){
 
   const a = associados.find(x=>x[0]==id);
 
-  const nome = prompt("Nome:",a[1]);
-  const cpf = prompt("CPF:",a[2]);
-  const tel = prompt("Telefone:",a[3]);
-  const mensal = prompt("Mensalidade:",a[4]);
+  editandoId = id;
 
-  salvar({id,nome,cpf,telefone:tel,mensalidade:mensal});
+  m_nome.value = a[1];
+  m_cpf.value = a[2];
+  m_tel.value = a[3];
+  m_email.value = a[4] || "";
+  m_endereco.value = a[5] || "";
+  m_mensal.value = a[6];
+
+  modalTitulo.innerText = "Editar Associado";
+
+  modal.style.display = "block";
+}
+
+function fecharModal(){
+  modal.style.display = "none";
+}
+
+async function salvarModal(){
+  const cpfLimpo = String(m_cpf.value).replace(/\D/g,""); // 🔥 mantém zeros
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      id: editandoId,
+      nome: m_nome.value,
+      cpf: cpfLimpo, // 🔥 CORRIGIDO
+      telefone: String(m_tel.value).replace(/\D/g,""),
+      email: m_email.value,
+      endereco: m_endereco.value,
+      mensalidade: m_mensal.value
+    })
+  });
+
+  fecharModal();
+  carregar();
+}
+
+  fecharModal();
+  carregar();
 }
 
 /* ================= SALVAR ================= */
@@ -293,10 +345,52 @@ async function salvar(obj){
   carregar();
 }
 
+/* ================= MASCARAS ================= */
+function maskCPF(v){
+  v = String(v || "");
+  v = v.replace(/\D/g,"").slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  return v;
+}
+
+function maskTel(v){
+  v = String(v || "");
+  v = v.replace(/\D/g,"").slice(0,11);
+
+  if(v.length > 10){
+    v = v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
+  }else{
+    v = v.replace(/(\d{2})(\d{4})(\d)/,"($1) $2-$3");
+  }
+
+  return v;
+}
+
 /* INIT */
 carregar();
 ir("dashboard");
 </script>
+
+<!-- MODAL -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;" onclick="fecharModal()">
+  <div onclick="event.stopPropagation()" style="background:#1e293b;padding:20px;margin:50px auto;width:90%;max-width:400px;border-radius:12px;">
+    
+    <h3 id="modalTitulo">Novo Associado</h3>
+
+    <input id="m_nome" placeholder="Nome">
+    <input id="m_cpf" placeholder="CPF">
+    <input id="m_tel" placeholder="Telefone">
+    <input id="m_email" placeholder="Email">
+    <input id="m_endereco" placeholder="Endereço">
+    <input id="m_mensal" placeholder="Mensalidade">
+
+    <button class="btn" onclick="salvarModal()">Salvar</button>
+    <button class="btn-danger" onclick="fecharModal()">Cancelar</button>
+
+  </div>
+</div>
 
 </body>
 </html>
