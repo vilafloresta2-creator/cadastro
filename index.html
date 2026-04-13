@@ -64,6 +64,15 @@ button{
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
 
+.btn-light{
+  background:#e5e7eb;
+  color:#111;
+}
+
+.btn-light:hover{
+  background:#d1d5db;
+}
+
 .form-box{
   display:none;
   position:fixed;
@@ -154,7 +163,8 @@ input,select{
   left:0;
   width:250px;
   height:100%;
-  background:#2563eb;
+  background:#1e293b;
+  color:#fff;
   padding:20px;
   transform:translateX(-100%); /* 🔥 ESCONDE CORRETAMENTE */
   transition:0.3s;
@@ -163,12 +173,13 @@ input,select{
 
 .menu-box div{
   padding:12px;
-  border-bottom:1px solid #eee;
+  border-bottom:1px solid rgba(255,255,255,0.1);
   cursor:pointer;
 }
 
 .sidebar:hover{
   width:200px;
+  background:#334155;
 }
 
 </style>
@@ -546,27 +557,27 @@ function renderTabelaRelatorio(){
   }
 
   let html = `
-    <table style="width:100%; border-collapse:collapse; font-size:13px;">
-      <tr style="background:#f1f5f9;">
-        <th align="left">Nome</th>
-        <th>Mês</th>
-        <th>Valor</th>
-        <th>Status</th>
-      </tr>
+  <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+    <tr style="background:#e2e8f0;">
+      <th style="padding:8px;">Nome</th>
+      <th>Mês</th>
+      <th>Valor</th>
+      <th>Status</th>
+    </tr>
   `;
 
   lista.forEach(a=>{
     const cor = a[8] === "Pago" ? "green" : "red";
 
     html += `
-      <tr>
-        <td>${a[1]}</td>
-        <td align="center">${a[6]}</td>
-        <td align="right">R$ ${Number(a[7]).toFixed(2)}</td>
-        <td align="center" style="color:${cor}">
-          ${a[8]}
-        </td>
-      </tr>
+    <tr>
+      <td style="padding:6px;">${a[1]}</td>
+      <td>${a[6]}</td>
+      <td>R$ ${Number(a[7]).toFixed(2)}</td>
+      <td style="color:${cor}; font-weight:bold;">
+        ${a[8]}
+      </td>
+    </tr>
     `;
   });
 
@@ -648,12 +659,41 @@ function exportarRelatorioPDF(){
 
 /* ================= DEVEDORES ================= */
 function verDevedores(){
-  let html="<h3>Devedores</h3>";
-  dadosGlobal
-  .filter(a=>a[8]!=="Pago")
-  .forEach(a=>{
-    html+=`${a[1]} - R$ ${a[7]}<br>`;
+
+  let lista = dadosGlobal.filter(a=>a[8]!=="Pago");
+
+  let html = `
+    <h3>Devedores</h3>
+
+    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+      <tr style="background:#e2e8f0;">
+        <th>Nome</th>
+        <th>Mês</th>
+        <th>Valor</th>
+      </tr>
+  `;
+
+  lista.forEach(a=>{
+    html += `
+      <tr>
+        <td>${a[1]}</td>
+        <td>${a[6]}</td>
+        <td>R$ ${Number(a[7]).toFixed(2)}</td>
+      </tr>
+    `;
   });
+
+  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
+
+  html += `
+    <tr style="font-weight:bold; background:#f1f5f9;">
+      <td colspan="2">Total</td>
+      <td>R$ ${total.toFixed(2)}</td>
+    </tr>
+  `;
+
+  html += "</table>";
+
   abrirModal(html);
 }
 
