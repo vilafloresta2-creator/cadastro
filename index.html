@@ -3,192 +3,299 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vila Floresta 2 - Profissional</title>
+<title>Vila Floresta 2</title>
 
 <style>
-body{font-family:Arial;margin:0;background:#eef2f7}
-header{background:#1e293b;color:#fff;padding:15px;text-align:center}
+body{font-family:Arial;margin:0;background:#0f172a;color:#fff}
+header{background:#020617;padding:15px;text-align:center;font-size:18px}
+
 .container{padding:15px;max-width:900px;margin:auto}
 
-.card{background:#fff;padding:15px;border-radius:12px;margin-top:10px}
-button{border:none;padding:8px 12px;margin:3px;border-radius:6px;color:#fff;cursor:pointer}
-.btn{background:#2563eb}
-.btn-edit{background:#f59e0b}
-.btn-danger{background:#ef4444}
-.btn-light{background:#e5e7eb;color:#111}
-
-input{width:100%;padding:10px;margin:5px 0}
-
-.menu-box{
-  position:fixed;top:0;left:0;width:250px;height:100%;
-  background:#111827;color:#fff;padding:20px;
-  transform:translateX(-100%);transition:0.3s;
+.nav{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
 }
-.menu-box div{padding:12px;cursor:pointer}
-.menu-box div:hover{background:#374151}
 
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4)}
-.form-box{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;border-radius:20px 20px 0 0}
-.floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#2563eb;
-  color:#fff;
-  font-size:30px;
+.nav button{
+  flex:1;
+  padding:10px;
+  background:#1e293b;
   border:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  color:#fff;
+  border-radius:8px;
+}
+
+.nav button.active{
+  background:#2563eb;
+}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:none;
+}
+
+.btn{
+  background:#2563eb;
+  padding:8px;
+  border:none;
+  color:#fff;
+  border-radius:6px;
+}
+
+.btn-danger{background:#ef4444}
+.btn-edit{background:#f59e0b}
+
+.top{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.box{
+  background:#1e293b;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<header>Vila Floresta 2 - Gestão</header>
+<header>Vila Floresta 2</header>
 
 <div class="container">
-  <button class="floating" onclick="novoAssociado()">+</button>
-  <button onclick="abrirMenu()">☰ Menu</button>
-  <div id="lista"></div>
+
+<div class="nav">
+  <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
+  <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
+  <button onclick="ir('associados')" id="btn_associados">Associados</button>
 </div>
 
-<div id="menu" class="menu-box">
-  <h3>Menu</h3>
-  <div onclick="verCobrancas()">💰 Cobranças</div>
-  <div onclick="verAssociados()">👤 Associados</div>
-</div>
+<div id="tela"></div>
 
-<div id="overlay" class="overlay" onclick="fecharTudo()"></div>
-
-<div id="formBox" class="form-box">
-  <h3 id="tituloForm"></h3>
-  <form id="form">
-    <input type="hidden" id="id">
-    <input id="nome" placeholder="Nome" required>
-    <input id="cpf" placeholder="CPF">
-    <input id="telefone" placeholder="Telefone">
-    <input id="mensalidade" placeholder="Mensalidade">
-    <button class="btn">Salvar</button>
-    <button type="button" class="btn-light" onclick="fecharTudo()">Cancelar</button>
-  </form>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwL51y2O7h7H3qfT9e2ZPZjy0nzakrV0T9QI-p1RCDIICxmdR-jNp39ufoOoDAxhb0M/exec";
+const API = "https://script.google.com/macros/s/AKfycbwL51y2O7h7H3qfT9e2ZPZjy0nzakrV0T9QI-p1RCDIICxmdR-jNp39ufoOoDAxhb0M/exec";
 
 let associados = [];
 let cobrancas = [];
+let telaAtual = "dashboard";
 
+/* ================= CARREGAR ================= */
 async function carregar(){
 
-  // 1. pega dados
-  let res = await fetch(API_URL);
+  let res = await fetch(API);
   let data = await res.json();
 
   associados = data.associados.slice(1);
   cobrancas = data.cobrancas.slice(1);
 
-  // 2. gera cobranças automáticas
-  await fetch(API_URL,{
+  await fetch(API,{
     method:"POST",
     body:JSON.stringify({acao:"gerar_cobrancas"})
   });
 
-  // 3. recarrega
-  res = await fetch(API_URL);
+  res = await fetch(API);
   data = await res.json();
 
   associados = data.associados.slice(1);
   cobrancas = data.cobrancas.slice(1);
 
-  // 4. renderiza
-  verCobrancas();
-  verAssociados();
+  render();
 }
 
-function abrirMenu(){
-  menu.style.transform="translateX(0)";
-  overlay.style.display="block";
+/* ================= NAVEGAÇÃO ================= */
+function ir(tela){
+  telaAtual = tela;
+
+  document.querySelectorAll(".nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  document.getElementById("btn_"+tela).classList.add("active");
+
+  render();
 }
 
-function fecharTudo(){
-  menu.style.transform="translateX(-100%)";
-  overlay.style.display="none";
-  formBox.style.display="none";
+/* ================= RENDER ================= */
+function render(){
+
+  if(telaAtual === "dashboard") renderDashboard();
+  if(telaAtual === "cobrancas") renderCobrancas();
+  if(telaAtual === "associados") renderAssociados();
+
 }
 
-/* ================= ASSOCIADOS ================= */
-function verAssociados(){
-  lista.innerHTML = 
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
 
-  associados.forEach(a=>{
-    lista.innerHTML += `
-      <div class="card">
-        <b>${a[1]}</b><br>
-        CPF: ${a[2]}<br>
-        <button class="btn-edit" onclick="editarAssociado('${a[0]}')">Editar</button>
-      </div>
-    `;
+  let total=0, aberto=0;
+
+  cobrancas.forEach(c=>{
+    if(c[5]=="Pago") total+=Number(c[4]);
+    else aberto+=Number(c[4]);
   });
-}
 
-function novoAssociado(){
-  tituloForm.innerText = "Novo Associado";
-  formBox.style.display="block";
-  overlay.style.display="block";
-}
-
-function editarAssociado(idSel){
-  const a = associados.find(x=>x[0]==idSel);
-  id.value = a[0];
-  nome.value = a[1];
-  cpf.value = a[2];
-  telefone.value = a[3];
-  mensalidade.value = a[4];
-
-  tituloForm.innerText = "Editar Associado";
-  formBox.style.display="block";
-  overlay.style.display="block";
+  tela.innerHTML = `
+    <div class="top">
+      <div class="box">
+        <b>Recebido</b><br>R$ ${total.toFixed(2)}
+      </div>
+      <div class="box">
+        <b>Pendente</b><br>R$ ${aberto.toFixed(2)}
+      </div>
+      <div class="box">
+        <b>Associados</b><br>${associados.length}
+      </div>
+    </div>
+  `;
 }
 
 /* ================= COBRANÇAS ================= */
-function verCobrancas(){
-  lista.innerHTML = "";
+function renderCobrancas(){
 
-  cobrancas.forEach(c=>{
-    lista.innerHTML += `
+  let meses = [...new Set(cobrancas.map(c=>c[3]))];
+
+  tela.innerHTML = `
+    <select id="filtroMes">
+      <option value="">Todos</option>
+      ${meses.map(m=>`<option>${m}</option>`).join("")}
+    </select>
+    <div id="lista"></div>
+  `;
+
+  document.getElementById("filtroMes").onchange = listar;
+  listar();
+}
+
+function listar(){
+
+  const mes = document.getElementById("filtroMes").value;
+
+  let lista = cobrancas;
+
+  if(mes){
+    lista = lista.filter(c=>c[3]==mes);
+  }
+
+  let html = "";
+
+  lista.forEach(c=>{
+
+    html += `
       <div class="card">
         <b>${c[1]}</b><br>
         ${c[3]} - R$ ${c[4]}<br>
-        <span>${c[5]}</span>
+        <b>${c[5]}</b><br>
+
+        ${c[5]=="Pendente" ? 
+          `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
+        : ""}
       </div>
     `;
   });
+
+  document.getElementById("lista").innerHTML = html;
 }
 
-/* ================= SUBMIT ================= */
-form.addEventListener("submit", async e=>{
-  e.preventDefault();
+/* ================= PAGAR ================= */
+async function pagar(id){
 
-  const obj = {
-  acao:"salvar_associado",
-  id:id.value,
-  nome:nome.value,
-  cpf: cpf.value.replace(/\D/g,""), // 🔥 LIMPO
-  telefone:telefone.value,
-  mensalidade:mensalidade.value
-};
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({acao:"pagar",id})
+  });
 
-  await fetch(API_URL,{method:"POST",body:JSON.stringify(obj)});
-
-  fecharTudo();
   carregar();
-});
+}
 
+/* ================= ASSOCIADOS ================= */
+function renderAssociados(){
+
+  tela.innerHTML = `
+    <input placeholder="Buscar..." id="busca">
+    <button class="btn" onclick="novo()">+ Novo</button>
+    <div id="lista"></div>
+  `;
+
+  document.getElementById("busca").oninput = listarAssociados;
+
+  listarAssociados();
+}
+
+function listarAssociados(){
+
+  const busca = document.getElementById("busca").value.toLowerCase();
+
+  let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
+
+  let html = "";
+
+  lista.forEach(a=>{
+    html += `
+      <div class="card">
+        <b>${a[1]}</b><br>
+        CPF: ${a[2]}<br>
+
+        <button class="btn-edit" onclick="editar('${a[0]}')">Editar</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= FORM ================= */
+function novo(){
+  const nome = prompt("Nome:");
+  const cpf = prompt("CPF:");
+  const tel = prompt("Telefone:");
+  const mensal = prompt("Mensalidade:");
+
+  salvar({nome,cpf,telefone:tel,mensalidade:mensal});
+}
+
+function editar(id){
+
+  const a = associados.find(x=>x[0]==id);
+
+  const nome = prompt("Nome:",a[1]);
+  const cpf = prompt("CPF:",a[2]);
+  const tel = prompt("Telefone:",a[3]);
+  const mensal = prompt("Mensalidade:",a[4]);
+
+  salvar({id,nome,cpf,telefone:tel,mensalidade:mensal});
+}
+
+/* ================= SALVAR ================= */
+async function salvar(obj){
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      ...obj
+    })
+  });
+
+  carregar();
+}
+
+/* INIT */
 carregar();
+ir("dashboard");
 </script>
 
 </body>
