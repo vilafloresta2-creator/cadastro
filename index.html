@@ -246,6 +246,7 @@ input,select{
 <input id="endereco" placeholder="Endereço">
 <input id="mes" placeholder="03-2026">
 <input id="valor" placeholder="Valor">
+<input id="mensalidade" placeholder="Mensalidade (R$)">
 
 <select id="status">
 <option value="Pago">Pago</option>
@@ -273,6 +274,7 @@ async function carregar(){
   const res = await fetch(API_URL);
   const dados = await res.json();
   dadosGlobal = dados.slice(1);
+  await gerarMensalidadesAutomatico();
   console.log("Dados carregados:", dadosGlobal); // debug
   renderizar();
   calcular();
@@ -517,6 +519,7 @@ form.addEventListener("submit", async e=>{
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
+    mensalidade: mensalidade.value,
     status: document.getElementById("status").value
   };
   await fetch(API_URL,{
@@ -526,6 +529,47 @@ form.addEventListener("submit", async e=>{
   fecharForm();
   carregar();
 });
+
+/* ================= GERAR MENSALIDADE ================= */
+function gerarMensalidadesAutomatico(){
+
+  const hoje = new Date();
+  const mesAtual = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
+
+  const nomes = [...new Set(dadosGlobal.map(a=>a[1]))];
+
+  nomes.forEach(nome=>{
+
+    const registrosPessoa = dadosGlobal.filter(a=>a[1] === nome);
+
+    const temMes = registrosPessoa.some(a=>a[6] === mesAtual);
+
+    if(!temMes){
+
+      const base = registrosPessoa[0];
+      const valor = base[9] || base[7]; // mensalidade ou último valor
+
+      fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+          acao:"adicionar",
+          nome: nome,
+          cpf: base[2],
+          telefone: base[3],
+          email: base[4],
+          endereco: base[5],
+          mes: mesAtual,
+          valor: valor,
+          status:"Pendente"
+        })
+      });
+
+      console.log("Mensalidade gerada para:", nome);
+    }
+
+  });
+
+}
 
 /* ================= RELATORIO ================= */
 function verRelatorio(){
