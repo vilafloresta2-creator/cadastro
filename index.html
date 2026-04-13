@@ -514,17 +514,37 @@ async function excluir(idSel){
 form.addEventListener("submit", async e=>{
   e.preventDefault();
 
+  // 🔒 VALIDAÇÕES
+  if(!nome.value.trim()){
+    alert("Nome é obrigatório");
+    return;
+  }
+
+  const cpfLimpo = cpf.value.replace(/\D/g,"");
+
+  if(cpfLimpo.length !== 11){
+    alert("CPF inválido");
+    return;
+  }
+
+  const telLimpo = telefone.value.replace(/\D/g,"");
+
+  if(telLimpo.length < 10){
+    alert("Telefone inválido");
+    return;
+  }
+
   const obj={
     acao:id.value?"editar":"adicionar",
     id:id.value,
     nome:nome.value,
-    cpf: String(cpf.value || "").replace(/\D/g,""),
-    telefone: String(telefone.value || "").replace(/\D/g,""),
+    cpf: cpfLimpo,
+    telefone: telLimpo,
     email:email.value,
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
-    status: document.getElementById("status").value
+    status: status.value
   };
 
   const res = await fetch(API_URL,{
@@ -534,13 +554,11 @@ form.addEventListener("submit", async e=>{
 
   const txt = await res.text();
 
-  // 🔒 DUPLICADO
   if(txt === "duplicado"){
-    alert("Já existe cobrança para esse mês!");
+    alert("Esse CPF já tem cobrança nesse mês!");
     return;
   }
 
-  // ✅ segue normal
   fecharForm();
   carregar();
 });
