@@ -864,8 +864,8 @@ overlay.onclick = () => {
 
 /* ================= MASCARAS ================= */
 function maskCPF(v){
+  v = String(v || ""); // 🔥 CORREÇÃO AQUI
   v = v.replace(/\D/g,"").slice(0,11);
-
   v = v.replace(/(\d{3})(\d)/,"$1.$2");
   v = v.replace(/(\d{3})(\d)/,"$1.$2");
   v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
@@ -874,8 +874,8 @@ function maskCPF(v){
 }
 
 function maskTelefone(v){
+  v = String(v || ""); // 🔥 IMPORTANTE
   v = v.replace(/\D/g,"").slice(0,11);
-
   if(v.length > 10){
     v = v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
   }else{
