@@ -3,900 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vila Floresta 2</title>
+<title>Vila Floresta 2 - Profissional</title>
 
 <style>
 body{font-family:Arial;margin:0;background:#eef2f7}
-header{background:#2563eb;color:#fff;padding:15px;text-align:center}
+header{background:#1e293b;color:#fff;padding:15px;text-align:center}
+.container{padding:15px;max-width:900px;margin:auto}
 
-.container{padding:15px;max-width:700px;margin:auto}
-
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin-bottom:10px;
-}
-
-.floating{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#385fe5;
-  color:#fff;
-  font-size:30px;
-  border:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-  z-index:1200;
-}
-
-.card-top{
-  background:#fff;
-  padding:12px;
-  border-radius:12px;
-}
-
-.card-top.destaque{
-  background:#2563eb;
-  color:#fff;
-}
-
-.card{
-  background:#fff;
-  padding:15px;
-  border-radius:12px;
-  margin-top:10px;
-}
-
-button{
-  border:none;
-  padding:6px 10px;
-  margin:3px;
-  border-radius:6px;
-  color:#fff;
-  cursor:pointer;
-}
-
+.card{background:#fff;padding:15px;border-radius:12px;margin-top:10px}
+button{border:none;padding:8px 12px;margin:3px;border-radius:6px;color:#fff;cursor:pointer}
 .btn{background:#2563eb}
 .btn-edit{background:#f59e0b}
 .btn-danger{background:#ef4444}
+.btn-light{background:#e5e7eb;color:#111}
 
-.btn-light{
-  background:#e5e7eb;
-  color:#111;
-}
-
-.btn-light:hover{
-  background:#d1d5db;
-}
-
-.form-box{
-  display:none;
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:15px;
-  border-radius:20px 20px 0 0;
-  z-index: 2000;
-}
-
-input,select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-}
-
-.overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.4);
-  z-index: 1500;
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:#fff;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-  border-radius:12px;
-  z-index:2000;
-}
-
-.menu-toggle{
-  position:fixed;
-  top:6px;
-  left:19px;
-  width:35px;
-  height:40px;
-  border-radius:10px;
-  background:#385fe5;
-  color:#fff;
-  font-size:20px;
-  border:none;
-  z-index:1200;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
-
-.menu-btn{
-  padding:15px;
-  cursor:pointer;
-}
-
-.menu-item{
-  padding:15px;
-  cursor:pointer;
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-.menu-item:hover{
-  background:#385fe5;
-}
-
-.menu-item span{
-  display:none;
-}
-
-.menu-overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.5);
-  z-index:1300;
-}
+input{width:100%;padding:10px;margin:5px 0}
 
 .menu-box{
-  position:fixed;
-  top:0;
-  left:0;
-  width:250px;
-  height:100%;
-  background:#1e293b;
-  color:#fff;
-  padding:20px;
-  transform:translateX(-100%); /* 🔥 ESCONDE CORRETAMENTE */
-  transition:0.3s;
-  z-index:1400;
+  position:fixed;top:0;left:0;width:250px;height:100%;
+  background:#111827;color:#fff;padding:20px;
+  transform:translateX(-100%);transition:0.3s;
 }
+.menu-box div{padding:12px;cursor:pointer}
+.menu-box div:hover{background:#374151}
 
-.menu-box div{
-  padding:12px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-  cursor:pointer;
-}
-
-.sidebar:hover{
-  width:200px;
-  background:#334155;
-}
-
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4)}
+.form-box{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;border-radius:20px 20px 0 0}
 </style>
 </head>
 
 <body>
 
-<button class="menu-toggle" onclick="abrirMenu()">☰</button>
-
-<header>Cadastro Moradores Vila Floresta 2</header>
+<header>Vila Floresta 2 - Gestão</header>
 
 <div class="container">
+  <button onclick="abrirMenu()">☰ Menu</button>
+  <div id="lista"></div>
+</div>
 
-<button class="floating" onclick="abrirForm()">+</button>
-
-<div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
-<div id="menuBox" class="menu-box">
+<div id="menu" class="menu-box">
   <h3>Menu</h3>
-  <div onclick="acaoMenu(verRelatorio)">📊 Relatório</div>
-  <div onclick="acaoMenu(verDevedores)">⚠️ Devedores</div>
-  <div onclick="acaoMenu(exportarBackup)">💾 Backup</div>
+  <div onclick="verCobrancas()">💰 Cobranças</div>
+  <div onclick="verAssociados()">👤 Associados</div>
 </div>
 
-<div class="dashboard">
-
-  <div class="card-top">
-    <span>Total</span>
-    <b id="total">R$ 0</b>
-  </div>
-
-  <div class="card-top">
-    <span>Pagos</span>
-    <b id="pagos">0</b>
-  </div>
-
-  <div class="card-top">
-    <span>Pendentes</span>
-    <b id="pendentes">0</b>
-  </div>
-
-  <div class="card-top destaque">
-    <span>Em aberto</span>
-    <b id="aberto">R$ 0</b>
-  </div>
-
-</div>
-
-<div id="lista"></div>
-
-</div>
-
-<!-- FORM -->
-<div id="overlay" class="overlay" onclick="fecharForm()"></div>
+<div id="overlay" class="overlay" onclick="fecharTudo()"></div>
 
 <div id="formBox" class="form-box">
-<h3 id="formTitulo">Cadastro</h3>  
-<form id="form">
-
-<input type="hidden" id="id">
-<input id="nome" placeholder="Nome" required>
-<input id="cpf" placeholder="CPF">
-<input id="telefone" placeholder="Telefone">
-<input id="email" placeholder="Email">
-<input id="endereco" placeholder="Endereço">
-<input id="mes" placeholder="03-2026">
-<input id="valor" placeholder="Valor">
-<input id="mensalidade" placeholder="Mensalidade (R$)">
-
-<select id="status">
-<option value="Pago">Pago</option>
-<option value="Pendente">Pendente</option>
-</select>
-
-<button class="btn">Salvar</button>
-<button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
-
-</form>
+  <h3 id="tituloForm"></h3>
+  <form id="form">
+    <input type="hidden" id="id">
+    <input id="nome" placeholder="Nome" required>
+    <input id="cpf" placeholder="CPF">
+    <input id="telefone" placeholder="Telefone">
+    <input id="mensalidade" placeholder="Mensalidade">
+    <button class="btn">Salvar</button>
+    <button type="button" class="btn-light" onclick="fecharTudo()">Cancelar</button>
+  </form>
 </div>
 
-<!-- MODAL -->
-<div id="modal" class="modal"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script>
-
 const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
-let dadosGlobal=[];
 
-/* ================= CARREGAR ================= */
+let associados = [];
+let cobrancas = [];
+
 async function carregar(){
+
+  // 🔄 1. Busca dados
   const res = await fetch(API_URL);
-  const dados = await res.json();
-  dadosGlobal = dados.slice(1);
-  await gerarMensalidadesAutomatico();
-  // 🔄 recarrega depois de gerar
+  const data = await res.json();
+
+  associados = data.associados.slice(1);
+  cobrancas = data.cobrancas.slice(1);
+
+  // 🔥 2. Gera cobranças automáticas
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({acao:"gerar_cobrancas"})
+  });
+
+  // 🔄 3. Recarrega já com as novas cobranças
   const res2 = await fetch(API_URL);
-  const dados2 = await res2.json();
-  dadosGlobal = dados2.slice(1);
+  const data2 = await res2.json();
 
-  renderizar();
-  calcular();
+  associados = data2.associados.slice(1);
+  cobrancas = data2.cobrancas.slice(1);
+
+  // 🎨 4. Renderiza
+  verCobrancas();
 }
 
-/* ================= ABRIR MENU ================= */
 function abrirMenu(){
-  document.getElementById("menuOverlay").style.display = "block";
-  document.getElementById("menuBox").style.transform = "translateX(0)";
+  menu.style.transform="translateX(0)";
+  overlay.style.display="block";
 }
 
-function fecharMenu(){
-  document.getElementById("menuOverlay").style.display = "none";
-  document.getElementById("menuBox").style.transform = "translateX(-100%)";
-}
-
-function acaoMenu(fn){
-  fecharMenu();   // fecha o cinza
-  setTimeout(fn, 200); // executa depois da animação
-}
-
-/* ================= CALCULAR ================= */
-function calcular(){
-
-  let total=0, pagos=0, pendentes=0, aberto=0;
-
-  dadosGlobal.forEach(a=>{
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    if(status==="Pago"){
-      total += valor;
-      pagos++;
-    }else{
-      aberto += valor;
-      pendentes++;
-    }
-  });
-
-  set("total","R$ "+total.toFixed(2));
-  set("pagos",pagos);
-  set("pendentes",pendentes);
-  set("aberto","R$ "+aberto.toFixed(2));
-}
-
-function set(id,val){
-  const el=document.getElementById(id);
-  if(el) el.innerText=val;
-}
-
-/* ================= MENU LATERAL ================= */
-function toggleMenu(){
-  const s = document.getElementById("sidebar");
-  s.classList.toggle("active");
-}
-
-/* ================= EXPORTAR BACKUP ================= */
-function exportarBackup(){
-  const blob = new Blob([JSON.stringify(dadosGlobal)], {type:"application/json"});
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "backup.json";
-  link.click();
-}
-
-/* ================= RENDER ================= */
-function renderizar(){
-
-  const lista = document.getElementById("lista");
-  if(!lista) return;
-
-  lista.innerHTML = "";
-
-  if(!dadosGlobal || dadosGlobal.length === 0){
-    lista.innerHTML = "<p>Nenhum cadastro encontrado</p>";
-    return;
-  }
-
-  dadosGlobal.forEach(a=>{
-
-    const id = a[0];
-    const nome = a[1] || "Sem nome";
-    const mes = a[6] || "-";
-    const valor = Number(a[7]) || 0;
-    const status = a[8] || "Pendente";
-
-    const cor = status === "Pago" ? "#22c55e" : "#ef4444";
-
-    const botoes = status !== "Pago"
-      ? `<button class="btn" onclick="pagar('${id}')">Pagar</button>`
-      : `<button class="btn" onclick="gerarPDF('${id}')">📄 Recibo</button>`;
-
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <div style="border-left:5px solid ${cor}; padding-left:10px">
-        <b>${nome}</b><br>
-        <small>${mes}</small><br>
-        <b>R$ ${valor.toFixed(2)}</b><br>
-        <span style="color:${cor}">${status}</span><br>
-
-        <button class="btn-edit" onclick="editar('${id}')">Editar</button>
-        ${botoes}
-        <button class="btn-danger" onclick="excluir('${id}')">Excluir</button>
-      </div>
-    `;
-
-    lista.appendChild(card);
-  });
-}
-
-/* ================= GERAR PDF ================= */
-function gerarPDF(idSel){
-
-  const a = dadosGlobal.find(x=>x[0]==idSel);
-  if(!a) return;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape", "mm", [150, 210]); // 15x21 cm
-
-  const logo = new Image();
-  logo.src = "logo.png";
-
-  logo.onload = function(){
-
-    // LOGO
-    doc.addImage(logo, "PNG", 10, 7, 20, 20);
-
-    // TÍTULO
-    doc.setFontSize(16);
-    doc.text("RECIBO DE PAGAMENTO", 105, 20, null, null, "center");
-
-    // LINHA
-    doc.setDrawColor(200);
-    doc.line(10, 30, 200, 30);
-
-    // DADOS
-    doc.setFontSize(11);
-
-    doc.text(`Nome: ${a[1]}`, 10, 50);
-    doc.text(`CPF: ${a[2] || "-"}`, 10, 60);
-    doc.text(`Telefone: ${a[3] || "-"}`, 10, 70);
-
-    doc.text(`Mês: ${a[6]}`, 120, 50);
-    doc.text(`Valor: R$ ${Number(a[7]).toFixed(2)}`, 120, 60);
-    doc.text(`Status: ${a[8]}`, 120, 70);
-
-    // DESTAQUE VALOR
-    doc.setFontSize(18);
-    doc.text(`R$ ${Number(a[7]).toFixed(2)}`, 105, 95, null, null, "center");
-
-    // TEXTO
-    doc.setFontSize(10);
-    doc.text("Recebemos o valor acima referente ao período informado.", 10, 110);
-
-    // ASSINATURA
-    doc.line(10, 130, 100, 130);
-    doc.text("Responsável", 40, 135);
-
-    // DATA
-    const hoje = new Date().toLocaleDateString("pt-BR");
-    doc.text(`Data: ${hoje}`, 150, 135);
-
-    doc.save("recibo.pdf");
-  };
-}
-
-/* ================= FORM ================= */
-function abrirForm(edicao=false){
-
-  document.getElementById("formBox").style.display="block";
-  document.getElementById("overlay").style.display="block";
-  document.getElementById("formTitulo").innerText =
-    edicao ? "Editar Cadastro" : "Novo Cadastro";
-}
-
-function fecharForm(){
+function fecharTudo(){
+  menu.style.transform="translateX(-100%)";
   overlay.style.display="none";
   formBox.style.display="none";
-  form.reset();
-  id.value="";
 }
 
-/* ================= EDITAR ================= */
-function editar(idSel){
-  const a = dadosGlobal.find(x => x[0] == idSel);
-  if(!a) return;
-  document.getElementById("id").value = a[0];
-  document.getElementById("nome").value = a[1];
-  document.getElementById("cpf").value = maskCPF(a[2] || "");
-  document.getElementById("telefone").value = maskTelefone(a[3] || "");
-  document.getElementById("email").value = a[4] || "";
-  document.getElementById("endereco").value = a[5] || "";
-  document.getElementById("mes").value = a[6] || "";
-  document.getElementById("valor").value = a[7] || "";
-  document.getElementById("status").value = a[8] || "Pendente";
-  abrirForm(true);
-}
+/* ================= ASSOCIADOS ================= */
+function verAssociados(){
+  lista.innerHTML = "<button class='btn' onclick='novoAssociado()'>+ Novo</button>";
 
-/* ================= PAGAR ================= */
-async function pagar(idSel){
-  const a = dadosGlobal.find(x=>x[0]==idSel);
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"editar",
-      id:a[0],
-      nome:a[1],
-      cpf:a[2],
-      telefone:a[3],
-      email:a[4],
-      endereco:a[5],
-      mes:a[6],
-      valor:a[7],
-      status:"Pago"
-    })
+  associados.forEach(a=>{
+    lista.innerHTML += `
+      <div class="card">
+        <b>${a[1]}</b><br>
+        CPF: ${a[2]}<br>
+        <button class="btn-edit" onclick="editarAssociado('${a[0]}')">Editar</button>
+      </div>
+    `;
   });
-  carregar();
 }
 
-/* ================= EXCLUIR ================= */
-async function excluir(idSel){
-  if(!confirm("Deseja excluir?")) return;
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({acao:"excluir",id:idSel})
+function novoAssociado(){
+  tituloForm.innerText = "Novo Associado";
+  formBox.style.display="block";
+  overlay.style.display="block";
+}
+
+function editarAssociado(idSel){
+  const a = associados.find(x=>x[0]==idSel);
+  id.value = a[0];
+  nome.value = a[1];
+  cpf.value = a[2];
+  telefone.value = a[3];
+  mensalidade.value = a[4];
+
+  tituloForm.innerText = "Editar Associado";
+  formBox.style.display="block";
+  overlay.style.display="block";
+}
+
+/* ================= COBRANÇAS ================= */
+function verCobrancas(){
+  lista.innerHTML = "";
+
+  cobrancas.forEach(c=>{
+    lista.innerHTML += `
+      <div class="card">
+        <b>${c[1]}</b><br>
+        ${c[3]} - R$ ${c[4]}<br>
+        <span>${c[5]}</span>
+      </div>
+    `;
   });
-  carregar();
-}
-
-/* ================= VALIDAR CPF ================= */
-function validarCPF(cpf){
-
-  cpf = cpf.replace(/\D/g,"");
-
-  if(cpf.length !== 11) return false;
-
-  // ❌ bloqueia CPFs iguais (111, 222...)
-  if(/^(\d)\1+$/.test(cpf)) return false;
-
-  let soma = 0;
-  let resto;
-
-  // 1º dígito
-  for(let i=1; i<=9; i++){
-    soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
-  }
-
-  resto = (soma * 10) % 11;
-  if(resto === 10 || resto === 11) resto = 0;
-
-  if(resto !== parseInt(cpf.substring(9,10))) return false;
-
-  soma = 0;
-
-  // 2º dígito
-  for(let i=1; i<=10; i++){
-    soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
-  }
-
-  resto = (soma * 10) % 11;
-  if(resto === 10 || resto === 11) resto = 0;
-
-  if(resto !== parseInt(cpf.substring(10,11))) return false;
-
-  return true;
 }
 
 /* ================= SUBMIT ================= */
 form.addEventListener("submit", async e=>{
   e.preventDefault();
 
-  // 🔒 VALIDAÇÕES
-  if(!nome.value.trim()){
-    alert("Nome é obrigatório");
-    return;
-  }
-
-  const cpfLimpo = cpf.value.replace(/\D/g,"");
-  // valida CPF real (se já tiver sua função)
-  if(cpfLimpo && !validarCPF(cpfLimpo)){
-    alert("CPF inválido!");
-    return;
-  }
-
-  // 🔒 BLOQUEIO DE DUPLICADO
-  if(cpfLimpo && cpfJaExiste(cpfLimpo, id.value)){
-    alert("Já existe um cadastro com este CPF!");
-    return;
-  }
-
-  const telLimpo = telefone.value.replace(/\D/g,"");
-
-  if(telLimpo.length < 10){
-    alert("Telefone inválido");
-    return;
-  }
-
-  const obj={
-    acao:id.value?"editar":"adicionar",
+  const obj = {
+    acao:"salvar_associado",
     id:id.value,
     nome:nome.value,
-    cpf: cpfLimpo,
-    telefone: telLimpo,
-    email:email.value,
-    endereco:endereco.value,
-    mes:mes.value,
-    valor:valor.value,
-    status: status.value
+    cpf:cpf.value,
+    telefone:telefone.value,
+    mensalidade:mensalidade.value
   };
 
-  const res = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify(obj)
-  });
+  await fetch(API_URL,{method:"POST",body:JSON.stringify(obj)});
 
-  const txt = await res.text();
-
-  if(txt === "duplicado"){
-    alert("Esse CPF já tem cobrança nesse mês!");
-    return;
-  }
-
-  fecharForm();
+  fecharTudo();
   carregar();
 });
 
-/* ================= GERAR MENSALIDADE ================= */
-let gerandoMensalidade = false;
-
-async function gerarMensalidadesAutomatico(){
-
-  if(gerandoMensalidade) return;
-  gerandoMensalidade = true;
-
-  const hoje = new Date();
-  const mesAtual = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
-
-  // 🔥 mapa global (nome+mes)
-  const existentes = new Set(
-    dadosGlobal.map(a => `${a[1]}_${a[6]}`)
-  );
-
-  const nomes = [...new Set(dadosGlobal.map(a=>a[1]))];
-
-  for(const nome of nomes){
-
-    const chave = `${nome}_${mesAtual}`;
-
-    // 🔒 BLOQUEIO TOTAL
-    if(existentes.has(chave)) continue;
-
-    const registros = dadosGlobal.filter(a=>a[1]===nome);
-    if(registros.length === 0) continue;
-
-    const base = registros[0];
-
-    const valor = base[9] || base[7] || 0;
-
-    try{
-      await fetch(API_URL,{
-        method:"POST",
-        body:JSON.stringify({
-          acao:"adicionar",
-          nome: nome,
-          cpf: base[2],
-          telefone: base[3],
-          email: base[4],
-          endereco: base[5],
-          mes: mesAtual,
-          valor: valor,
-          status:"Pendente"
-        })
-      });
-
-      console.log("✅ Mensalidade criada:", nome);
-
-      // adiciona no controle local também (evita duplicar na mesma execução)
-      existentes.add(chave);
-
-    }catch(e){
-      console.error("Erro ao gerar:", nome, e);
-    }
-
-  }
-
-  gerandoMensalidade = false;
-}
-
-function cpfJaExiste(cpf, idAtual=""){
-  const cpfLimpo = String(cpf).replace(/\D/g,"");
-
-  return dadosGlobal.some(a => {
-    const cpfBanco = String(a[2] || "").replace(/\D/g,"");
-    const idBanco = a[0];
-
-    return cpfBanco === cpfLimpo && idBanco != idAtual;
-  });
-}
-
-/* ================= RELATORIO ================= */
-function verRelatorio(){
-  const meses = [...new Set(dadosGlobal.map(a=>a[6]).filter(Boolean))];
-  let html = `
-    <h3>Relatório</h3>
-    <select id="filtroMes" style="width:100%; padding:8px; margin-bottom:10px;">
-      <option value="">Todos os meses</option>
-      ${meses.map(m=>`<option value="${m}">${m}</option>`).join("")}
-    </select>
-    <button onclick="exportarRelatorioPDF()" 
-      style="margin-bottom:10px; padding:8px; background:#16a34a; color:#fff; border:none; border-radius:6px;">
-      📄 Exportar PDF
-    </button>
-    <div id="tabelaRelatorio"></div>
-  `;
-  abrirModal(html);
-  renderTabelaRelatorio();
-}
-
-function renderTabelaRelatorio(){
-
-  const filtro = document.getElementById("filtroMes")?.value;
-
-  let lista = dadosGlobal;
-
-  if(filtro){
-    lista = lista.filter(a => a[6] === filtro);
-  }
-
-  let html = `
-  <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
-    <tr style="background:#e2e8f0;">
-      <th style="padding:8px;">Nome</th>
-      <th>Mês</th>
-      <th>Valor</th>
-      <th>Status</th>
-    </tr>
-  `;
-
-  lista.forEach(a=>{
-    const cor = a[8] === "Pago" ? "green" : "red";
-
-    html += `
-    <tr>
-      <td style="padding:6px;">${a[1]}</td>
-      <td>${a[6]}</td>
-      <td>R$ ${Number(a[7]).toFixed(2)}</td>
-      <td style="color:${cor}; font-weight:bold;">
-        ${a[8]}
-      </td>
-    </tr>
-    `;
-  });
-
-  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
-
-  html += `
-    <tr style="font-weight:bold; background:#f9fafb;">
-      <td colspan="2">Total</td>
-      <td align="right">R$ ${total.toFixed(2)}</td>
-      <td></td>
-    </tr>
-  `;
-
-  html += "</table>";
-
-  document.getElementById("tabelaRelatorio").innerHTML = html;
-
-  const select = document.getElementById("filtroMes");
-  if(select){
-    select.onchange = renderTabelaRelatorio;
-  }
-}
-
-function exportarRelatorioPDF(){
-
-  const filtro = document.getElementById("filtroMes")?.value;
-
-  let lista = dadosGlobal;
-
-  if(filtro){
-    lista = lista.filter(a => a[6] === filtro);
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-  doc.text("Relatório Financeiro", 105, 15, null, null, "center");
-
-  doc.setFontSize(10);
-  doc.text(
-    filtro ? `Mês: ${filtro}` : "Todos os meses",
-    105,
-    22,
-    null,
-    null,
-    "center"
-  );
-
-  doc.autoTable({
-    head: [["Nome", "Mês", "Valor", "Status"]],
-    body: lista.map(a => [
-      a[1],
-      a[6],
-      "R$ " + Number(a[7]).toFixed(2),
-      a[8]
-    ]),
-    startY: 30,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [37, 99, 235] },
-    columnStyles: {
-      1: { halign: "center" },
-      2: { halign: "right" },
-      3: { halign: "center" }
-    }
-  });
-
-  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
-
-  doc.setFontSize(12);
-  doc.text(
-    "Total: R$ " + total.toFixed(2),
-    14,
-    doc.lastAutoTable.finalY + 10
-  );
-
-  doc.save("relatorio.pdf");
-}
-
-/* ================= DEVEDORES ================= */
-function verDevedores(){
-
-  let lista = dadosGlobal.filter(a=>a[8]!=="Pago");
-
-  let html = `
-    <h3>Devedores</h3>
-
-    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
-      <tr style="background:#e2e8f0;">
-        <th>Nome</th>
-        <th>Mês</th>
-        <th>Valor</th>
-      </tr>
-  `;
-
-  lista.forEach(a=>{
-    html += `
-      <tr>
-        <td>${a[1]}</td>
-        <td>${a[6]}</td>
-        <td>R$ ${Number(a[7]).toFixed(2)}</td>
-      </tr>
-    `;
-  });
-
-  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
-
-  html += `
-    <tr style="font-weight:bold; background:#f1f5f9;">
-      <td colspan="2">Total</td>
-      <td>R$ ${total.toFixed(2)}</td>
-    </tr>
-  `;
-
-  html += "</table>";
-
-  abrirModal(html);
-}
-
-/* ================= MODAL ================= */
-function abrirModal(html){
-  modal.innerHTML=html;
-  modal.style.display="block";
-  overlay.style.display="block";
-}
-
-overlay.onclick = () => {
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("overlay").style.display = "none";
-};
-
-/* ================= MASCARAS ================= */
-function maskCPF(v){
-  v = String(v || ""); // 🔥 CORREÇÃO AQUI
-  v = v.replace(/\D/g,"").slice(0,11);
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-
-  return v;
-}
-
-function maskTelefone(v){
-  v = String(v || ""); // 🔥 IMPORTANTE
-  v = v.replace(/\D/g,"").slice(0,11);
-  if(v.length > 10){
-    v = v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
-  }else{
-    v = v.replace(/(\d{2})(\d{4})(\d)/,"($1) $2-$3");
-  }
-
-  return v;
-}
-
-// EVENTOS
-document.getElementById("cpf").addEventListener("input", e=>{
-  e.target.value = maskCPF(e.target.value);
-});
-
-document.getElementById("telefone").addEventListener("input", e=>{
-  e.target.value = maskTelefone(e.target.value);
-});
-
-/* INIT */
 carregar();
-
 </script>
 
 </body>
