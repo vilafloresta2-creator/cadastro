@@ -29,6 +29,19 @@ input{width:100%;padding:10px;margin:5px 0}
 
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4)}
 .form-box{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;border-radius:20px 20px 0 0}
+.floating{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:30px;
+  border:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
 </style>
 </head>
 
@@ -37,6 +50,7 @@ input{width:100%;padding:10px;margin:5px 0}
 <header>Vila Floresta 2 - Gestão</header>
 
 <div class="container">
+  <button class="floating" onclick="novoAssociado()">+</button>
   <button onclick="abrirMenu()">☰ Menu</button>
   <div id="lista"></div>
 </div>
@@ -92,6 +106,7 @@ async function carregar(){
 
   // 4. renderiza
   verCobrancas();
+  verAssociados();
 }
 
 function abrirMenu(){
