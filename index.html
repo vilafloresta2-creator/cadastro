@@ -111,7 +111,7 @@ input,select{
   width:35px;
   height:40px;
   border-radius:10px;
-  background:#3961e9;*/
+  background:#2016ab;
   color:#fff;
   font-size:20px;
   border:none;
@@ -224,6 +224,7 @@ input,select{
 <div id="overlay" class="overlay" onclick="fecharForm()"></div>
 
 <div id="formBox" class="form-box">
+<h3 id="formTitulo">Cadastro</h3>  
 <form id="form">
 
 <input type="hidden" id="id">
@@ -241,7 +242,7 @@ input,select{
 </select>
 
 <button class="btn">Salvar</button>
-<button type="button" onclick="fecharForm()">Cancelar</button>
+<button type="button" class="btn-light" onclick="fecharForm()">Cancelar</button>
 
 </form>
 </div>
@@ -250,6 +251,7 @@ input,select{
 <div id="modal" class="modal"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzJo9kKBNoakqcZlSJjMkKy_0a78raI6euNYn5g9uLvBQ4_PNqhnKk0i0K42DTxQty_/exec";
@@ -516,11 +518,132 @@ form.addEventListener("submit", async e=>{
 
 /* ================= RELATORIO ================= */
 function verRelatorio(){
-  let html="<h3>Relatório</h3>";
-  dadosGlobal.forEach(a=>{
-    html+=`${a[1]} - R$ ${a[7]} - ${a[8]}<br>`;
-  });
+  const meses = [...new Set(dadosGlobal.map(a=>a[6]).filter(Boolean))];
+  let html = `
+    <h3>Relatório</h3>
+    <select id="filtroMes" style="width:100%; padding:8px; margin-bottom:10px;">
+      <option value="">Todos os meses</option>
+      ${meses.map(m=>`<option value="${m}">${m}</option>`).join("")}
+    </select>
+    <button onclick="exportarRelatorioPDF()" 
+      style="margin-bottom:10px; padding:8px; background:#16a34a; color:#fff; border:none; border-radius:6px;">
+      📄 Exportar PDF
+    </button>
+    <div id="tabelaRelatorio"></div>
+  `;
   abrirModal(html);
+  renderTabelaRelatorio();
+}
+
+function renderTabelaRelatorio(){
+
+  const filtro = document.getElementById("filtroMes")?.value;
+
+  let lista = dadosGlobal;
+
+  if(filtro){
+    lista = lista.filter(a => a[6] === filtro);
+  }
+
+  let html = `
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <tr style="background:#f1f5f9;">
+        <th align="left">Nome</th>
+        <th>Mês</th>
+        <th>Valor</th>
+        <th>Status</th>
+      </tr>
+  `;
+
+  lista.forEach(a=>{
+    const cor = a[8] === "Pago" ? "green" : "red";
+
+    html += `
+      <tr>
+        <td>${a[1]}</td>
+        <td align="center">${a[6]}</td>
+        <td align="right">R$ ${Number(a[7]).toFixed(2)}</td>
+        <td align="center" style="color:${cor}">
+          ${a[8]}
+        </td>
+      </tr>
+    `;
+  });
+
+  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
+
+  html += `
+    <tr style="font-weight:bold; background:#f9fafb;">
+      <td colspan="2">Total</td>
+      <td align="right">R$ ${total.toFixed(2)}</td>
+      <td></td>
+    </tr>
+  `;
+
+  html += "</table>";
+
+  document.getElementById("tabelaRelatorio").innerHTML = html;
+
+  const select = document.getElementById("filtroMes");
+  if(select){
+    select.onchange = renderTabelaRelatorio;
+  }
+}
+
+function exportarRelatorioPDF(){
+
+  const filtro = document.getElementById("filtroMes")?.value;
+
+  let lista = dadosGlobal;
+
+  if(filtro){
+    lista = lista.filter(a => a[6] === filtro);
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("Relatório Financeiro", 105, 15, null, null, "center");
+
+  doc.setFontSize(10);
+  doc.text(
+    filtro ? `Mês: ${filtro}` : "Todos os meses",
+    105,
+    22,
+    null,
+    null,
+    "center"
+  );
+
+  doc.autoTable({
+    head: [["Nome", "Mês", "Valor", "Status"]],
+    body: lista.map(a => [
+      a[1],
+      a[6],
+      "R$ " + Number(a[7]).toFixed(2),
+      a[8]
+    ]),
+    startY: 30,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [37, 99, 235] },
+    columnStyles: {
+      1: { halign: "center" },
+      2: { halign: "right" },
+      3: { halign: "center" }
+    }
+  });
+
+  const total = lista.reduce((s,a)=>s + Number(a[7]||0),0);
+
+  doc.setFontSize(12);
+  doc.text(
+    "Total: R$ " + total.toFixed(2),
+    14,
+    doc.lastAutoTable.finalY + 10
+  );
+
+  doc.save("relatorio.pdf");
 }
 
 /* ================= DEVEDORES ================= */
@@ -540,9 +663,10 @@ function abrirModal(html){
   modal.style.display="block";
   overlay.style.display="block";
 }
-overlay.onclick=()=>{
-  modal.style.display="none";
-  fecharForm();
+
+overlay.onclick = () => {
+  document.getElementById("modal").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
 };
 
 /* ================= MASCARAS ================= */
