@@ -174,13 +174,13 @@ form.addEventListener("submit", async e=>{
   e.preventDefault();
 
   const obj = {
-    acao:"salvar_associado",
-    id:id.value,
-    nome:nome.value,
-    cpf:cpf.value,
-    telefone:telefone.value,
-    mensalidade:mensalidade.value
-  };
+  acao:"salvar_associado",
+  id:id.value,
+  nome:nome.value,
+  cpf: cpf.value.replace(/\D/g,""), // 🔥 LIMPO
+  telefone:telefone.value,
+  mensalidade:mensalidade.value
+};
 
   await fetch(API_URL,{method:"POST",body:JSON.stringify(obj)});
 
