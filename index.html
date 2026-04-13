@@ -25,7 +25,7 @@ header{background:#2563eb;color:#fff;padding:15px;text-align:center}
   width:60px;
   height:60px;
   border-radius:50%;
-  background:#2563eb;
+  background:#385fe5;
   color:#fff;
   font-size:30px;
   border:none;
@@ -115,12 +115,12 @@ input,select{
 
 .menu-toggle{
   position:fixed;
-  top:7px;
-  left:20px;
+  top:6px;
+  left:19px;
   width:35px;
   height:40px;
   border-radius:10px;
-  background:#2016ab;
+  background:#385fe5;
   color:#fff;
   font-size:20px;
   border:none;
@@ -510,6 +510,44 @@ async function excluir(idSel){
   carregar();
 }
 
+/* ================= VALIDAR CPF ================= */
+function validarCPF(cpf){
+
+  cpf = cpf.replace(/\D/g,"");
+
+  if(cpf.length !== 11) return false;
+
+  // ❌ bloqueia CPFs iguais (111, 222...)
+  if(/^(\d)\1+$/.test(cpf)) return false;
+
+  let soma = 0;
+  let resto;
+
+  // 1º dígito
+  for(let i=1; i<=9; i++){
+    soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  }
+
+  resto = (soma * 10) % 11;
+  if(resto === 10 || resto === 11) resto = 0;
+
+  if(resto !== parseInt(cpf.substring(9,10))) return false;
+
+  soma = 0;
+
+  // 2º dígito
+  for(let i=1; i<=10; i++){
+    soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+  }
+
+  resto = (soma * 10) % 11;
+  if(resto === 10 || resto === 11) resto = 0;
+
+  if(resto !== parseInt(cpf.substring(10,11))) return false;
+
+  return true;
+}
+
 /* ================= SUBMIT ================= */
 form.addEventListener("submit", async e=>{
   e.preventDefault();
@@ -521,9 +559,8 @@ form.addEventListener("submit", async e=>{
   }
 
   const cpfLimpo = cpf.value.replace(/\D/g,"");
-
-  if(cpfLimpo.length !== 11){
-    alert("CPF inválido");
+  if(!validarCPF(cpf.value)){
+    alert("CPF inválido!");
     return;
   }
 
