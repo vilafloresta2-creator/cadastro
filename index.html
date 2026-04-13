@@ -275,7 +275,11 @@ async function carregar(){
   const dados = await res.json();
   dadosGlobal = dados.slice(1);
   await gerarMensalidadesAutomatico();
-  console.log("Dados carregados:", dadosGlobal); // debug
+  // 🔄 recarrega depois de gerar
+  const res2 = await fetch(API_URL);
+  const dados2 = await res2.json();
+  dadosGlobal = dados2.slice(1);
+
   renderizar();
   calcular();
 }
@@ -509,6 +513,7 @@ async function excluir(idSel){
 /* ================= SUBMIT ================= */
 form.addEventListener("submit", async e=>{
   e.preventDefault();
+
   const obj={
     acao:id.value?"editar":"adicionar",
     id:id.value,
@@ -519,37 +524,61 @@ form.addEventListener("submit", async e=>{
     endereco:endereco.value,
     mes:mes.value,
     valor:valor.value,
-    mensalidade: mensalidade.value,
     status: document.getElementById("status").value
   };
-  await fetch(API_URL,{
+
+  const res = await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify(obj)
   });
+
+  const txt = await res.text();
+
+  // 🔒 DUPLICADO
+  if(txt === "duplicado"){
+    alert("Já existe cobrança para esse mês!");
+    return;
+  }
+
+  // ✅ segue normal
   fecharForm();
   carregar();
 });
 
 /* ================= GERAR MENSALIDADE ================= */
-function gerarMensalidadesAutomatico(){
+let gerandoMensalidade = false;
+
+async function gerarMensalidadesAutomatico(){
+
+  if(gerandoMensalidade) return;
+  gerandoMensalidade = true;
 
   const hoje = new Date();
   const mesAtual = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
 
+  // 🔥 mapa global (nome+mes)
+  const existentes = new Set(
+    dadosGlobal.map(a => `${a[1]}_${a[6]}`)
+  );
+
   const nomes = [...new Set(dadosGlobal.map(a=>a[1]))];
 
-  nomes.forEach(nome=>{
+  for(const nome of nomes){
 
-    const registrosPessoa = dadosGlobal.filter(a=>a[1] === nome);
+    const chave = `${nome}_${mesAtual}`;
 
-    const temMes = registrosPessoa.some(a=>a[6] === mesAtual);
+    // 🔒 BLOQUEIO TOTAL
+    if(existentes.has(chave)) continue;
 
-    if(!temMes){
+    const registros = dadosGlobal.filter(a=>a[1]===nome);
+    if(registros.length === 0) continue;
 
-      const base = registrosPessoa[0];
-      const valor = base[9] || base[7]; // mensalidade ou último valor
+    const base = registros[0];
 
-      fetch(API_URL,{
+    const valor = base[9] || base[7] || 0;
+
+    try{
+      await fetch(API_URL,{
         method:"POST",
         body:JSON.stringify({
           acao:"adicionar",
@@ -564,11 +593,18 @@ function gerarMensalidadesAutomatico(){
         })
       });
 
-      console.log("Mensalidade gerada para:", nome);
+      console.log("✅ Mensalidade criada:", nome);
+
+      // adiciona no controle local também (evita duplicar na mesma execução)
+      existentes.add(chave);
+
+    }catch(e){
+      console.error("Erro ao gerar:", nome, e);
     }
 
-  });
+  }
 
+  gerandoMensalidade = false;
 }
 
 /* ================= RELATORIO ================= */
