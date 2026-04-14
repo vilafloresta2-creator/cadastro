@@ -90,7 +90,7 @@ input,select{
 <script> 
 
 console.log("JS carregado");
-const API = "https://script.google.com/macros/s/AKfycbwL51y2O7h7H3qfT9e2ZPZjy0nzakrV0T9QI-p1RCDIICxmdR-jNp39ufoOoDAxhb0M/exec";
+const API = "https://script.google.com/macros/s/AKfycbwByoiTDvXThKrYstsF12wPcxL2Twvl2T6Bi4s5n88AfXPXfK7UuSAhd7v7Mx9Ba8yn/exec";
 
 let associados = [];
 let cobrancas = [];
@@ -219,12 +219,18 @@ function listar(){
 
 /* ================= PAGAR ================= */
 async function pagar(id){
-  if(!confirm("Confirmar pagamento?")) return;
-  await fetch(API,{
+
+  // atualiza tela na hora
+  const item = cobrancas.find(c=>c[0]==id);
+  if(item) item[5] = "Pago";
+
+  listar();
+
+  // manda pro backend em paralelo
+  fetch(API,{
     method:"POST",
     body: JSON.stringify({acao:"pagar",id})
   });
-  carregar();
 }
 
 /* ================= ASSOCIADOS ================= */
