@@ -77,6 +77,18 @@ input,select{
 .btn-danger{background:#ef4444}
 .btn-edit{background:#f59e0b}
 
+.btn-cancelar{
+  background:transparent;
+  border:1px solid #475569;
+  color:#cbd5f5;
+  border-radius:6px;
+  padding:8px;
+}
+
+.btn-cancelar:hover{
+  background:#334155;
+}
+
 .top{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -121,6 +133,17 @@ input,select{
   max-width:400px;
   border-radius:12px;
   box-sizing:border-box; /* 🔥 IMPORTANTE */
+}
+
+#modal input{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  background:#0f172a;
+  color:#fff;
 }
 
 </style>
@@ -293,8 +316,7 @@ function renderAssociados(){
 
   tela.innerHTML = `
     <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <input placeholder="Buscar..." id="busca" style="flex:1;">
-      <button class="btn" onclick="novo()">+ Novo</button>
+      <input placeholder="Buscar..." id="busca" style="flex:1;">      
     </div>
     <div id="lista"></div>
   `;
@@ -520,10 +542,26 @@ ir("dashboard");
 </script>
 
 <!-- MODAL -->
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;" onclick="fecharModal()">
-  <div onclick="event.stopPropagation()" style="background:#1e293b;padding:20px;margin:50px auto;width:90%;max-width:400px;border-radius:12px;">
+<div id="modal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+" onclick="fecharModal()">
+
+  <div onclick="event.stopPropagation()" style="
+    background:#1e293b;
+    padding:20px;
+    width:90%;
+    max-width:400px;
+    border-radius:16px;
+    box-sizing:border-box;
+  ">
     
-    <h3 id="modalTitulo">Novo Associado</h3>
+    <h3 id="modalTitulo" style="margin-bottom:15px;">Novo Associado</h3>
 
     <input id="m_nome" placeholder="Nome">
     <input id="m_cpf" placeholder="CPF">
@@ -532,11 +570,30 @@ ir("dashboard");
     <input id="m_endereco" placeholder="Endereço">
     <input id="m_mensal" placeholder="Mensalidade">
 
-    <button class="btn" onclick="salvarModal()">Salvar</button>
-    <button class="btn-light" onclick="fecharModal()">Cancelar</button>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn" style="flex:1;" onclick="salvarModal()">Salvar</button>
+      <button class="btn-cancelar" style="flex:1;" onclick="fecharModal()">Cancelar</button>
+    </div>
 
   </div>
 </div>
+
+<button onclick="novo()" style="
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:28px;
+  border:none;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
+  cursor:pointer;
+">
+  +
+</button>
 
 </body>
 </html>
