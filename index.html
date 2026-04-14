@@ -219,12 +219,9 @@ function listar(){
 
 /* ================= PAGAR ================= */
 async function pagar(id){
-  if(!confirm("⚠️ Deseja realmente excluir este associado?\nEssa ação não pode ser desfeita.")) return;
+  if(!confirm("Confirmar pagamento?")) return;
   await fetch(API,{
     method:"POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({acao:"pagar",id})
   });
   carregar();
@@ -321,9 +318,6 @@ async function salvarModal(){
   const cpfLimpo = String(m_cpf.value).replace(/\D/g,""); // 🔥 mantém zeros
   await fetch(API,{
     method:"POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       acao:"salvar_associado",
       id: editandoId,
@@ -361,9 +355,6 @@ async function excluir(id){
 
   await fetch(API,{
     method:"POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       acao:"excluir_associado",
       id: id
