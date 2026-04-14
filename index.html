@@ -213,7 +213,7 @@ function renderDashboard(){
 /* ================= COBRANÇAS ================= */
 function renderCobrancas(){
 
-  let meses = [...new Set(cobrancas.map(c=>c[3]))];
+  let meses = [...new Set(cobrancas.map(c=>{formatarData(c[3])}))];
 
   tela.innerHTML = `
     <select id="filtroMes">
@@ -244,7 +244,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${c[3]} - R$ ${c[4]}
+        ${formatarData(c[3])}
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
