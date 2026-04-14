@@ -108,6 +108,21 @@ input,select{
   border-radius:10px;
   text-align:center;
 }
+
+.modal-box input{
+  width:100%;
+  box-sizing:border-box; /* 🔥 ESSENCIAL */
+}
+
+.modal-box{
+  background:#1e293b;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+  border-radius:12px;
+  box-sizing:border-box; /* 🔥 IMPORTANTE */
+}
+
 </style>
 </head>
 
@@ -277,8 +292,10 @@ async function pagar(id){
 function renderAssociados(){
 
   tela.innerHTML = `
-    <input placeholder="Buscar..." id="busca">
-    <button onclick="novo()" class="fab">+</button>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input placeholder="Buscar..." id="busca" style="flex:1;">
+      <button class="btn" onclick="novo()">+ Novo</button>
+    </div>
     <div id="lista"></div>
   `;
 
@@ -510,7 +527,7 @@ ir("dashboard");
 
     <input id="m_nome" placeholder="Nome">
     <input id="m_cpf" placeholder="CPF">
-    <input id="m_tel" placeholder="Telefone">
+    <input id="m_tel" placeholder="Telefone (48) 99999-9999">
     <input id="m_email" placeholder="Email">
     <input id="m_endereco" placeholder="Endereço">
     <input id="m_mensal" placeholder="Mensalidade">
