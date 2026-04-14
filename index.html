@@ -108,25 +108,20 @@ document.addEventListener("input", e=>{
 
 /* ================= CARREGAR ================= */
 async function carregar(){
-
-  let res = await fetch(API);
-  let data = await res.json();
-
-  associados = data.associados.slice(1);
-  cobrancas = data.cobrancas.slice(1);
-
-  /*await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({acao:"gerar_cobrancas"})
-  });*/
-
-  res = await fetch(API);
-  data = await res.json();
-
-  associados = data.associados.slice(1);
-  cobrancas = data.cobrancas.slice(1);
-
-  render();
+  try{
+    let res = await fetch(API);
+    let data = await res.json();
+    if(data.erro){
+      alert("Erro: " + data.erro);
+      return;
+    }
+    associados = data.associados.slice(1);
+    cobrancas = data.cobrancas.slice(1);
+    render();
+  }catch(e){
+    alert("Erro de conexão com API");
+    console.error(e);
+  }
 }
 
 /* ================= NAVEGAÇÃO ================= */
@@ -224,12 +219,14 @@ function listar(){
 
 /* ================= PAGAR ================= */
 async function pagar(id){
-
+  if(!confirm("⚠️ Deseja realmente excluir este associado?\nEssa ação não pode ser desfeita.")) return;
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({acao:"pagar",id})
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({acao:"pagar",id})
   });
-
   carregar();
 }
 
@@ -324,11 +321,14 @@ async function salvarModal(){
   const cpfLimpo = String(m_cpf.value).replace(/\D/g,""); // 🔥 mantém zeros
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
       acao:"salvar_associado",
       id: editandoId,
       nome: m_nome.value,
-      cpf: cpfLimpo, // 🔥 CORRIGIDO
+      cpf: cpfLimpo,
       telefone: String(m_tel.value).replace(/\D/g,""),
       email: m_email.value,
       endereco: m_endereco.value,
@@ -361,7 +361,10 @@ async function excluir(id){
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
       acao:"excluir_associado",
       id: id
     })
