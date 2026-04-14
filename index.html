@@ -244,7 +244,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${formatarData(c[3])} - R$ ${c[4]}
+        ${c[3]} - R$ ${c[4]}
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
@@ -348,7 +348,7 @@ function editar(id){
   editandoId = id;
 
   m_nome.value = a[1];
-  m_cpf.value = a[2];
+  m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
   m_tel.value = a[3];
   m_email.value = a[4] || "";
   m_endereco.value = a[5] || "";
@@ -481,7 +481,7 @@ ir("dashboard");
 
 <!-- MODAL -->
 <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;" onclick="fecharModal()">
-  <div onclick="event.stopPropagation()" style="background:#1e293b;padding:20px;margin:50px auto;width:90%;max-width:400px;border-radius:12px;">
+  <div onclick="event.stopPropagation()" style="background:#1e293b;padding:20px;margin:auto;width:90%;max-width:400px;border-radius:12px;">
     
     <h3 id="modalTitulo">Novo Associado</h3>
 
