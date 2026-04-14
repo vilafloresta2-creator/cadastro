@@ -9,7 +9,11 @@
 body{font-family:Arial;margin:0;background:#0f172a;color:#fff}
 header{background:#020617;padding:15px;text-align:center;font-size:18px}
 
-.container{padding:15px;max-width:900px;margin:auto}
+.container{padding:15px;max-width:900px;margin:auto
+  #modal > div{
+    box-sizing:border-box;
+  }
+}
 
 .nav{
   display:flex;
@@ -144,6 +148,7 @@ input,select{
   outline:none;
   background:#0f172a;
   color:#fff;
+  box-sizing:border-box; /* 🔥 ISSO RESOLVE O VAZAMENTO */
 }
 
 </style>
@@ -565,7 +570,7 @@ ir("dashboard");
 
     <input id="m_nome" placeholder="Nome">
     <input id="m_cpf" placeholder="CPF">
-    <input id="m_tel" placeholder="Telefone (48) 99999-9999">
+    <input id="m_tel" placeholder="Telefone (48) 99999-9999" oninput="this.value = maskTel(this.value)">
     <input id="m_email" placeholder="Email">
     <input id="m_endereco" placeholder="Endereço">
     <input id="m_mensal" placeholder="Mensalidade">
