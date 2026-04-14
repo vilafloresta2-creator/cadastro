@@ -204,7 +204,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${c[3]} - R$ ${c[4]}<br>
+        ${formatarData(c[3])} - R$ ${c[4]}
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
@@ -371,6 +371,17 @@ async function excluir(id){
   });
 
   carregar();
+}
+
+/* ================= FORMATAR DATA ================= */
+function formatarData(dataISO){
+  if(!dataISO) return "-";
+  const d = new Date(dataISO);
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
 }
 
 /* ================= MASCARAS ================= */
