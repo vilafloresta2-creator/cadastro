@@ -9,10 +9,14 @@
 body{font-family:Arial;margin:0;background:#0f172a;color:#fff}
 header{background:#020617;padding:15px;text-align:center;font-size:18px}
 
-.container{padding:15px;max-width:900px;margin:auto
-  #modal > div{
-    box-sizing:border-box;
-  }
+.container{
+  padding:15px;
+  max-width:900px;
+  margin:auto;
+}
+
+#modal > div{
+  box-sizing:border-box;
 }
 
 .nav{
@@ -259,12 +263,15 @@ function renderCobrancas(){
   let meses = [...new Set(cobrancas.map(c=>c[3]))];
 
   tela.innerHTML = `
-    <select id="filtroMes">
+  <div style="display:flex; gap:10px; margin-bottom:10px;">    
+    <select id="filtroMes" style="flex:1;">
       <option value="">Todos</option>
       ${meses.map(m=>`<option>${m}</option>`).join("")}
     </select>
-    <div id="lista"></div>
-  `;
+    <button class="btn" onclick="gerarCobrancas()">⚡ Gerar</button>
+  </div>
+  <div id="lista"></div>
+`;
 
   document.getElementById("filtroMes").onchange = listar;
   listar();
@@ -287,7 +294,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${formatarData(c[3])}
+        ${c[3]}
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
@@ -314,6 +321,16 @@ async function pagar(id){
     method:"POST",
     body: JSON.stringify({acao:"pagar",id})
   });
+}
+
+async function gerarCobrancas(){
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"gerar_cobrancas"})
+  });
+
+  carregar();
 }
 
 /* ================= ASSOCIADOS ================= */
@@ -449,10 +466,7 @@ async function salvarModal(){
 
   // 🔥 GERA COBRANÇAS AUTOMATICAMENTE
   if(!editandoId){
-    await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({acao:"gerar_cobrancas"})
-    });
+    console.log("Novo associado cadastrado");
   }
 
   fecharModal();
