@@ -182,6 +182,7 @@ const API = "https://script.google.com/macros/s/AKfycbwLzOpx939Y11BlP853Qx7IMq-o
 let associados = [];
 let cobrancas = [];
 let telaAtual = "dashboard";
+let recibos = [];
 
 document.addEventListener("input", e=>{
   if(e.target.id === "m_cpf"){
@@ -204,6 +205,7 @@ async function carregar(){
     }
     associados = data.associados.slice(1);
     cobrancas = data.cobrancas.slice(1);
+    recibos = data.recibos ? data.recibos.slice(1) : [];
     render();
   }catch(e){
     alert("Erro de conexão com API");
@@ -315,7 +317,9 @@ function listar(){
 
         ${c[5]=="Pendente" ? 
           `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
-        : ""}
+        :
+          `<button class="btn-light" onclick="reimprimir('${c[2]}','${c[3]}')">🧾 Recibo</button>`
+        }
       </div>
     `;
   });
@@ -710,6 +714,26 @@ function gerarRecibo(c, numero){
   const w = window.open("", "_blank");
   w.document.write(html);
   w.document.close();
+}
+
+function reimprimir(cpf, mes){
+
+  const r = recibos.find(x => x[3] == cpf && x[4] == mes);
+
+  if(!r){
+    alert("Recibo não encontrado");
+    return;
+  }
+
+  const fakeCobranca = [
+    null,
+    r[2], // nome
+    r[3], // cpf
+    r[4], // mes
+    r[5]  // valor
+  ];
+
+  gerarRecibo(fakeCobranca, r[1]);
 }
 
 </script>
