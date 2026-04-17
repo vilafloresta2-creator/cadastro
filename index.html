@@ -268,17 +268,14 @@ function renderRecibos(){
   let meses = [...new Set(recibos.map(r => r[4]))];
 
   tela.innerHTML = `
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <input placeholder="Buscar nome..." id="buscaRecibo" style="flex:1;">
-      
-      <select id="filtroMesRecibo">
-        <option value="">Mês</option>
-        ${meses.map(m=>`<option>${m}</option>`).join("")}
-      </select>
-    </div>
+  <div style="display:flex; gap:10px; margin-bottom:10px;">
+    
+    <input placeholder="Buscar por nome..." id="buscaRecibo" style="flex:1;">
+    
+  </div>
 
-    <div id="listaRecibos"></div>
-  `;
+  <div id="listaRecibos"></div>
+`;
 
   document.getElementById("buscaRecibo").oninput = listarRecibos;
   document.getElementById("filtroMesRecibo").onchange = listarRecibos;
@@ -327,9 +324,8 @@ function listarRecibos(){
           </div>
         </div>
 
-        <button class="btn btn-light btn-icon"
-          onclick="reimprimir('${numero}')">
-          🖨️
+        <button class="btn-light" style="font-size:12px;padding:6px 10px;">
+          🧾 Reimprimir
         </button>
 
       </div>
@@ -444,9 +440,7 @@ async function pagar(id){
   const item = cobrancas.find(c=>c[0]==id);
   if(!item) return;
 
-  item[5] = "Pago";
-  listar();
-
+  // envia pro backend
   const res = await fetch(API,{
     method:"POST",
     body: JSON.stringify({acao:"pagar",id})
@@ -454,11 +448,12 @@ async function pagar(id){
 
   const resp = await res.json();
 
-  const numero = resp.recibo || ("REC-" + new Date().getTime());
+  const numero = resp.recibo;
 
-  // salva número localmente pra usar no botão
-  item[7] = numero;
+  // 🔥 ATUALIZA TUDO (SEM F5)
+  await carregar();
 
+  // 🔥 gera recibo depois de atualizar
   gerarRecibo(item, numero);
 }
 
