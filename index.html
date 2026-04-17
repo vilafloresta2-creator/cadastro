@@ -27,9 +27,19 @@ header{background:#020617;padding:15px;text-align:center;font-size:18px}
 }
 
 @media (max-width: 600px){
-  .top{
-    grid-template-columns: 1fr;
+
+  .filtro-linha{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
   }
+
+  .filtro-linha input,
+  .filtro-linha select{
+    width:100% !important;
+  }
+
+}
 
 .nav button{
   flex: 1 1 45%;
@@ -261,16 +271,12 @@ function renderRecibos(){
   }
 
   tela.innerHTML = `
-  <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
-  
-    <input placeholder="Buscar..." style="flex:1; min-width:150px;">
-    
-    <select style="flex:1; min-width:120px;">
+  <div class="filtro-linha" style="display:flex; gap:10px; margin-bottom:10px;">
+    <input placeholder="Buscar..." style="flex:1;">
+    <select style="width:200px;">
       <option>Todos</option>
     </select>
-
   </div>
-
   <div id="listaRecibos"></div>
   `;
 
