@@ -186,6 +186,7 @@ input,select{
   <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
   <button onclick="ir('recibos')" id="btn_recibos">Recibos</button>
+  <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
 </div>
 
 <div id="tela"></div>
@@ -202,6 +203,9 @@ let cobrancas = [];
 let telaAtual = "dashboard";
 let recibos = [];
 
+
+/* ================= FUNCTIONS ================= */
+/* ================= NORMALIZAR CPF ================= */
 function normalizarCPF(cpf){
   return String(cpf || "")
     .replace(/\D/g,"")
@@ -217,29 +221,6 @@ document.addEventListener("input", e=>{
     e.target.value = maskTel(e.target.value);
   }
 });
-
-/* ================= CARREGAR ================= */
-async function carregar(){
-  try{
-    let res = await fetch(API);
-    let data = await res.json();
-
-    if(data.erro){
-      alert("Erro: " + data.erro);
-      return;
-    }
-
-    associados = data.associados.slice(1);
-    cobrancas = data.cobrancas.slice(1);
-    recibos = data.recibos ? data.recibos.slice(1) : [];
-
-    render();
-
-  }catch(e){
-    alert("Erro de conexão com API");
-    console.error(e);
-  }
-}
 
 /* ================= NAVEGAÇÃO ================= */
 function ir(tela){
@@ -260,9 +241,10 @@ function render(){
   if(telaAtual === "cobrancas") renderCobrancas();
   if(telaAtual === "associados") renderAssociados();
   if(telaAtual === "recibos") renderRecibos();
-
+  if(telaAtual === "devedores") renderDevedores();
 }
 
+/* ================= RENDER RECIBOS ================= */
 function renderRecibos(){
 
   // 🔒 garante que recibos existe
@@ -293,61 +275,39 @@ function renderRecibos(){
   listarRecibos();
 }
 
-function listarRecibos(){
+/* ================= RENDER DEVEDORES ================= */
+function renderDevedores(){
 
-  const buscaInput = document.getElementById("buscaRecibo");
-  const busca = (buscaInput?.value || "").toLowerCase();
+  let meses = [...new Set(cobrancas.map(c => c[3]))];
 
-  const filtroMesEl = document.getElementById("filtroMesRecibo");
-  const mes = filtroMesEl ? filtroMesEl.value : "";
+  tela.innerHTML = `
+    
+    <div class="box" style="margin-bottom:10px;">
+      <b>Total em aberto</b><br>
+      <span id="totalDivida">R$ 0.00</span>
+    </div>
 
-  let lista = [...recibos];
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      
+      <input placeholder="Buscar devedor..." id="buscaDevedor" style="flex:1;">
 
-  if(busca){
-    lista = lista.filter(r => String(r[2]).toLowerCase().includes(busca));
-  }
+      <select id="filtroMesDevedor">
+        <option value="">Todos</option>
+        ${meses.map(m=>`<option>${m}</option>`).join("")}
+      </select>
 
-  if(mes){
-    lista = lista.filter(r => r[4] == mes);
-  }
+    </div>
 
-  let html = "";
+    <div id="listaDevedores"></div>
+  `;
 
-  [...lista].reverse().forEach(r => {
+  const busca = document.getElementById("buscaDevedor");
+  const filtro = document.getElementById("filtroMesDevedor");
 
-    const numero = r[1];
-    const nome = r[2];
-    const valor = Number(r[5]).toFixed(2);
-    const data = formatarData(r[6]);
+  if(busca) busca.oninput = listarDevedores;
+  if(filtro) filtro.onchange = listarDevedores;
 
-    html += `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        
-        <div>
-          <div style="font-size:16px;font-weight:600;">
-            ${nome}
-          </div>
-
-          <div style="font-size:12px;opacity:0.7;">
-            ${numero} • ${data}
-          </div>
-
-          <div style="margin-top:5px;">
-            R$ ${valor}
-          </div>
-        </div>
-
-        <button class="btn-light" 
-          style="font-size:12px;padding:6px 10px;"
-          onclick="reimprimir('${numero}')">
-          🧾 Reimprimir
-        </button>
-
-      </div>
-    `;
-  });
-
-  document.getElementById("listaRecibos").innerHTML = html;
+  listarDevedores();
 }
 
 /* ================= DASHBOARD ================= */
@@ -411,6 +371,185 @@ function renderCobrancas(){
   listar();
 }
 
+/* ================= ASSOCIADOS ================= */
+function renderAssociados(){
+
+  tela.innerHTML = `
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input placeholder="Buscar..." id="busca" style="flex:1;">      
+    </div>
+    <div id="lista"></div>
+  `;
+
+  document.getElementById("busca").oninput = listarAssociados;
+
+  listarAssociados();
+}
+
+/* ================= LISTAS ================= */
+/* ================= LISTAR RECIBOS ================= */
+function listarRecibos(){
+
+  const buscaInput = document.getElementById("buscaRecibo");
+  const busca = (buscaInput?.value || "").toLowerCase();
+
+  const filtroMesEl = document.getElementById("filtroMesRecibo");
+  const mes = filtroMesEl ? filtroMesEl.value : "";
+
+  let lista = [...recibos];
+
+  if(busca){
+    lista = lista.filter(r => String(r[2]).toLowerCase().includes(busca));
+  }
+
+  if(mes){
+    lista = lista.filter(r => r[4] == mes);
+  }
+
+  let html = "";
+
+  [...lista].reverse().forEach(r => {
+
+    const numero = r[1];
+    const nome = r[2];
+    const valor = Number(r[5]).toFixed(2);
+    const data = formatarData(r[6]);
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:16px;font-weight:600;">
+            ${nome}
+          </div>
+
+          <div style="font-size:12px;opacity:0.7;">
+            ${numero} • ${data}
+          </div>
+
+          <div style="margin-top:5px;">
+            R$ ${valor}
+          </div>
+        </div>
+
+        <button class="btn-light" 
+          style="font-size:12px;padding:6px 10px;"
+          onclick="reimprimir('${numero}')">
+          🧾 Reimprimir
+        </button>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaRecibos").innerHTML = html;
+}
+
+/* ================= LISTAR ASSOCIADOS ================= */
+function listarAssociados(){
+
+  const busca = document.getElementById("busca").value.toLowerCase();
+
+  let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
+
+  let html = "";
+
+  lista.forEach(a=>{
+    const status = statusAssociado(a[2]);
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:18px;font-weight:600;">
+            ${a[1]}
+          </div>
+
+          <div style="font-size:13px;color:${status=="Devedor" ? "#ef4444" : "#22c55e"};">
+            ${status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;">
+          <button class="btn-edit btn-icon" onclick="editar('${a[0]}')">✏️</button>
+          <button class="btn-danger btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= LISTAR DEVEDORES================= */
+function listarDevedores(){
+
+  const busca = (document.getElementById("buscaDevedor")?.value || "").toLowerCase();
+  const mes = document.getElementById("filtroMesDevedor")?.value || "";
+
+  let lista = cobrancas.filter(c => c[5] === "Pendente");
+
+  if(busca){
+    lista = lista.filter(c => String(c[1]).toLowerCase().includes(busca));
+  }
+
+  if(mes){
+    lista = lista.filter(c => c[3] == mes);
+  }
+
+  let total = 0;
+  let html = "";
+
+  if(lista.length === 0){
+    html = `<div class="card">Nenhum devedor 🎉</div>`;
+  }
+
+  lista.sort((a,b)=>b[4]-a[4]).forEach(c => {
+
+    const nome = c[1];
+    const mes = c[3];
+    const valor = Number(c[4]);
+
+    total += valor;
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:16px;font-weight:600;">
+            ${nome}
+          </div>
+
+          <div style="font-size:12px;color:#ef4444;">
+            ${mes} • Em aberto
+          </div>
+
+          <div style="margin-top:5px;">
+            R$ ${valor.toFixed(2)}
+          </div>
+        </div>
+
+        <button class="btn" 
+          style="font-size:12px;padding:6px 12px;"
+          onclick="ir('cobrancas')">
+          Ver
+        </button>
+
+      </div>
+    `;
+  });
+
+  // 🔥 ATUALIZA TOTAL NO TOPO
+  const totalEl = document.getElementById("totalDivida");
+  if(totalEl){
+    totalEl.innerText = "R$ " + total.toFixed(2);
+  }
+
+  document.getElementById("listaDevedores").innerHTML = html;
+}
+
+/* ================= LISTAR ================= */
 function listar(){
 
   const mes = document.getElementById("filtroMes").value;
@@ -442,91 +581,6 @@ function listar(){
             🧾 Recibo
           </button>
         ` : ""}
-      </div>
-    `;
-  });
-
-  document.getElementById("lista").innerHTML = html;
-}
-
-/* ================= PAGAR ================= */
-async function pagar(id){
-
-  const item = cobrancas.find(c=>c[0]==id);
-  if(!item) return;
-
-  // envia pro backend
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({acao:"pagar",id})
-  });
-
-  const resp = await res.json();
-
-  const numero = resp.recibo;
-
-  // 🔥 ATUALIZA TUDO (SEM F5)
-  await carregar();
-
-  // 🔥 gera recibo depois de atualizar
-  gerarRecibo(item, numero);
-}
-
-/* ================= GERAR COBRANÇA ================= */
-async function gerarCobrancas(){
-
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({acao:"gerar_cobrancas"})
-  });
-
-  carregar();
-}
-
-/* ================= ASSOCIADOS ================= */
-function renderAssociados(){
-
-  tela.innerHTML = `
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <input placeholder="Buscar..." id="busca" style="flex:1;">      
-    </div>
-    <div id="lista"></div>
-  `;
-
-  document.getElementById("busca").oninput = listarAssociados;
-
-  listarAssociados();
-}
-
-function listarAssociados(){
-
-  const busca = document.getElementById("busca").value.toLowerCase();
-
-  let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
-
-  let html = "";
-
-  lista.forEach(a=>{
-    const status = statusAssociado(a[2]);
-
-    html += `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        
-        <div>
-          <div style="font-size:18px;font-weight:600;">
-            ${a[1]}
-          </div>
-
-          <div style="font-size:13px;color:${status=="Devedor" ? "#ef4444" : "#22c55e"};">
-            ${status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
-          </div>
-        </div>
-
-        <div style="display:flex;gap:6px;">
-          <button class="btn-edit btn-icon" onclick="editar('${a[0]}')">✏️</button>
-          <button class="btn-danger btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
-        </div>
-
       </div>
     `;
   });
@@ -582,75 +636,6 @@ function fecharModal(){
   m_mensal.value = "";
 
   editandoId = null;
-}
-
-async function salvarModal(){
-
-  // ✅ VALIDA CPF ANTES DE ENVIAR
-  if(!validarCPFFront(m_cpf.value)){
-    alert("CPF inválido");
-    return;
-  }
-
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"salvar_associado",
-      id: editandoId,
-      nome: m_nome.value,
-      cpf: String(m_cpf.value).replace(/\D/g,""),
-      telefone: String(m_tel.value).replace(/\D/g,""),
-      email: m_email.value,
-      endereco: m_endereco.value,
-      mensalidade: m_mensal.value
-    })
-  });
-
-  const resp = await res.json();
-
-  // ✅ TRATA ERRO DO BACKEND
-  if(resp.erro){
-    alert(resp.erro);
-    return;
-  }
-
-  // 🔥 GERA COBRANÇAS AUTOMATICAMENTE
-  if(!editandoId){
-    console.log("Novo associado cadastrado");
-  }
-
-  fecharModal();
-  carregar();
-} 
-
-/* ================= SALVAR ================= */
-async function salvar(obj){
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"salvar_associado",
-      ...obj
-    })
-  });
-
-  carregar();
-}
-
-/* ================= EXCLUIR ================= */
-async function excluir(id){
-
-  if(!confirm("Tem certeza que deseja excluir este associado?")) return;
-
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      acao:"excluir_associado",
-      id: id
-    })
-  });
-
-  carregar();
 }
 
 /* ================= FORMATAR DATA ================= */
@@ -855,6 +840,134 @@ function reimprimir(numero){
   const valor = Number(rec[5]).toFixed(2);
 
   gerarRecibo([0, nome, cpf, mes, valor], numero);
+}
+
+
+/* ================= ASYNC ================= */
+/* ================= CARREGAR ================= */
+async function carregar(){
+  try{
+    let res = await fetch(API);
+    let data = await res.json();
+
+    if(data.erro){
+      alert("Erro: " + data.erro);
+      return;
+    }
+
+    associados = data.associados.slice(1);
+    cobrancas = data.cobrancas.slice(1);
+    recibos = data.recibos ? data.recibos.slice(1) : [];
+
+    render();
+
+  }catch(e){
+    alert("Erro de conexão com API");
+    console.error(e);
+  }
+}
+
+/* ================= PAGAR ================= */
+async function pagar(id){
+
+  const item = cobrancas.find(c=>c[0]==id);
+  if(!item) return;
+
+  // envia pro backend
+  const res = await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"pagar",id})
+  });
+
+  const resp = await res.json();
+
+  const numero = resp.recibo;
+
+  // 🔥 ATUALIZA TUDO (SEM F5)
+  await carregar();
+
+  // 🔥 gera recibo depois de atualizar
+  gerarRecibo(item, numero);
+}
+
+/* ================= GERAR COBRANÇA ================= */
+async function gerarCobrancas(){
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"gerar_cobrancas"})
+  });
+
+  carregar();
+}
+
+/* ================= SALVAR MODAL ================= */
+async function salvarModal(){
+
+  // ✅ VALIDA CPF ANTES DE ENVIAR
+  if(!validarCPFFront(m_cpf.value)){
+    alert("CPF inválido");
+    return;
+  }
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      id: editandoId,
+      nome: m_nome.value,
+      cpf: String(m_cpf.value).replace(/\D/g,""),
+      telefone: String(m_tel.value).replace(/\D/g,""),
+      email: m_email.value,
+      endereco: m_endereco.value,
+      mensalidade: m_mensal.value
+    })
+  });
+
+  const resp = await res.json();
+
+  // ✅ TRATA ERRO DO BACKEND
+  if(resp.erro){
+    alert(resp.erro);
+    return;
+  }
+
+  // 🔥 GERA COBRANÇAS AUTOMATICAMENTE
+  if(!editandoId){
+    console.log("Novo associado cadastrado");
+  }
+
+  fecharModal();
+  carregar();
+} 
+
+/* ================= SALVAR ================= */
+async function salvar(obj){
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      ...obj
+    })
+  });
+
+  carregar();
+}
+
+/* ================= EXCLUIR ================= */
+async function excluir(id){
+
+  if(!confirm("Tem certeza que deseja excluir este associado?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"excluir_associado",
+      id: id
+    })
+  });
+  carregar();
 }
 
 </script>
