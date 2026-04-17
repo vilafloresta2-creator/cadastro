@@ -39,10 +39,15 @@ header{background:#020617;padding:15px;text-align:center;font-size:18px}
     width:100% !important;
   }
 
+  .nav button{
+    flex: 1 1 45%;
+  }
+
 }
 
 .nav button{
-  flex: 1 1 45%;
+  flex: 1;
+  min-width:120px
   padding:10px;
   background:#1e293b;
   border:none;
@@ -203,7 +208,7 @@ input,select{
   <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
   <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
-  <button onclick="ir('recibos')" id="btn_recibos">Recibos</button>
+  <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
 </div>
 
@@ -258,8 +263,8 @@ function render(){
   if(telaAtual === "dashboard") renderDashboard();
   if(telaAtual === "cobrancas") renderCobrancas();
   if(telaAtual === "associados") renderAssociados();
-  if(telaAtual === "recibos") renderRecibos();
   if(telaAtual === "devedores") renderDevedores();
+  /*if(telaAtual === "recibos") renderRecibos();*/
 }
 
 /* ================= RENDER RECIBOS ================= */
@@ -589,10 +594,10 @@ function listar(){
         : ""}
 
         ${c[5]=="Pago" ? `
-          <button class="btn btn-light" 
-            style="margin-top:8px; font-size:13px;"
+          <button class="btn-recibo"
+            style="margin-top:8px;"
             onclick="reimprimir('${c[7] || ""}')">
-            🧾 Recibo
+            🧾 Reimprimir
           </button>
         ` : ""}
       </div>
@@ -854,6 +859,25 @@ function reimprimir(numero){
   const valor = Number(rec[5]).toFixed(2);
 
   gerarRecibo([0, nome, cpf, mes, valor], numero);
+}
+
+function reimprimirPorCobranca(id){
+
+  const c = cobrancas.find(x => String(x[0]) === String(id));
+
+  if(!c){
+    alert("Cobrança não encontrada");
+    return;
+  }
+
+  const numero = c[7]; // coluna onde salvou o recibo
+
+  if(!numero){
+    alert("Recibo não gerado ainda");
+    return;
+  }
+
+  reimprimir(numero);
 }
 
 
