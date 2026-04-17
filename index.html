@@ -85,23 +85,6 @@ input,select{
 .btn-danger{background:#ef4444}
 .btn-edit{background:#f59e0b}
 
-.btn-recibo{
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border:none;
-  color:#fff;
-  padding:8px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:600;
-  font-size:13px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
-}
-
-.btn-recibo:hover{
-  transform:scale(1.05);
-  opacity:0.9;
-}
-
 .btn-cancelar{
   background:transparent;
   border:1px solid #475569;
@@ -330,14 +313,12 @@ function listar(){
       <div class="card">
         <b>${c[1]}</b><br>
         ${c[3]}
-        <div style="font-weight:600;">
-  ${c[5]=="Pago" ? "🟢 Pago" : "🔴 Pendente"}
-</div><br>
+        <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
           `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
         :
-          `<button class="btn-recibo" onclick="reimprimir('${c[2]}','${c[3]}')">🧾 Recibo</button>`
+          `<button class="btn-light" onclick="reimprimir('${c[2]}','${c[3]}')">🧾 Recibo</button>`
         }
       </div>
     `;
