@@ -85,6 +85,23 @@ input,select{
 .btn-danger{background:#ef4444}
 .btn-edit{background:#f59e0b}
 
+.btn-recibo{
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border:none;
+  color:#fff;
+  padding:8px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:13px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+.btn-recibo:hover{
+  transform:scale(1.05);
+  opacity:0.9;
+}
+
 .btn-cancelar{
   background:transparent;
   border:1px solid #475569;
@@ -205,7 +222,7 @@ async function carregar(){
     }
     associados = data.associados.slice(1);
     cobrancas = data.cobrancas.slice(1);
-    recibos = data.recibos ? data.recibos.slice(1) : [];
+    recibos = data.recibos ? data.recibos.slice(1);
     render();
   }catch(e){
     alert("Erro de conexão com API");
@@ -313,12 +330,14 @@ function listar(){
       <div class="card">
         <b>${c[1]}</b><br>
         ${c[3]}
-        <b>${c[5]}</b><br>
+        <div style="font-weight:600;">
+  ${c[5]=="Pago" ? "🟢 Pago" : "🔴 Pendente"}
+</div><br>
 
         ${c[5]=="Pendente" ? 
           `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
         :
-          `<button class="btn-light" onclick="reimprimir('${c[2]}','${c[3]}')">🧾 Recibo</button>`
+          `<button class="btn-recibo" onclick="reimprimir('${c[2]}','${c[3]}')">🧾 Recibo</button>`
         }
       </div>
     `;
@@ -718,22 +737,25 @@ function gerarRecibo(c, numero){
 
 function reimprimir(cpf, mes){
 
-  const r = recibos.find(x => x[3] == cpf && x[4] == mes);
+  cpf = String(cpf).replace(/\D/g,"").padStart(11,"0");
 
-  if(!r){
+  const rec = recibos.find(r => 
+    String(r[3]).replace(/\D/g,"").padStart(11,"0") === cpf &&
+    String(r[4]).trim() === String(mes).trim()
+  );
+
+  if(!rec){
     alert("Recibo não encontrado");
     return;
   }
 
-  const fakeCobranca = [
-    null,
-    r[2], // nome
-    r[3], // cpf
-    r[4], // mes
-    r[5]  // valor
-  ];
-
-  gerarRecibo(fakeCobranca, r[1]);
+  gerarRecibo([
+    null,        // id ignorado
+    rec[2],      // nome
+    rec[3],      // cpf
+    rec[4],      // mes
+    rec[5]       // valor
+  ], rec[1]);    // numero do recibo
 }
 
 </script>
