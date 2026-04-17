@@ -201,6 +201,12 @@ let cobrancas = [];
 let telaAtual = "dashboard";
 let recibos = [];
 
+function normalizarCPF(cpf){
+  return String(cpf || "")
+    .replace(/\D/g,"")
+    .padStart(11,"0");
+}
+
 document.addEventListener("input", e=>{
   if(e.target.id === "m_cpf"){
     e.target.value = maskCPF(e.target.value);
@@ -216,14 +222,18 @@ async function carregar(){
   try{
     let res = await fetch(API);
     let data = await res.json();
+
     if(data.erro){
       alert("Erro: " + data.erro);
       return;
     }
+
     associados = data.associados.slice(1);
     cobrancas = data.cobrancas.slice(1);
-    recibos = data.recibos ? data.recibos.slice(1)
+    recibos = data.recibos ? data.recibos.slice(1) : [];
+
     render();
+
   }catch(e){
     alert("Erro de conexão com API");
     console.error(e);
@@ -329,18 +339,20 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${c[3]}
-        <div style="font-weight:600;">
-  ${c[5]=="Pago" ? "🟢 Pago" : "🔴 Pendente"}
-</div><br>
+        ${c[3]}<br>
+        <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
           `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
-        :
-          `<button class="btn-recibo" onclick="reimprimir('${c[2]}','${c[3]}')">
+        : ""}
+
+        ${c[5]=="Pago" ? `
+          <button class="btn btn-light" 
+            style="margin-top:8px; font-size:13px;"
+            onclick="reimprimir('${c[7] || ""}')">
             🧾 Recibo
-          </button>`
-        }
+          </button>
+        ` : ""}
       </div>
     `;
   });
@@ -352,15 +364,11 @@ function listar(){
 async function pagar(id){
 
   const item = cobrancas.find(c=>c[0]==id);
-
   if(!item) return;
 
-  // atualiza local
   item[5] = "Pago";
-
   listar();
 
-  // envia pro backend e pega numero do recibo
   const res = await fetch(API,{
     method:"POST",
     body: JSON.stringify({acao:"pagar",id})
@@ -368,8 +376,10 @@ async function pagar(id){
 
   const resp = await res.json();
 
-  // 🔥 USA NUMERO REAL DO BACKEND
-  const numero = resp.recibo || ("REC-" + new Date().getTime());
+  const numero = resp.recibo;
+
+  // salva número localmente pra usar no botão
+  item[7] = numero;
 
   gerarRecibo(item, numero);
 }
@@ -737,27 +747,26 @@ function gerarRecibo(c, numero){
   w.document.close();
 }
 
-function reimprimir(cpf, mes){
+function reimprimir(numero){
 
-  cpf = String(cpf).replace(/\D/g,"").padStart(11,"0");
+  if(!numero){
+    alert("Recibo sem número");
+    return;
+  }
 
-  const rec = recibos.find(r => 
-    String(r[3]).replace(/\D/g,"").padStart(11,"0") === cpf &&
-    String(r[4]).trim() === String(mes).trim()
-  );
+  const rec = recibos.find(r => String(r[1]) === String(numero));
 
   if(!rec){
     alert("Recibo não encontrado");
     return;
   }
 
-  gerarRecibo([
-    null,        // id ignorado
-    rec[2],      // nome
-    rec[3],      // cpf
-    rec[4],      // mes
-    rec[5]       // valor
-  ], rec[1]);    // numero do recibo
+  const nome = rec[2];
+  const cpf = normalizarCPF(rec[3]);
+  const mes = rec[4];
+  const valor = Number(rec[5]).toFixed(2);
+
+  gerarRecibo([0, nome, cpf, mes, valor], numero);
 }
 
 </script>
