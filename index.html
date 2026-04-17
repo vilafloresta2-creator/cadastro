@@ -265,30 +265,43 @@ function render(){
 
 function renderRecibos(){
 
-  let meses = [...new Set(recibos.map(r => r[4]))];
+  // 🔒 garante que recibos existe
+  if(!Array.isArray(recibos)){
+    recibos = [];
+  }
 
   tela.innerHTML = `
   <div style="display:flex; gap:10px; margin-bottom:10px;">
     
-    <input placeholder="Buscar por nome..." id="buscaRecibo" style="flex:1;">
+    <input 
+      placeholder="Buscar por nome..." 
+      id="buscaRecibo" 
+      style="flex:1;"
+    >
     
   </div>
 
-  <div id="listarRecibos"></div>
-`;
+  <div id="listaRecibos"></div>
+  `;
 
-  document.getElementById("buscaRecibo").oninput = listarRecibos;
-  document.getElementById("filtroMesRecibo").onchange = listarRecibos;
+  // 🔒 protege contra null
+  const busca = document.getElementById("buscaRecibo");
+  if(busca){
+    busca.oninput = listarRecibos;
+  }
 
   listarRecibos();
 }
 
 function listarRecibos(){
 
-  const busca = (document.getElementById("buscaRecibo").value || "").toLowerCase();
-  const mes = document.getElementById("filtroMesRecibo").value;
+  const buscaInput = document.getElementById("buscaRecibo");
+  const busca = (buscaInput?.value || "").toLowerCase();
 
-  let lista = recibos;
+  const filtroMesEl = document.getElementById("filtroMesRecibo");
+  const mes = filtroMesEl ? filtroMesEl.value : "";
+
+  let lista = [...recibos];
 
   if(busca){
     lista = lista.filter(r => String(r[2]).toLowerCase().includes(busca));
@@ -300,7 +313,7 @@ function listarRecibos(){
 
   let html = "";
 
-  lista.reverse().forEach(r => {
+  [...lista].reverse().forEach(r => {
 
     const numero = r[1];
     const nome = r[2];
@@ -324,7 +337,9 @@ function listarRecibos(){
           </div>
         </div>
 
-        <button class="btn-light" style="font-size:12px;padding:6px 10px;">
+        <button class="btn-light" 
+          style="font-size:12px;padding:6px 10px;"
+          onclick="reimprimir('${numero}')">
           🧾 Reimprimir
         </button>
 
@@ -827,7 +842,7 @@ function reimprimir(numero){
     return;
   }
 
-  const rec = recibos.find(r => String(r[1]) === String(numero));
+  const rec = recibos.find(r => String(r[1]).trim() === String(numero).trim());
 
   if(!rec){
     alert("Recibo não encontrado");
@@ -835,7 +850,7 @@ function reimprimir(numero){
   }
 
   const nome = rec[2];
-  const cpf = normalizarCPF(rec[3]);
+  const cpf = String(rec[3]).padStart(11,"0"); // 🔥 garante zero
   const mes = rec[4];
   const valor = Number(rec[5]).toFixed(2);
 
