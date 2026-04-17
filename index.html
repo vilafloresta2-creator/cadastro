@@ -262,14 +262,30 @@ function renderCobrancas(){
 
   let meses = [...new Set(cobrancas.map(c=>c[3]))];
 
+  const hoje = new Date();
+  const mes = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
+
+  const gerado = jaGerouMesAtual();
+
   tela.innerHTML = `
+  <div style="margin-bottom:10px;">
+    <p style="font-size:12px; opacity:0.7;">
+      Referente a ${mes}
+    </p>
+  </div>
+
   <div style="display:flex; gap:10px; margin-bottom:10px;">    
     <select id="filtroMes" style="flex:1;">
       <option value="">Todos</option>
       ${meses.map(m=>`<option>${m}</option>`).join("")}
     </select>
-    <button class="btn" onclick="gerarCobrancas()">⚡ Gerar</button>
+
+    <button class="btn" onclick="gerarCobrancas()" 
+      ${gerado ? "disabled style='opacity:0.5'" : ""}>
+      ${gerado ? "✔ Já gerado" : "⚡ Gerar"}
+    </button>
   </div>
+
   <div id="lista"></div>
 `;
 
@@ -561,6 +577,14 @@ function validarCPFFront(cpf){
   if(/^(\d)\1+$/.test(cpf)) return false;
 
   return true;
+}
+
+function jaGerouMesAtual(){
+
+  const hoje = new Date();
+  const mes = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
+
+  return cobrancas.some(c => c[3] == mes);
 }
 
 /* INIT */
