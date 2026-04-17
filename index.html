@@ -278,7 +278,7 @@ function renderRecibos(){
 `;
 
   document.getElementById("buscaRecibo").oninput = listarRecibos;
-  document.getElementById("filtroMesRecibo").onchange = listarRecibos;
+  document.getElementById("recibos").onchange = listarRecibos;
 
   listarRecibos();
 }
@@ -286,7 +286,7 @@ function renderRecibos(){
 function listarRecibos(){
 
   const busca = (document.getElementById("buscaRecibo").value || "").toLowerCase();
-  const mes = document.getElementById("filtroMesRecibo").value;
+  const mes = document.getElementById("recibos").value;
 
   let lista = recibos;
 
