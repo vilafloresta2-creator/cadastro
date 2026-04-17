@@ -20,13 +20,19 @@ header{background:#020617;padding:15px;text-align:center;font-size:18px}
 }
 
 .nav{
+  flex-wrap: wrap;
   display:flex;
   gap:10px;
   margin-bottom:15px;
 }
 
+@media (max-width: 600px){
+  .top{
+    grid-template-columns: 1fr;
+  }
+
 .nav button{
-  flex:1;
+  flex: 1 1 45%;
   padding:10px;
   background:#1e293b;
   border:none;
@@ -47,6 +53,8 @@ header{background:#020617;padding:15px;text-align:center;font-size:18px}
 
 input,select{
   width:100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding:10px;
   margin:5px 0;
   border-radius:6px;
@@ -253,14 +261,14 @@ function renderRecibos(){
   }
 
   tela.innerHTML = `
-  <div style="display:flex; gap:10px; margin-bottom:10px;">
+  <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+  
+    <input placeholder="Buscar..." style="flex:1; min-width:150px;">
     
-    <input 
-      placeholder="Buscar por nome..." 
-      id="buscaRecibo" 
-      style="flex:1;"
-    >
-    
+    <select style="flex:1; min-width:120px;">
+      <option>Todos</option>
+    </select>
+
   </div>
 
   <div id="listaRecibos"></div>
