@@ -1108,6 +1108,9 @@ async function fazerBackup(){
       return;
     }
 
+    // 🔥 ATUALIZA LISTA DE BACKUPS
+    await carregar();
+
     if(confirm("Backup criado! Deseja abrir agora?")){
       window.open(data.url, "_blank");
     }
@@ -1117,7 +1120,7 @@ async function fazerBackup(){
   }
 
   if(btn){
-    btn.innerText = "💾 Backup";
+    btn.innerText = "💾 Fazer Backup";
     btn.disabled = false;
   }
 }
