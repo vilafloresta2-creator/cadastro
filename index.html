@@ -219,7 +219,7 @@ input,select{
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
   <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
-  <button class="btn" onclick="fazerBackup()">💾 Backup</button>
+  <button onclick="ir('backups')" id="btn_backups">Backups</button>
 </div>
 
 <div id="tela"></div>
@@ -274,7 +274,18 @@ function render(){
   if(telaAtual === "cobrancas") renderCobrancas();
   if(telaAtual === "associados") renderAssociados();
   if(telaAtual === "devedores") renderDevedores();
+  if(telaAtual === "backups") renderBackups();
   /*if(telaAtual === "recibos") renderRecibos();*/
+}
+
+/* ================= RENDER BACKUPs ================= */
+function renderBackups(){
+
+  tela.innerHTML = `
+    <div id="listaBackups"></div>
+  `;
+
+  listarBackups();
 }
 
 /* ================= RENDER RECIBOS ================= */
@@ -616,6 +627,54 @@ function listar(){
   });
 
   document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= LISTAR BACKUPS ================= */
+function listarBackups(){
+
+  let html = "";
+
+  backups.slice(1).reverse().forEach(b => {
+
+    const data = formatarData(b[0]);
+    const nome = b[1];
+    const link = b[2];
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <b>${nome}</b><br>
+          <small>${data}</small>
+        </div>
+
+        <div style="display:flex;gap:6px;">
+          <button class="btn" onclick="window.open('${link}')">Abrir</button>
+          <button class="btn-danger" onclick="restaurarBackup('${link}')">Restaurar</button>
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaBackups").innerHTML = html;
+}
+
+/* ================= RESTAURAR BACKUP ================= */
+async function restaurarBackup(url){
+
+  if(!confirm("⚠️ Isso vai substituir TODOS os dados. Continuar?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"restore",
+      url
+    })
+  });
+
+  alert("Backup restaurado!");
+  carregar();
 }
 
 /* ================= FORM ================= */
