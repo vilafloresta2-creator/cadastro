@@ -219,6 +219,7 @@ input,select{
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
   <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
+  <button class="btn" onclick="fazerBackup()">💾 Backup</button>
 </div>
 
 <div id="tela"></div>
@@ -1016,6 +1017,24 @@ async function excluir(id){
     })
   });
   carregar();
+}
+
+/* ================= BACKUP ================= */
+async function fazerBackup(){
+
+  const res = await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"backup"})
+  });
+
+  const data = await res.json();
+
+  if(data.erro){
+    alert(data.erro);
+    return;
+  }
+
+  alert("Backup criado com sucesso!");
 }
 
 </script>
