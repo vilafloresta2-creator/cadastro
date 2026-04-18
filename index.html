@@ -1022,19 +1022,34 @@ async function excluir(id){
 /* ================= BACKUP ================= */
 async function fazerBackup(){
 
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({acao:"backup"})
-  });
+  const btn = event.target;
+  btn.innerText = "Salvando...";
+  btn.disabled = true;
 
-  const data = await res.json();
+  try{
+    const res = await fetch(API,{
+      method:"POST",
+      body: JSON.stringify({acao:"backup"})
+    });
 
-  if(data.erro){
-    alert(data.erro);
-    return;
+    const data = await res.json();
+
+    if(data.erro){
+      alert(data.erro);
+      return;
+    }
+
+    // 🔥 nível SaaS
+    if(confirm("Backup criado! Deseja abrir agora?")){
+      window.open(data.url, "_blank");
+    }
+
+  }catch(e){
+    alert("Erro ao gerar backup");
   }
 
-  alert("Backup criado com sucesso!");
+  btn.innerText = "💾 Backup";
+  btn.disabled = false;
 }
 
 </script>
