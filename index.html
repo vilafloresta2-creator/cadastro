@@ -235,7 +235,7 @@ let associados = [];
 let cobrancas = [];
 let telaAtual = "dashboard";
 let recibos = [];
-
+let backups = []; // 🔥 FALTAVA ISSO
 
 /* ================= FUNCTIONS ================= */
 /* ================= NORMALIZAR CPF ================= */
@@ -634,7 +634,7 @@ function listarBackups(){
 
   let html = "";
 
-  backups.slice(1).reverse().forEach(b => {
+  backups.slice().reverse().forEach(b => {
 
     const data = formatarData(b[0]);
     const nome = b[1];
@@ -966,6 +966,8 @@ async function carregar(){
     associados = data.associados.slice(1);
     cobrancas = data.cobrancas.slice(1);
     recibos = data.recibos ? data.recibos.slice(1) : [];
+
+    backups = data.backups ? data.backups.slice(1) : []; // 🔥 ADICIONE ISSO
 
     render();
 
