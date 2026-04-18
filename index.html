@@ -282,7 +282,11 @@ function render(){
 function renderBackups(){
 
   tela.innerHTML = `
-    <div id="listaBackups"></div>
+    <button class="btn" onclick="fazerBackup()">
+      💾 Fazer Backup
+    </button>
+
+    <div id="listaBackups" style="margin-top:10px;"></div>
   `;
 
   listarBackups();
@@ -967,7 +971,8 @@ async function carregar(){
     cobrancas = data.cobrancas.slice(1);
     recibos = data.recibos ? data.recibos.slice(1) : [];
 
-    backups = data.backups ? data.backups.slice(1) : []; // 🔥 ADICIONE ISSO
+    // 🔥 AQUI ESTÁ O PROBLEMA
+    backups = data.backups ? data.backups.slice(1) : [];
 
     render();
 
@@ -1083,9 +1088,12 @@ async function excluir(id){
 /* ================= BACKUP ================= */
 async function fazerBackup(){
 
-  const btn = event.target;
-  btn.innerText = "Salvando...";
-  btn.disabled = true;
+  let btn = event?.target;
+
+  if(btn){
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
+  }
 
   try{
     const res = await fetch(API,{
@@ -1100,7 +1108,6 @@ async function fazerBackup(){
       return;
     }
 
-    // 🔥 nível SaaS
     if(confirm("Backup criado! Deseja abrir agora?")){
       window.open(data.url, "_blank");
     }
@@ -1109,8 +1116,10 @@ async function fazerBackup(){
     alert("Erro ao gerar backup");
   }
 
-  btn.innerText = "💾 Backup";
-  btn.disabled = false;
+  if(btn){
+    btn.innerText = "💾 Backup";
+    btn.disabled = false;
+  }
 }
 
 </script>
