@@ -19,6 +19,21 @@ body{
   min-height:100vh;
 }
 
+.linha-filtros{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.linha-filtros input{
+  flex:2; /* 🔥 input maior */
+}
+
+.linha-filtros select{
+  flex:1; /* 🔥 select menor */
+  min-width:120px;
+}
+
 /* HEADER */
 header{
   background:rgba(15,23,42,0.8);
@@ -190,6 +205,15 @@ input,select{
 /* MOBILE */
 @media (max-width:600px){
 
+    .linha-filtros{
+    flex-direction:column;
+  }
+
+  .linha-filtros input,
+  .linha-filtros select{
+    width:100%;
+  }
+
   .nav{
     flex-wrap:wrap;
   }
@@ -325,15 +349,15 @@ function renderDevedores(){
   let meses = [...new Set(cobrancas.map(c => c[3]))];
 
   tela.innerHTML = `
-    
+  
     <div class="box" style="margin-bottom:10px;">
       <b>Total em aberto</b><br>
       <span id="totalDivida">R$ 0.00</span>
     </div>
 
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
+    <div class="linha-filtros">
       
-      <input placeholder="Buscar devedor..." id="buscaDevedor" style="flex:1;">
+      <input placeholder="Buscar devedor..." id="buscaDevedor">
 
       <select id="filtroMesDevedor">
         <option value="">Todos</option>
@@ -344,15 +368,6 @@ function renderDevedores(){
 
     <div id="listaDevedores"></div>
   `;
-
-  const busca = document.getElementById("buscaDevedor");
-  const filtro = document.getElementById("filtroMesDevedor");
-
-  if(busca) busca.oninput = listarDevedores;
-  if(filtro) filtro.onchange = listarDevedores;
-
-  listarDevedores();
-}
 
 /* ================= DASHBOARD ================= */
 function renderDashboard(){
@@ -908,7 +923,7 @@ function gerarRecibo(c, numero){
     </html>
   `;
 
-  const w = window.open("", "_blank");
+  const w = window.location.href = data.url;
   w.document.write(html);
   w.document.close();
 }
