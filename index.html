@@ -348,26 +348,35 @@ function renderDevedores(){
 
   let meses = [...new Set(cobrancas.map(c => c[3]))];
 
-  tela.innerHTML = `
-  
-    <div class="box" style="margin-bottom:10px;">
-      <b>Total em aberto</b><br>
-      <span id="totalDivida">R$ 0.00</span>
-    </div>
-
-    <div class="linha-filtros">
+    tela.innerHTML = `
       
-      <input placeholder="Buscar devedor..." id="buscaDevedor">
+      <div class="box" style="margin-bottom:10px;">
+        <b>Total em aberto</b><br>
+        <span id="totalDivida">R$ 0.00</span>
+      </div>
 
-      <select id="filtroMesDevedor">
-        <option value="">Todos</option>
-        ${meses.map(m=>`<option>${m}</option>`).join("")}
-      </select>
+      <div class="linha-filtros">
+        
+        <input placeholder="Buscar devedor..." id="buscaDevedor">
 
-    </div>
+        <select id="filtroMesDevedor">
+          <option value="">Todos</option>
+          ${meses.map(m => `<option>${m}</option>`).join("")}
+        </select>
 
-    <div id="listaDevedores"></div>
-  `;
+      </div>
+
+      <div id="listaDevedores"></div>
+    `;
+
+    const busca = document.getElementById("buscaDevedor");
+    const filtro = document.getElementById("filtroMesDevedor");
+
+    if(busca) busca.oninput = listarDevedores;
+    if(filtro) filtro.onchange = listarDevedores;
+
+    listarDevedores();
+  }
 
 /* ================= DASHBOARD ================= */
 function renderDashboard(){
@@ -923,7 +932,7 @@ function gerarRecibo(c, numero){
     </html>
   `;
 
-  const w = window.location.href = data.url;
+  const w = window.open("", "_blank");
   w.document.write(html);
   w.document.close();
 }
