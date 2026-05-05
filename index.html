@@ -445,6 +445,7 @@ function renderAssociados(){
   tela.innerHTML = `
     <div style="display:flex; gap:10px; margin-bottom:10px;">
       <input placeholder="Buscar..." id="busca" style="flex:1;">      
+      <button class="btn" onclick="alterarMensalidadeTodos()">💰 Atualizar Mensalidade</button>
     </div>
     <div id="lista"></div>
   `;
@@ -702,6 +703,33 @@ async function restaurarBackup(url){
   });
 
   alert("Backup restaurado!");
+  carregar();
+}
+
+/* ================= ALTERAR MENSALIDADE ================= */
+async function alterarMensalidadeTodos(){
+
+  const valor = prompt("Novo valor da mensalidade:");
+
+  if(!valor) return;
+
+  if(isNaN(valor)){
+    alert("Valor inválido");
+    return;
+  }
+
+  if(!confirm("Atualizar mensalidade de TODOS os associados?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"mensalidade_todos",
+      valor: valor
+    })
+  });
+
+  alert("Mensalidade atualizada!");
+
   carregar();
 }
 
