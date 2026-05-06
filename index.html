@@ -188,18 +188,59 @@ input,select{
   box-shadow:0 8px 25px rgba(0,0,0,0.5);
 }
 
-/* MODAL */
-#modal > div{
-  background:#020617;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.05);
+/* MODAL FUNDO */
+#modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
+/* CAIXA */
+#modal > div{
+  background:#1e293b;
+  padding:24px;
+  width:90%;
+  max-width:420px;
+  border-radius:16px;
+  box-sizing:border-box;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px; /* 🔥 espaçamento automático */
+}
+
+/* INPUTS */
 #modal input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
   background:#020617;
+  color:#fff;
+  box-sizing:border-box;
+}
+
+#modal input:focus{
+  outline:none;
+  border:1px solid #2563eb;
+  box-shadow:0 0 0 2px rgba(37,99,235,0.3);
+}
+
+/* BOTÕES */
+#modal .acoes{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+#modal .acoes button{
+  flex:1;
 }
 
 /* MOBILE */
@@ -420,7 +461,7 @@ function renderCobrancas(){
     </p>
   </div>
 
-  <div style="display:flex; gap:10px; margin-bottom:10px;">    
+  <div class="acoes">
     <select id="filtroMes" style="flex:1;">
       <option value="">Todos</option>
       ${meses.map(m=>`<option>${m}</option>`).join("")}
@@ -1314,7 +1355,7 @@ async function fazerBackup(){
       <button class="btn" style="flex:1;" onclick="salvarMensalidade()">
         Salvar
       </button>
-      <button class="btn-light" style="flex:1;" onclick="fecharModalMensalidade()">
+      <button class="btn-cancelar" style="flex:1;" onclick="fecharModalMensalidade()">
         Cancelar
       </button>
     </div>
