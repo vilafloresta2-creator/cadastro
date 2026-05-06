@@ -241,6 +241,7 @@ input,select{
   <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
   <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
+  <button onclick="ir('caixa')" id="btn_caixa">Caixa</button>
   <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
   <button onclick="ir('backups')" id="btn_backups">Backups</button>
@@ -259,6 +260,7 @@ let associados = [];
 let cobrancas = [];
 let telaAtual = "dashboard";
 let recibos = [];
+let caixa = [];
 let backups = []; // 🔥 FALTAVA ISSO
 
 /* ================= FUNCTIONS ================= */
@@ -299,7 +301,58 @@ function render(){
   if(telaAtual === "associados") renderAssociados();
   if(telaAtual === "devedores") renderDevedores();
   if(telaAtual === "backups") renderBackups();
+  if(telaAtual === "caixa") renderCaixa();
   /*if(telaAtual === "recibos") renderRecibos();*/
+}
+
+/* ================= RENDER CAIXA ================= */
+function renderCaixa(){
+
+  let meses = [...new Set(caixa.map(c => {
+    const d = new Date(c[1]);
+    return (d.getMonth()+1).toString().padStart(2,"0") + "-" + d.getFullYear();
+  }))];
+
+  tela.innerHTML = `
+
+    <div class="top">
+      <div class="box">
+        <b>Entradas</b><br>
+        <span id="totalEntradas">R$ 0.00</span>
+      </div>
+      <div class="box">
+        <b>Saídas</b><br>
+        <span id="totalSaidas">R$ 0.00</span>
+      </div>
+      <div class="box">
+        <b>Saldo</b><br>
+        <span id="saldoTotal">R$ 0.00</span>
+      </div>
+    </div>
+
+    <div class="linha-filtros">
+
+      <input placeholder="Buscar..." id="buscaCaixa">
+
+      <select id="filtroMesCaixa">
+        <option value="">Todos</option>
+        ${meses.map(m=>`<option>${m}</option>`).join("")}
+      </select>
+
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <button class="btn" onclick="abrirModalCaixa('Entrada')">+ Entrada</button>
+      <button class="btn-light" onclick="abrirModalCaixa('Saida')">- Saída</button>
+    </div>
+
+    <div id="listaCaixa"></div>
+  `;
+
+  document.getElementById("buscaCaixa").oninput = listarCaixa;
+  document.getElementById("filtroMesCaixa").onchange = listarCaixa;
+
+  listarCaixa();
 }
 
 /* ================= RENDER BACKUPs ================= */
@@ -551,6 +604,69 @@ function listarAssociados(){
   });
 
   document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= LISTAR CAIXA ================= */
+function listarCaixa(){
+
+  const busca = (document.getElementById("buscaCaixa")?.value || "").toLowerCase();
+  const mes = document.getElementById("filtroMesCaixa")?.value || "";
+
+  let lista = [...caixa];
+
+  if(busca){
+    lista = lista.filter(c =>
+      String(c[3]).toLowerCase().includes(busca) ||
+      String(c[4]).toLowerCase().includes(busca)
+    );
+  }
+
+  if(mes){
+    lista = lista.filter(c => {
+      const d = new Date(c[1]);
+      const m = (d.getMonth()+1).toString().padStart(2,"0") + "-" + d.getFullYear();
+      return m === mes;
+    });
+  }
+
+  let entradas = 0;
+  let saidas = 0;
+  let html = "";
+
+  lista.reverse().forEach(c => {
+
+    const data = formatarData(c[1]);
+    const tipo = c[2];
+    const cat = c[3];
+    const desc = c[4];
+    const valor = Number(c[5]);
+
+    if(tipo === "Entrada") entradas += valor;
+    else saidas += valor;
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;">
+        
+        <div>
+          <div style="font-weight:600;">${cat}</div>
+          <div style="font-size:12px;opacity:0.7;">
+            ${desc} • ${data}
+          </div>
+        </div>
+
+        <div style="color:${tipo==="Entrada" ? "#22c55e" : "#ef4444"};">
+          ${tipo==="Entrada" ? "+" : "-"} R$ ${valor.toFixed(2)}
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaCaixa").innerHTML = html;
+
+  document.getElementById("totalEntradas").innerText = "R$ " + entradas.toFixed(2);
+  document.getElementById("totalSaidas").innerText = "R$ " + saidas.toFixed(2);
+  document.getElementById("saldoTotal").innerText = "R$ " + (entradas - saidas).toFixed(2);
 }
 
 /* ================= LISTAR DEVEDORES================= */
@@ -836,6 +952,47 @@ function fecharModal(){
   editandoId = null;
 }
 
+let tipoCaixa = "Entrada";
+
+function abrirModalCaixa(tipo){
+  tipoCaixa = tipo;
+
+  document.getElementById("tituloCaixa").innerText =
+    tipo === "Entrada" ? "Nova Entrada" : "Nova Saída";
+
+  document.getElementById("modalCaixa").style.display = "flex";
+}
+
+function fecharModalCaixa(){
+  document.getElementById("modalCaixa").style.display = "none";
+}
+
+async function salvarCaixa(){
+
+  const categoria = document.getElementById("catCaixa").value;
+  const descricao = document.getElementById("descCaixa").value;
+  const valor = document.getElementById("valorCaixa").value;
+
+  if(!categoria || !valor){
+    alert("Preencha os campos");
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"lancar_caixa",
+      tipo: tipoCaixa,
+      categoria,
+      descricao,
+      valor
+    })
+  });
+
+  fecharModalCaixa();
+  carregar();
+}
+
 /* ================= FORMATAR DATA ================= */
 function formatarData(dataISO){
   if(!dataISO) return "-";
@@ -1074,6 +1231,7 @@ async function carregar(){
 
     associados = data.associados.slice(1);
     cobrancas = data.cobrancas.slice(1);
+    caixa = data.caixa ? data.caixa.slice(1) : [];
     recibos = data.recibos ? data.recibos.slice(1) : [];
 
     // 🔥 AQUI ESTÁ O PROBLEMA
@@ -1266,6 +1424,34 @@ async function fazerBackup(){
     <div style="display:flex; gap:10px; margin-top:10px;">
       <button class="btn" style="flex:1;" onclick="salvarModal()">Salvar</button>
       <button class="btn-cancelar" style="flex:1;" onclick="fecharModal()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="modalCaixa" style="
+display:none; position:fixed; inset:0;
+background:rgba(0,0,0,0.6);
+align-items:center; justify-content:center;
+" onclick="fecharModalCaixa()">
+
+  <div onclick="event.stopPropagation()" style="
+    background:#1e293b;
+    padding:20px;
+    width:90%;
+    max-width:400px;
+    border-radius:16px;
+  ">
+
+    <h3 id="tituloCaixa">Novo lançamento</h3>
+
+    <input id="catCaixa" placeholder="Categoria">
+    <input id="descCaixa" placeholder="Descrição">
+    <input id="valorCaixa" placeholder="Valor" type="number">
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn" onclick="salvarCaixa()">Salvar</button>
+      <button class="btn-light" onclick="fecharModalCaixa()">Cancelar</button>
     </div>
 
   </div>
