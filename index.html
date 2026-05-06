@@ -1072,8 +1072,8 @@ async function carregar(){
       return;
     }
 
-    associados = data.associados.slice(1);
-    cobrancas = data.cobrancas.slice(1);
+    associados = data.associados ? data.associados.slice(1) : [];
+    cobrancas = data.cobrancas ? data.cobrancas.slice(1) : [];
     recibos = data.recibos ? data.recibos.slice(1) : [];
 
     // 🔥 AQUI ESTÁ O PROBLEMA
