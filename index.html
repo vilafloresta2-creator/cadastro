@@ -446,6 +446,7 @@ function renderAssociados(){
     <div style="display:flex; gap:10px; margin-bottom:10px;">
       <input placeholder="Buscar..." id="busca" style="flex:1;">      
       <button class="btn" onclick="alterarMensalidadeTodos()">💰 Atualizar Mensalidade</button>
+      <button class="btn" onclick="abrirModalMensalidade()">💰 Alterar Mensalidade</button>
     </div>
     <div id="lista"></div>
   `;
@@ -767,6 +768,58 @@ function editar(id){
   modalTitulo.innerText = "Editar Associado";
 
   modal.style.display = "flex";
+}
+
+// 🔓 abrir modal
+function abrirModalMensalidade(){
+
+  if(!associados.length){
+    alert("Nenhum associado encontrado");
+    return;
+  }
+
+  // pega o valor do primeiro (padrão do sistema)
+  const valor = Number(associados[0][6] || 0);
+
+  document.getElementById("valorAtualMensalidade")
+    .innerText = "R$ " + valor.toFixed(2);
+
+  document.getElementById("novoValorMensalidade").value = "";
+
+  document.getElementById("modalMensalidade").style.display = "flex";
+}
+
+// ❌ fechar
+function fecharModalMensalidade(){
+  document.getElementById("modalMensalidade").style.display = "none";
+}
+
+// 💾 salvar
+async function salvarMensalidade(){
+
+  const valor = document.getElementById("novoValorMensalidade").value;
+
+  if(!valor || Number(valor) <= 0){
+    alert("Informe um valor válido");
+    return;
+  }
+
+  if(!confirm("Deseja aplicar esse valor para TODOS os associados?")){
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"mensalidade_todos",
+      valor: valor
+    })
+  });
+
+  alert("Mensalidade atualizada!");
+
+  fecharModalMensalidade();
+  carregar(); // atualiza tela
 }
 
 function fecharModal(){
@@ -1179,7 +1232,9 @@ async function fazerBackup(){
 
 </script>
 
+
 <!-- MODAL -->
+
 <div id="modal" style="
   display:none;
   position:fixed;
@@ -1211,6 +1266,56 @@ async function fazerBackup(){
     <div style="display:flex; gap:10px; margin-top:10px;">
       <button class="btn" style="flex:1;" onclick="salvarModal()">Salvar</button>
       <button class="btn-cancelar" style="flex:1;" onclick="fecharModal()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="modalMensalidade" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+" onclick="fecharModalMensalidade()">
+
+  <div onclick="event.stopPropagation()" style="
+    background:#1e293b;
+    padding:20px;
+    width:90%;
+    max-width:400px;
+    border-radius:16px;
+  ">
+
+    <h3 style="margin-bottom:10px;">Atualizar Mensalidade</h3>
+
+    <p style="font-size:14px; opacity:0.7;">
+      Valor atual:
+    </p>
+
+    <div id="valorAtualMensalidade" style="
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:15px;
+    ">
+      R$ 0.00
+    </div>
+
+    <input 
+      id="novoValorMensalidade" 
+      placeholder="Novo valor (ex: 15)"
+      type="number"
+    >
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button class="btn" style="flex:1;" onclick="salvarMensalidade()">
+        Salvar
+      </button>
+      <button class="btn-light" style="flex:1;" onclick="fecharModalMensalidade()">
+        Cancelar
+      </button>
     </div>
 
   </div>
