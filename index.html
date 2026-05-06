@@ -709,7 +709,7 @@ function listarDevedores(){
           </div>
         </div>
 
-        <button class="btn-light" 
+        <button class="btn" 
           style="font-size:12px;padding:6px 12px;"
           onclick="ir('cobrancas')">
           Ver
@@ -750,7 +750,7 @@ function listar(){
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
-          `<button class="btn-light" onclick="pagar('${c[0]}')">Pagar</button>` 
+          `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
         : ""}
 
         ${c[5]=="Pago" ? `
@@ -788,7 +788,7 @@ function listarBackups(){
 
         <div style="display:flex;gap:6px;">
           <button class="btn" onclick="window.open('${link}')">Abrir</button>
-          <button class="btn-light" onclick="restaurarBackup('${link}')">Restaurar</button>
+          <button class="btn" onclick="restaurarBackup('${link}')">Restaurar</button>
         </div>
 
       </div>
