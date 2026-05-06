@@ -165,6 +165,8 @@ input,select{
 }
 
 .btn-light{
+  background:#F9BF6D;
+  cursor:pointer;
   background:#1e293b;
 }
 
@@ -707,7 +709,7 @@ function listarDevedores(){
           </div>
         </div>
 
-        <button class="btn" 
+        <button class="btn-light" 
           style="font-size:12px;padding:6px 12px;"
           onclick="ir('cobrancas')">
           Ver
@@ -1403,7 +1405,7 @@ document.addEventListener("keydown", (e)=>{
       <button id="btnSalvar" class="btn" onclick="salvarModal()">
         Salvar
       </button>
-      <button class="btn-light" onclick="fecharModal()">
+      <button class="btn-cancelar" onclick="fecharModal()">
         Cancelar
       </button>
     </div>
@@ -1436,7 +1438,7 @@ document.addEventListener("keydown", (e)=>{
 
     <div class="acoes">
       <button class="btn" onclick="salvarMensalidade()">Salvar</button>
-      <button class="btn-light" onclick="fecharModalMensalidade()">Cancelar</button>
+      <button class="btn-cancelar" onclick="fecharModalMensalidade()">Cancelar</button>
     </div>
 
   </div>
