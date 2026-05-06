@@ -155,8 +155,7 @@ input,select{
   padding:8px 14px;
   border-radius:10px;
   font-weight:600;
-  cursor:pointer;
-  box-shadow:0 4px 12px rgba(34,197,94,0.3);
+  cursor:pointer;  
 }
 
 .btn-recibo{
@@ -595,7 +594,7 @@ function listarAssociados(){
 
         <div style="display:flex;gap:6px;">
           <button class="btn-edit btn-icon" onclick="editar('${a[0]}')">✏️</button>
-          <button class="btn-danger btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
+          <button class="btn-cancelar btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
         </div>
 
       </div>
@@ -732,7 +731,7 @@ function listarBackups(){
 
         <div style="display:flex;gap:6px;">
           <button class="btn" onclick="window.open('${link}')">Abrir</button>
-          <button class="btn-danger" onclick="restaurarBackup('${link}')">Restaurar</button>
+          <button class="btn-cancelar" onclick="restaurarBackup('${link}')">Restaurar</button>
         </div>
 
       </div>
