@@ -44,6 +44,26 @@ header{
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+
+  display:none;
+  align-items:center;
+  justify-content:center;
+
+  z-index:1000;
+  opacity:0;
+  transition:opacity .25s ease;
+}
+
+.modal.show{
+  display:flex;
+  opacity:1;
+}
+
 /* CONTAINER */
 .container{
   padding:20px;
@@ -198,42 +218,65 @@ input,select{
   box-shadow:0 8px 25px rgba(0,0,0,0.5);
 }
 
-/* MODAL FUNDO */
+/* ===== OVERLAY ===== */
 #modal{
-  display:none;
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.6);
-  z-index:1000;
+  backdrop-filter: blur(6px);
 
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
+
+  z-index:1000;
+  opacity:0;
+  transition:opacity .25s ease;
 }
 
-/* CAIXA */
-#modal > div{
+#modal.show{
+  display:flex;
+  opacity:1;
+}
+
+/* ===== CARD ===== */
+#modal .modal-box{
   background:#1e293b;
-  padding:24px;
   width:90%;
   max-width:420px;
-  border-radius:16px;
-  box-sizing:border-box;
+  border-radius:18px;
+  padding:24px;
+
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
 
   display:flex;
   flex-direction:column;
-  gap:12px; /* 🔥 espaçamento automático */
+  gap:14px;
+
+  transform:scale(0.9);
+  transition:all .25s ease;
 }
 
-/* INPUTS */
+#modal.show .modal-box{
+  transform:scale(1);
+}
+
+/* ===== TITLE ===== */
+#modal h3{
+  margin:0;
+  font-size:20px;
+}
+
+/* ===== INPUT ===== */
 #modal input{
   width:100%;
   padding:12px;
   border-radius:10px;
-  border:none;
+  border:1px solid transparent;
   background:#020617;
   color:#fff;
   box-sizing:border-box;
+  transition:all .2s;
 }
 
 #modal input:focus{
@@ -242,7 +285,13 @@ input,select{
   box-shadow:0 0 0 2px rgba(37,99,235,0.3);
 }
 
-/* BOTÕES */
+/* ===== ERRO ===== */
+.input-erro{
+  border:1px solid #ef4444 !important;
+  box-shadow:0 0 0 2px rgba(239,68,68,0.25) !important;
+}
+
+/* ===== AÇÕES ===== */
 #modal .acoes{
   display:flex;
   gap:10px;
@@ -251,6 +300,12 @@ input,select{
 
 #modal .acoes button{
   flex:1;
+}
+
+/* ===== BOTÃO LOADING ===== */
+.btn-loading{
+  opacity:0.7;
+  pointer-events:none;
 }
 
 /* MOBILE */
@@ -693,7 +748,7 @@ function listar(){
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
-          `<button class="btn-cancelar" onclick="pagar('${c[0]}')">Pagar</button>` 
+          `<button class="btn-light" onclick="pagar('${c[0]}')">Pagar</button>` 
         : ""}
 
         ${c[5]=="Pago" ? `
@@ -731,7 +786,7 @@ function listarBackups(){
 
         <div style="display:flex;gap:6px;">
           <button class="btn" onclick="window.open('${link}')">Abrir</button>
-          <button class="btn-cancelar" onclick="restaurarBackup('${link}')">Restaurar</button>
+          <button class="btn-light" onclick="restaurarBackup('${link}')">Restaurar</button>
         </div>
 
       </div>
@@ -788,6 +843,16 @@ async function alterarMensalidadeTodos(){
 /* ================= FORM ================= */
 let editandoId = null;
 
+function abrirModal(){
+  modal.classList.add("show");
+
+  setTimeout(()=> m_nome.focus(),150);
+}
+
+function fecharModal(){
+  modal.classList.remove("show");
+}
+
 function novo(){
   editandoId = null;
 
@@ -800,7 +865,7 @@ function novo(){
   m_endereco.value = "";
   m_mensal.value = "";
 
-  modal.style.display = "flex";
+  abrirModal();
 }
 
 function editar(id){
@@ -818,10 +883,9 @@ function editar(id){
 
   modalTitulo.innerText = "Editar Associado";
 
-  modal.style.display = "flex";
+  abrirModal();
 }
 
-// 🔓 abrir modal
 function abrirModalMensalidade(){
 
   if(!associados.length){
@@ -829,7 +893,6 @@ function abrirModalMensalidade(){
     return;
   }
 
-  // pega o valor do primeiro (padrão do sistema)
   const valor = Number(associados[0][6] || 0);
 
   document.getElementById("valorAtualMensalidade")
@@ -837,12 +900,14 @@ function abrirModalMensalidade(){
 
   document.getElementById("novoValorMensalidade").value = "";
 
-  document.getElementById("modalMensalidade").style.display = "flex";
+  document.getElementById("modalMensalidade")
+    .classList.add("show");
 }
 
 // ❌ fechar
 function fecharModalMensalidade(){
-  document.getElementById("modalMensalidade").style.display = "none";
+  document.getElementById("modalMensalidade")
+    .classList.remove("show");
 }
 
 // 💾 salvar
@@ -945,6 +1010,27 @@ function validarCPFFront(cpf){
   if(/^(\d)\1+$/.test(cpf)) return false;
 
   return true;
+}
+
+function validarCampos(){
+
+  let ok = true;
+
+  [m_nome, m_cpf, m_mensal].forEach(c=>{
+    c.classList.remove("input-erro");
+
+    if(!c.value){
+      c.classList.add("input-erro");
+      ok = false;
+    }
+  });
+
+  if(!validarCPFFront(m_cpf.value)){
+    m_cpf.classList.add("input-erro");
+    ok = false;
+  }
+
+  return ok;
 }
 
 function jaGerouMesAtual(){
@@ -1176,41 +1262,48 @@ async function gerarCobrancas(){
 /* ================= SALVAR MODAL ================= */
 async function salvarModal(){
 
-  // ✅ VALIDA CPF ANTES DE ENVIAR
-  if(!validarCPFFront(m_cpf.value)){
-    alert("CPF inválido");
+  if(!validarCampos()){
+    alert("Preencha corretamente");
     return;
   }
 
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      acao:"salvar_associado",
-      id: editandoId,
-      nome: m_nome.value,
-      cpf: String(m_cpf.value).replace(/\D/g,""),
-      telefone: String(m_tel.value).replace(/\D/g,""),
-      email: m_email.value,
-      endereco: m_endereco.value,
-      mensalidade: m_mensal.value
-    })
-  });
+  const btn = document.getElementById("btnSalvar");
+  btn.classList.add("btn-loading");
+  btn.innerText = "Salvando...";
 
-  const resp = await res.json();
+  try{
 
-  // ✅ TRATA ERRO DO BACKEND
-  if(resp.erro){
-    alert(resp.erro);
-    return;
+    const res = await fetch(API,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        acao:"salvar_associado",
+        id: editandoId,
+        nome: m_nome.value,
+        cpf: m_cpf.value.replace(/\D/g,""),
+        telefone: m_tel.value.replace(/\D/g,""),
+        email: m_email.value,
+        endereco: m_endereco.value,
+        mensalidade: m_mensal.value
+      })
+    });
+
+    const resp = await res.json();
+
+    if(resp.erro){
+      alert(resp.erro);
+      return;
+    }
+
+    fecharModal();
+    await carregar();
+
+  }catch(e){
+    alert("Erro ao salvar");
   }
 
-  // 🔥 GERA COBRANÇAS AUTOMATICAMENTE
-  if(!editandoId){
-    console.log("Novo associado cadastrado");
-  }
-
-  fecharModal();
-  carregar();
+  btn.classList.remove("btn-loading");
+  btn.innerText = "Salvar";
 } 
 
 /* ================= SALVAR ================= */
@@ -1282,66 +1375,46 @@ async function fazerBackup(){
   }
 }
 
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape"){
+    fecharModal();
+    fecharModalMensalidade();
+  }
+});
+
 </script>
 
 
 <!-- MODAL -->
 
-<div id="modal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  z-index:1000;
-  align-items:center;
-  justify-content:center;
-" onclick="fecharModal()">
-
-  <div onclick="event.stopPropagation()" style="
-    background:#1e293b;
-    padding:20px;
-    width:90%;
-    max-width:400px;
-    border-radius:16px;
-    box-sizing:border-box;
-  ">
+<div id="modal" onclick="fecharModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
     
-    <h3 id="modalTitulo" style="margin-bottom:15px;">Novo Associado</h3>
+    <h3 id="modalTitulo">Novo Associado</h3>
 
     <input id="m_nome" placeholder="Nome">
     <input id="m_cpf" placeholder="CPF">
-    <input id="m_tel" placeholder="Telefone (48) 99999-9999" oninput="this.value = maskTel(this.value)">
+    <input id="m_tel" placeholder="Telefone">
     <input id="m_email" placeholder="Email">
     <input id="m_endereco" placeholder="Endereço">
     <input id="m_mensal" placeholder="Mensalidade">
 
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button class="btn" style="flex:1;" onclick="salvarModal()">Salvar</button>
-      <button class="btn-cancelar" style="flex:1;" onclick="fecharModal()">Cancelar</button>
+    <div class="acoes">
+      <button id="btnSalvar" class="btn" onclick="salvarModal()">
+        Salvar
+      </button>
+      <button class="btn-light" onclick="fecharModal()">
+        Cancelar
+      </button>
     </div>
 
   </div>
 </div>
 
-<div id="modalMensalidade" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  z-index:1000;
-  align-items:center;
-  justify-content:center;
-" onclick="fecharModalMensalidade()">
+<div id="modalMensalidade" class="modal" onclick="fecharModalMensalidade()">
+  <div class="modal-box" onclick="event.stopPropagation()">
 
-  <div onclick="event.stopPropagation()" style="
-    background:#1e293b;
-    padding:20px;
-    width:90%;
-    max-width:400px;
-    border-radius:16px;
-  ">
-
-    <h3 style="margin-bottom:10px;">Atualizar Mensalidade</h3>
+    <h3>Atualizar Mensalidade</h3>
 
     <p style="font-size:14px; opacity:0.7;">
       Valor atual:
@@ -1361,13 +1434,9 @@ async function fazerBackup(){
       type="number"
     >
 
-    <div style="display:flex; gap:10px; margin-top:15px;">
-      <button class="btn" style="flex:1;" onclick="salvarMensalidade()">
-        Salvar
-      </button>
-      <button class="btn-cancelar" style="flex:1;" onclick="fecharModalMensalidade()">
-        Cancelar
-      </button>
+    <div class="acoes">
+      <button class="btn" onclick="salvarMensalidade()">Salvar</button>
+      <button class="btn-light" onclick="fecharModalMensalidade()">Cancelar</button>
     </div>
 
   </div>
