@@ -6,11 +6,42 @@
 <title>Vila Floresta 2</title>
 
 <style>
+body{font-family:Arial;margin:0;background:#0f172a;color:#fff}
+header{background:#020617;padding:15px;text-align:center;font-size:18px}
+
 body{
   font-family:Arial;
   margin:0;
   color:#fff;
-  background: radial-gradient(circle at top, #1f2937, #0f172a 60%);
+  background: radial-gradient(circle at top, #1f2937, #0f172a 60%);  
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height:100vh;
+}
+
+.linha-filtros{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.linha-filtros input{
+  flex:2; /* 🔥 input maior */
+}
+
+.linha-filtros select{
+  flex:1; /* 🔥 select menor */
+  min-width:120px;
+}
+
+/* HEADER */
+header{
+  background:rgba(15,23,42,0.8);
+  backdrop-filter: blur(10px);
+  padding:18px;
+  text-align:center;
+  font-size:18px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
 /* CONTAINER */
@@ -20,11 +51,14 @@ body{
   margin:auto;
 }
 
-/* NAV */
+/* NAV MODERNA */
 .nav{
   display:flex;
   gap:8px;
   margin-bottom:20px;
+  background:#020617;
+  padding:6px;
+  border-radius:12px;
 }
 
 .nav button{
@@ -32,24 +66,59 @@ body{
   padding:10px;
   border:none;
   border-radius:10px;
-  background:#020617;
+  background:transparent;
   color:#94a3b8;
+  font-weight:500;
+  cursor:pointer;
+  transition:all 0.2s;
 }
 
 .nav button.active{
   background:#2563eb;
   color:#fff;
+  box-shadow:0 4px 12px rgba(37,99,235,0.4);
 }
 
-/* CARD */
+.nav button:hover{
+  color:#fff;
+}
+
+/* CARDS */
 .card{
   background:#1f2937;
   padding:15px;
   border-radius:14px;
   margin-top:10px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 }
 
-/* INPUT */
+/* DASHBOARD BOX */
+.top{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.box{
+  background:#1f2937;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+  border:1px solid rgba(255,255,255,0.05);
+}
+
+.box b{
+  font-size:13px;
+  color:#94a3b8;
+}
+
+.box span{
+  font-size:18px;
+  font-weight:600;
+}
+
+/* INPUTS */
 input,select{
   width:100%;
   padding:10px;
@@ -57,73 +126,123 @@ input,select{
   border:none;
   background:#020617;
   color:#fff;
+  border:1px solid rgba(255,255,255,0.08);
 }
 
 /* BOTÕES */
 .btn{
-  background:#2563eb;
-  padding:10px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  padding:10px 14px;
   border:none;
   color:#fff;
   border-radius:10px;
+  font-weight:500;
 }
 
-.btn-saida{
-  background:#dc2626;
+.btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(37,99,235,0.4);
 }
 
-.btn-cancelar{
-  background:#475569;
+.btn-light{
+  background:#1e293b;
 }
 
-.btn-cancelar:hover{
-  background:#64748b;
+.btn-recibo{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  border:none;
+  color:#fff;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(34,197,94,0.3);
 }
 
-/* FILTROS */
-.linha-filtros{
+.btn-recibo:hover{
+  transform:scale(1.05);
+}
+
+/* BOTÕES ÍCONE */
+.btn-icon{
+  width:38px;
+  height:38px;
   display:flex;
-  gap:10px;
-  margin-bottom:10px;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
 }
 
-.linha-filtros input{
-  flex:1;
-  min-width:0;
+/* FAB */
+.fab{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:28px;
+  border:none;
+  box-shadow:0 8px 25px rgba(0,0,0,0.5);
 }
 
 /* MODAL */
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  align-items:center;
-  justify-content:center;
-}
-
-.modal-content{
-  background:#1e293b;
-  padding:25px;
+#modal > div{
+  background:#020617;
+  padding:20px;
   width:90%;
   max-width:400px;
   border-radius:16px;
-  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,0.05);
 }
 
-.modal input{
-  margin-bottom:12px;
-  box-sizing:border-box;
+#modal input{
+  background:#020617;
 }
+
+/* MOBILE */
+@media (max-width:600px){
+
+    .linha-filtros{
+    flex-direction:column;
+  }
+
+  .linha-filtros input,
+  .linha-filtros select{
+    width:100%;
+  }
+
+  .nav{
+    flex-wrap:wrap;
+  }
+
+  .nav button{
+    flex:1 1 45%;
+  }
+
+  .top{
+    grid-template-columns:1fr;
+  }
+
+}
+
 </style>
 </head>
 
 <body>
 
+<header>Associação Moradores Vila Floresta 2</header>
+
 <div class="container">
 
 <div class="nav">
-  <button onclick="ir('caixa')" id="btn_caixa">Caixa</button>
+  <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
+  <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
+  <button onclick="ir('associados')" id="btn_associados">Associados</button>
+  <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
+  <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
   <button onclick="ir('backups')" id="btn_backups">Backups</button>
 </div>
 
@@ -131,120 +250,1093 @@ input,select{
 
 </div>
 
-<script>
+<script> 
 
+console.log("JS carregado");
 const API = "https://script.google.com/macros/s/AKfycbxfs77PRmkxF7VnlueGfpYjpNoRmuXEDc9q7uZ0nw6VJlDgz2t1uauKjByzVx8Bud7c/exec";
 
-/* ================= NAV ================= */
-function ir(t){
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-  document.getElementById("btn_"+t).classList.add("active");
+let associados = [];
+let cobrancas = [];
+let telaAtual = "dashboard";
+let recibos = [];
+let backups = []; // 🔥 FALTAVA ISSO
 
-  if(t==="caixa") renderCaixa();
-  if(t==="backups") renderBackups();
+/* ================= FUNCTIONS ================= */
+/* ================= NORMALIZAR CPF ================= */
+function normalizarCPF(cpf){
+  return String(cpf || "")
+    .replace(/\D/g,"")
+    .padStart(11,"0");
 }
 
-/* ================= FETCH PADRÃO ================= */
-function post(data){
-  return fetch(API,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify(data)
-  }).then(r=>r.json());
+document.addEventListener("input", e=>{
+  if(e.target.id === "m_cpf"){
+    e.target.value = maskCPF(e.target.value);
+  }
+
+  if(e.target.id === "m_tel"){
+    e.target.value = maskTel(e.target.value);
+  }
+});
+
+/* ================= NAVEGAÇÃO ================= */
+function ir(tela){
+  telaAtual = tela;
+
+  document.querySelectorAll(".nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  document.getElementById("btn_"+tela).classList.add("active");
+
+  render();
 }
 
-/* ================= CAIXA ================= */
-let caixa = [];
+/* ================= RENDER ================= */
+function render(){
 
-async function carregar(){
-  const res = await fetch(API);
-  const data = await res.json();
-  caixa = data.caixa.slice(1);
+  if(telaAtual === "dashboard") renderDashboard();
+  if(telaAtual === "cobrancas") renderCobrancas();
+  if(telaAtual === "associados") renderAssociados();
+  if(telaAtual === "devedores") renderDevedores();
+  if(telaAtual === "backups") renderBackups();
+  /*if(telaAtual === "recibos") renderRecibos();*/
 }
 
-function renderCaixa(){
+/* ================= RENDER BACKUPs ================= */
+function renderBackups(){
+
   tela.innerHTML = `
-    <div class="linha-filtros">
-      <input id="buscaCaixa" placeholder="Buscar...">
-    </div>
+    <button class="btn" onclick="fazerBackup()">
+      💾 Fazer Backup
+    </button>
 
-    <button class="btn" onclick="abrirModal('Entrada')">+ Entrada</button>
-    <button class="btn btn-saida" onclick="abrirModal('Saida')">- Saída</button>
-
-    <div id="lista"></div>
+    <div id="listaBackups" style="margin-top:10px;"></div>
   `;
 
+  listarBackups();
+}
+
+/* ================= RENDER RECIBOS ================= */
+function renderRecibos(){
+
+  // 🔒 garante que recibos existe
+  if(!Array.isArray(recibos)){
+    recibos = [];
+  }
+
+  tela.innerHTML = `
+  <div class="filtro-linha" style="display:flex; gap:10px; margin-bottom:10px;">
+    <input placeholder="Buscar..." style="flex:1;">
+    <select style="width:200px;">
+      <option>Todos</option>
+    </select>
+  </div>
+  <div id="listaRecibos"></div>
+  `;
+
+  // 🔒 protege contra null
+  const busca = document.getElementById("buscaRecibo");
+  if(busca){
+    busca.oninput = listarRecibos;
+  }
+
+  listarRecibos();
+}
+
+/* ================= RENDER DEVEDORES ================= */
+function renderDevedores(){
+
+  let meses = [...new Set(cobrancas.map(c => c[3]))];
+
+    tela.innerHTML = `
+      
+      <div class="box" style="margin-bottom:10px;">
+        <b>Total em aberto</b><br>
+        <span id="totalDivida">R$ 0.00</span>
+      </div>
+
+      <div class="linha-filtros">
+        
+        <input placeholder="Buscar devedor..." id="buscaDevedor">
+
+        <select id="filtroMesDevedor">
+          <option value="">Todos</option>
+          ${meses.map(m => `<option>${m}</option>`).join("")}
+        </select>
+
+      </div>
+
+      <div id="listaDevedores"></div>
+    `;
+
+    const busca = document.getElementById("buscaDevedor");
+    const filtro = document.getElementById("filtroMesDevedor");
+
+    if(busca) busca.oninput = listarDevedores;
+    if(filtro) filtro.onchange = listarDevedores;
+
+    listarDevedores();
+  }
+
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
+
+  let total=0, aberto=0;
+
+  cobrancas.forEach(c=>{
+    if(c[5]=="Pago") total+=Number(c[4]);
+    else aberto+=Number(c[4]);
+  });
+
+  tela.innerHTML = `
+    <div class="top">
+      <div class="box">
+        <b>Recebido</b><br>R$ ${total.toFixed(2)}
+      </div>
+      <div class="box">
+        <b>Pendente</b><br>R$ ${aberto.toFixed(2)}
+      </div>
+      <div class="box">
+        <b>Associados</b><br>${associados.length}
+      </div>
+    </div>
+  `;
+}
+
+/* ================= COBRANÇAS ================= */
+function renderCobrancas(){
+
+  let meses = [...new Set(cobrancas.map(c=>c[3]))];
+
+  const hoje = new Date();
+  const mes = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
+
+  const gerado = jaGerouMesAtual();
+
+  tela.innerHTML = `
+  <div style="margin-bottom:10px;">
+    <p style="font-size:12px; opacity:0.7;">
+      Referente a ${mes}
+    </p>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-bottom:10px;">    
+    <select id="filtroMes" style="flex:1;">
+      <option value="">Todos</option>
+      ${meses.map(m=>`<option>${m}</option>`).join("")}
+    </select>
+
+    <button class="btn" onclick="gerarCobrancas()" 
+      ${gerado ? "disabled style='opacity:0.5'" : ""}>
+      ${gerado ? "✔ Já gerado" : "⚡ Gerar"}
+    </button>
+  </div>
+
+  <div id="lista"></div>
+`;
+
+  document.getElementById("filtroMes").onchange = listar;
   listar();
 }
 
-function listar(){
-  const busca = (buscaCaixa.value||"").toLowerCase();
+/* ================= ASSOCIADOS ================= */
+function renderAssociados(){
 
-  let html="";
+  tela.innerHTML = `
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input placeholder="Buscar..." id="busca" style="flex:1;">      
+      <!-- <button class="btn" onclick="alterarMensalidadeTodos()">💰 Atualizar Mensalidade</button> -->
+      <button class="btn" onclick="abrirModalMensalidade()">💰 Alterar Mensalidade</button>
+    </div>
+    <div id="lista"></div>
+  `;
 
-  caixa.filter(c=>String(c[3]).toLowerCase().includes(busca))
-  .forEach(c=>{
-    html+=`<div class="card">
-      ${c[3]} - R$ ${c[5]}
-    </div>`;
-  });
+  document.getElementById("busca").oninput = listarAssociados;
 
-  lista.innerHTML = html;
+  listarAssociados();
 }
 
-let tipo="Entrada";
+/* ================= LISTAS ================= */
+/* ================= LISTAR RECIBOS ================= */
+function listarRecibos(){
 
-function abrirModal(t){
-  tipo=t;
-  modal.style.display="flex";
+  const buscaInput = document.getElementById("buscaRecibo");
+  const busca = (buscaInput?.value || "").toLowerCase();
+
+  const filtroMesEl = document.getElementById("filtroMesRecibo");
+  const mes = filtroMesEl ? filtroMesEl.value : "";
+
+  let lista = [...recibos];
+
+  if(busca){
+    lista = lista.filter(r => String(r[2]).toLowerCase().includes(busca));
+  }
+
+  if(mes){
+    lista = lista.filter(r => r[4] == mes);
+  }
+
+  let html = "";
+
+  [...lista].reverse().forEach(r => {
+
+    const numero = r[1];
+    const nome = r[2];
+    const valor = Number(r[5]).toFixed(2);
+    const data = formatarData(r[6]);
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:16px;font-weight:600;">
+            ${nome}
+          </div>
+
+          <div style="font-size:12px;opacity:0.7;">
+            ${numero} • ${data}
+          </div>
+
+          <div style="margin-top:5px;">
+            R$ ${valor}
+          </div>
+        </div>
+
+        <button 
+          style="font-size:12px;padding:6px 10px;"
+          onclick="reimprimir('${numero}')"
+          class="btn-recibo"
+          🧾 Reimprimir
+        </button>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaRecibos").innerHTML = html;
+}
+
+/* ================= LISTAR ASSOCIADOS ================= */
+function listarAssociados(){
+
+  const busca = document.getElementById("busca").value.toLowerCase();
+
+  let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
+
+  let html = "";
+
+  lista.forEach(a=>{
+    const status = statusAssociado(a[2]);
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:18px;font-weight:600;">
+            ${a[1]}
+          </div>
+
+          <div style="font-size:13px;color:${status=="Devedor" ? "#ef4444" : "#22c55e"};">
+            ${status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;">
+          <button class="btn-edit btn-icon" onclick="editar('${a[0]}')">✏️</button>
+          <button class="btn-danger btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= LISTAR DEVEDORES================= */
+function listarDevedores(){
+
+  const busca = (document.getElementById("buscaDevedor")?.value || "").toLowerCase();
+  const mes = document.getElementById("filtroMesDevedor")?.value || "";
+
+  let lista = cobrancas.filter(c => c[5] === "Pendente");
+
+  if(busca){
+    lista = lista.filter(c => String(c[1]).toLowerCase().includes(busca));
+  }
+
+  if(mes){
+    lista = lista.filter(c => c[3] == mes);
+  }
+
+  let total = 0;
+  let html = "";
+
+  if(lista.length === 0){
+    html = `<div class="card">Nenhum devedor 🎉</div>`;
+  }
+
+  lista.sort((a,b)=>b[4]-a[4]).forEach(c => {
+
+    const nome = c[1];
+    const mes = c[3];
+    const valor = Number(c[4]);
+
+    total += valor;
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <div style="font-size:16px;font-weight:600;">
+            ${nome}
+          </div>
+
+          <div style="font-size:12px;color:#ef4444;">
+            ${mes} • Em aberto
+          </div>
+
+          <div style="margin-top:5px;">
+            R$ ${valor.toFixed(2)}
+          </div>
+        </div>
+
+        <button class="btn" 
+          style="font-size:12px;padding:6px 12px;"
+          onclick="ir('cobrancas')">
+          Ver
+        </button>
+
+      </div>
+    `;
+  });
+
+  // 🔥 ATUALIZA TOTAL NO TOPO
+  const totalEl = document.getElementById("totalDivida");
+  if(totalEl){
+    totalEl.innerText = "R$ " + total.toFixed(2);
+  }
+
+  document.getElementById("listaDevedores").innerHTML = html;
+}
+
+/* ================= LISTAR ================= */
+function listar(){
+
+  const mes = document.getElementById("filtroMes").value;
+
+  let lista = cobrancas;
+
+  if(mes){
+    lista = lista.filter(c=>c[3]==mes);
+  }
+
+  let html = "";
+
+  lista.forEach(c=>{
+
+    html += `
+      <div class="card">
+        <b>${c[1]}</b><br>
+        ${c[3]}<br>
+        <b>${c[5]}</b><br>
+
+        ${c[5]=="Pendente" ? 
+          `<button class="btn" onclick="pagar('${c[0]}')">Pagar</button>` 
+        : ""}
+
+        ${c[5]=="Pago" ? `
+          <button class="btn-recibo"
+            style="margin-top:8px;"
+            onclick="reimprimir('${c[7] || ""}')">
+            🧾 Reimprimir
+          </button>
+        ` : ""}
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+/* ================= LISTAR BACKUPS ================= */
+function listarBackups(){
+
+  let html = "";
+
+  backups.slice().reverse().forEach(b => {
+
+    const data = formatarData(b[0]);
+    const nome = b[1];
+    const link = b[2];
+
+    html += `
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+          <b>${nome}</b><br>
+          <small>${data}</small>
+        </div>
+
+        <div style="display:flex;gap:6px;">
+          <button class="btn" onclick="window.open('${link}')">Abrir</button>
+          <button class="btn-danger" onclick="restaurarBackup('${link}')">Restaurar</button>
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaBackups").innerHTML = html;
+}
+
+/* ================= RESTAURAR BACKUP ================= */
+async function restaurarBackup(url){
+
+  if(!confirm("⚠️ Isso vai substituir TODOS os dados. Continuar?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"restore",
+      url
+    })
+  });
+
+  alert("Backup restaurado!");
+  carregar();
+}
+
+/* ================= ALTERAR MENSALIDADE ================= */
+async function alterarMensalidadeTodos(){
+
+  const valor = prompt("Novo valor da mensalidade:");
+
+  if(!valor) return;
+
+  if(isNaN(valor)){
+    alert("Valor inválido");
+    return;
+  }
+
+  if(!confirm("Atualizar mensalidade de TODOS os associados?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"mensalidade_todos",
+      valor: valor
+    })
+  });
+
+  alert("Mensalidade atualizada!");
+
+  carregar();
+}
+
+/* ================= FORM ================= */
+let editandoId = null;
+
+function novo(){
+  editandoId = null;
+
+  modalTitulo.innerText = "Novo Associado";
+
+  m_nome.value = "";
+  m_cpf.value = "";
+  m_tel.value = "";
+  m_email.value = "";
+  m_endereco.value = "";
+  m_mensal.value = "";
+
+  modal.style.display = "flex";
+}
+
+function editar(id){
+
+  const a = associados.find(x=>x[0]==id);
+
+  editandoId = id;
+
+  m_nome.value = a[1];
+  m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
+  m_tel.value = a[3];
+  m_email.value = a[4] || "";
+  m_endereco.value = a[5] || "";
+  m_mensal.value = a[6];
+
+  modalTitulo.innerText = "Editar Associado";
+
+  modal.style.display = "flex";
+}
+
+// 🔓 abrir modal
+function abrirModalMensalidade(){
+
+  if(!associados.length){
+    alert("Nenhum associado encontrado");
+    return;
+  }
+
+  // pega o valor do primeiro (padrão do sistema)
+  const valor = Number(associados[0][6] || 0);
+
+  document.getElementById("valorAtualMensalidade")
+    .innerText = "R$ " + valor.toFixed(2);
+
+  document.getElementById("novoValorMensalidade").value = "";
+
+  document.getElementById("modalMensalidade").style.display = "flex";
+}
+
+// ❌ fechar
+function fecharModalMensalidade(){
+  document.getElementById("modalMensalidade").style.display = "none";
+}
+
+// 💾 salvar
+async function salvarMensalidade(){
+
+  const valor = document.getElementById("novoValorMensalidade").value;
+
+  if(!valor || Number(valor) <= 0){
+    alert("Informe um valor válido");
+    return;
+  }
+
+  if(!confirm("Deseja aplicar esse valor para TODOS os associados?")){
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"mensalidade_todos",
+      valor: valor
+    })
+  });
+
+  alert("Mensalidade atualizada!");
+
+  fecharModalMensalidade();
+  carregar(); // atualiza tela
 }
 
 function fecharModal(){
-  modal.style.display="none";
+  modal.style.display = "none";
+
+  // limpa campos
+  m_nome.value = "";
+  m_cpf.value = "";
+  m_tel.value = "";
+  m_email.value = "";
+  m_endereco.value = "";
+  m_mensal.value = "";
+
+  editandoId = null;
 }
 
-async function salvar(){
-  await post({
-    acao:"lancar_caixa",
-    tipo,
-    categoria:cat.value,
-    descricao:desc.value,
-    valor:valor.value
+/* ================= FORMATAR DATA ================= */
+function formatarData(dataISO){
+  if(!dataISO) return "-";
+  const d = new Date(dataISO);
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
   });
-
-  fecharModal();
-  carregar().then(renderCaixa);
 }
 
-/* ================= BACKUP ================= */
-function renderBackups(){
-  tela.innerHTML=`
-    <button class="btn" onclick="backup()">Fazer Backup</button>
-  `;
+/* ================= MASCARAS ================= */
+function maskCPF(v){
+  v = String(v || "");
+  v = v.replace(/\D/g,"").slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  return v;
 }
 
-async function backup(){
-  const r = await post({acao:"backup"});
-  alert("Backup criado");
-  window.open(r.url);
+function maskTel(v){
+  v = String(v || "");
+  v = v.replace(/\D/g,"").slice(0,11);
+
+  if(v.length > 10){
+    v = v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
+  }else{
+    v = v.replace(/(\d{2})(\d{4})(\d)/,"($1) $2-$3");
+  }
+
+  return v;
+}
+
+function statusAssociado(cpf){
+  const pendente = cobrancas.some(c => c[2] == cpf && c[5] == "Pendente");
+  return pendente ? "Devedor" : "Regular";
+}
+
+function formatarData(dataISO){
+  if(!dataISO) return "";
+
+  const d = new Date(dataISO);
+
+  return d.toLocaleDateString("pt-BR",{
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric"
+  });
+}
+
+function validarCPFFront(cpf){
+  cpf = String(cpf).replace(/\D/g,"");
+
+  if(cpf.length !== 11) return false;
+  if(/^(\d)\1+$/.test(cpf)) return false;
+
+  return true;
+}
+
+function jaGerouMesAtual(){
+
+  const hoje = new Date();
+  const mes = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
+
+  return cobrancas.some(c => c[3] == mes);
 }
 
 /* INIT */
-carregar().then(()=>ir("caixa"));
+carregar();
+ir("dashboard");
+
+
+function gerarHTMLRecibo(dados){
+
+  return `
+  <div style="font-family:Arial; max-width:400px; padding:20px; border:1px solid #ccc; border-radius:10px;">
+
+    <div style="text-align:center;">
+      <img src="https://github.com/vilafloresta2-creator/cadastro/blob/main/logo.png?raw=true" style="height:70px;"><br>
+      <b style="font-size:18px;">Vila Floresta 2</b>
+    </div>
+
+    <hr>
+
+    <h3 style="text-align:center;">RECIBO</h3>
+
+    <p><b>Nº:</b> ${dados.numero}</p>
+    <p><b>Nome:</b> ${dados.nome}</p>
+    <p><b>CPF:</b> ${dados.cpf}</p>
+    <p><b>Mês:</b> ${dados.mes}</p>
+    <p><b>Valor:</b> R$ ${Number(dados.valor).toFixed(2)}</p>
+
+    <hr>
+
+    <p style="text-align:center;">
+      Recebemos o valor acima referente à mensalidade.
+    </p>
+
+    <p style="text-align:center; margin-top:20px;">
+      ${new Date().toLocaleDateString("pt-BR")}
+    </p>
+
+  </div>
+  `;
+}
+
+function gerarRecibo(c, numero){
+
+  const nome = c[1];
+  const cpf = c[2];
+  const mes = c[3];
+  const valor = Number(c[4]).toFixed(2);
+  const data = new Date().toLocaleDateString("pt-BR");
+
+  const html = `
+    <html>
+    <head>
+      <title>Recibo</title>
+      <style>
+        body{
+          font-family:Arial;
+          padding:30px;
+          text-align:center;
+        }
+        .box{
+          border:2px solid #000;
+          padding:20px;
+          border-radius:10px;
+        }
+        h2{
+          margin-bottom:10px;
+        }
+        .numero{
+          font-size:14px;
+          margin-bottom:15px;
+        }
+        .linha{
+          margin:10px 0;
+          font-size:16px;
+        }
+      </style>
+    </head>
+    <body>
+
+      <div class="box">
+
+        <h2>RECIBO DE PAGAMENTO</h2>
+
+        <div class="numero"><b>Nº:</b> ${numero}</div>
+
+        <img src="https://github.com/vilafloresta2-creator/cadastro/blob/main/logo.png?raw=true" 
+             style="height:80px;margin-bottom:15px;"><br>
+
+        <div class="linha"><b>Recebemos de:</b> ${nome}</div>
+        <div class="linha"><b>CPF:</b> ${cpf}</div>
+        <div class="linha"><b>Referente:</b> ${mes}</div>
+        <div class="linha"><b>Valor:</b> R$ ${valor}</div>
+        <div class="linha"><b>Data:</b> ${data}</div>
+
+        <br><br>
+
+        ___________________________<br>
+        Assinatura
+
+      </div>
+
+      <scr` + `ipt>
+        window.onload = function(){
+          window.print();
+        }
+      </scr` + `ipt>
+
+    </body>
+    </html>
+  `;
+
+  const w = window.open("", "_blank");
+  w.document.write(html);
+  w.document.close();
+}
+
+function reimprimir(numero){
+
+  if(!numero){
+    alert("Recibo sem número");
+    return;
+  }
+
+  const rec = recibos.find(r => String(r[1]).trim() === String(numero).trim());
+
+  if(!rec){
+    alert("Recibo não encontrado");
+    return;
+  }
+
+  const nome = rec[2];
+  const cpf = String(rec[3]).padStart(11,"0"); // 🔥 garante zero
+  const mes = rec[4];
+  const valor = Number(rec[5]).toFixed(2);
+
+  gerarRecibo([0, nome, cpf, mes, valor], numero);
+}
+
+function reimprimirPorCobranca(id){
+
+  const c = cobrancas.find(x => String(x[0]) === String(id));
+
+  if(!c){
+    alert("Cobrança não encontrada");
+    return;
+  }
+
+  const numero = c[7]; // coluna onde salvou o recibo
+
+  if(!numero){
+    alert("Recibo não gerado ainda");
+    return;
+  }
+
+  reimprimir(numero);
+}
+
+
+/* ================= ASYNC ================= */
+/* ================= CARREGAR ================= */
+async function carregar(){
+  try{
+    let res = await fetch(API);
+    let data = await res.json();
+
+    if(data.erro){
+      alert("Erro: " + data.erro);
+      return;
+    }
+
+    associados = data.associados.slice(1);
+    cobrancas = data.cobrancas.slice(1);
+    recibos = data.recibos ? data.recibos.slice(1) : [];
+
+    // 🔥 AQUI ESTÁ O PROBLEMA
+    backups = data.backups ? data.backups.slice(1) : [];
+
+    render();
+
+  }catch(e){
+    alert("Erro de conexão com API");
+    console.error(e);
+  }
+}
+
+/* ================= PAGAR ================= */
+async function pagar(id){
+
+  const item = cobrancas.find(c=>c[0]==id);
+  if(!item) return;
+
+  // envia pro backend
+  const res = await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"pagar",id})
+  });
+
+  const resp = await res.json();
+
+  const numero = resp.recibo;
+
+  // 🔥 ATUALIZA TUDO (SEM F5)
+  await carregar();
+
+  // 🔥 gera recibo depois de atualizar
+  gerarRecibo(item, numero);
+}
+
+/* ================= GERAR COBRANÇA ================= */
+async function gerarCobrancas(){
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({acao:"gerar_cobrancas"})
+  });
+
+  carregar();
+}
+
+/* ================= SALVAR MODAL ================= */
+async function salvarModal(){
+
+  // ✅ VALIDA CPF ANTES DE ENVIAR
+  if(!validarCPFFront(m_cpf.value)){
+    alert("CPF inválido");
+    return;
+  }
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      id: editandoId,
+      nome: m_nome.value,
+      cpf: String(m_cpf.value).replace(/\D/g,""),
+      telefone: String(m_tel.value).replace(/\D/g,""),
+      email: m_email.value,
+      endereco: m_endereco.value,
+      mensalidade: m_mensal.value
+    })
+  });
+
+  const resp = await res.json();
+
+  // ✅ TRATA ERRO DO BACKEND
+  if(resp.erro){
+    alert(resp.erro);
+    return;
+  }
+
+  // 🔥 GERA COBRANÇAS AUTOMATICAMENTE
+  if(!editandoId){
+    console.log("Novo associado cadastrado");
+  }
+
+  fecharModal();
+  carregar();
+} 
+
+/* ================= SALVAR ================= */
+async function salvar(obj){
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      acao:"salvar_associado",
+      ...obj
+    })
+  });
+
+  carregar();
+}
+
+/* ================= EXCLUIR ================= */
+async function excluir(id){
+
+  if(!confirm("Tem certeza que deseja excluir este associado?")) return;
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"excluir_associado",
+      id: id
+    })
+  });
+  carregar();
+}
+
+/* ================= BACKUP ================= */
+async function fazerBackup(){
+
+  let btn = event?.target;
+
+  if(btn){
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
+  }
+
+  try{
+    const res = await fetch(API,{
+      method:"POST",
+      body: JSON.stringify({acao:"backup"})
+    });
+
+    const data = await res.json();
+
+    if(data.erro){
+      alert(data.erro);
+      return;
+    }
+
+    // 🔥 ATUALIZA LISTA DE BACKUPS
+    await carregar();
+
+    if(confirm("Backup criado! Deseja abrir agora?")){
+      window.open(data.url, "_blank");
+    }
+
+  }catch(e){
+    alert("Erro ao gerar backup");
+  }
+
+  if(btn){
+    btn.innerText = "💾 Fazer Backup";
+    btn.disabled = false;
+  }
+}
 
 </script>
 
-<!-- MODAL -->
-<div id="modal" class="modal" onclick="fecharModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <input id="cat" placeholder="Categoria">
-    <input id="desc" placeholder="Descrição">
-    <input id="valor" placeholder="Valor">
 
-    <button class="btn" onclick="salvar()">Salvar</button>
-    <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+<!-- MODAL -->
+
+<div id="modal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+" onclick="fecharModal()">
+
+  <div onclick="event.stopPropagation()" style="
+    background:#1e293b;
+    padding:20px;
+    width:90%;
+    max-width:400px;
+    border-radius:16px;
+    box-sizing:border-box;
+  ">
+    
+    <h3 id="modalTitulo" style="margin-bottom:15px;">Novo Associado</h3>
+
+    <input id="m_nome" placeholder="Nome">
+    <input id="m_cpf" placeholder="CPF">
+    <input id="m_tel" placeholder="Telefone (48) 99999-9999" oninput="this.value = maskTel(this.value)">
+    <input id="m_email" placeholder="Email">
+    <input id="m_endereco" placeholder="Endereço">
+    <input id="m_mensal" placeholder="Mensalidade">
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn" style="flex:1;" onclick="salvarModal()">Salvar</button>
+      <button class="btn-cancelar" style="flex:1;" onclick="fecharModal()">Cancelar</button>
+    </div>
+
   </div>
 </div>
+
+<div id="modalMensalidade" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+" onclick="fecharModalMensalidade()">
+
+  <div onclick="event.stopPropagation()" style="
+    background:#1e293b;
+    padding:20px;
+    width:90%;
+    max-width:400px;
+    border-radius:16px;
+  ">
+
+    <h3 style="margin-bottom:10px;">Atualizar Mensalidade</h3>
+
+    <p style="font-size:14px; opacity:0.7;">
+      Valor atual:
+    </p>
+
+    <div id="valorAtualMensalidade" style="
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:15px;
+    ">
+      R$ 0.00
+    </div>
+
+    <input 
+      id="novoValorMensalidade" 
+      placeholder="Novo valor (ex: 15)"
+      type="number"
+    >
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button class="btn" style="flex:1;" onclick="salvarMensalidade()">
+        Salvar
+      </button>
+      <button class="btn-light" style="flex:1;" onclick="fecharModalMensalidade()">
+        Cancelar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<button onclick="novo()" style="
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  font-size:28px;
+  border:none;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
+  cursor:pointer;
+">
+  +
+</button>
 
 </body>
 </html>
