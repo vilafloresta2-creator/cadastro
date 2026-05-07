@@ -365,7 +365,7 @@ input,select{
 <script> 
 
 console.log("JS carregado");
-const API = "https://script.google.com/macros/s/AKfycbxrOQpoEImyI26byqEo65xCwN5u8G05WxC4e-8H_COLpXslMHIqf6cp5QC8-OQn53tq/exec";
+const API = "https://script.google.com/macros/s/AKfycbz5LO4fMAMe82ax62xL6JzsxfXp68mP06o9f_3MTzzC2A_yYqw6Jq9x3E0zVlUBStYk/exec";
 
 let associados = [];
 let cobrancas = [];
@@ -1017,10 +1017,45 @@ function formatarData(dataISO){
 }
 
 function validarCPFFront(cpf){
+
   cpf = String(cpf).replace(/\D/g,"");
 
   if(cpf.length !== 11) return false;
+
   if(/^(\d)\1+$/.test(cpf)) return false;
+
+  let soma = 0;
+  let resto;
+
+  for(let i=1; i<=9; i++){
+    soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  }
+
+  resto = (soma * 10) % 11;
+
+  if((resto == 10) || (resto == 11)){
+    resto = 0;
+  }
+
+  if(resto != parseInt(cpf.substring(9,10))){
+    return false;
+  }
+
+  soma = 0;
+
+  for(let i = 1; i <= 10; i++){
+    soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+  }
+
+  resto = (soma * 10) % 11;
+
+  if((resto == 10) || (resto == 11)){
+    resto = 0;
+  }
+
+  if(resto != parseInt(cpf.substring(10,11))){
+    return false;
+  }
 
   return true;
 }
