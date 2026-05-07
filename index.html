@@ -166,7 +166,12 @@ input,select{
 
 .btn-light{
   background:#F9BF6D;
-  cursor:pointer;  
+  cursor:pointer;
+  padding:10px 14px;
+  border:none;
+  color:#fff;
+  border-radius:10px;
+  font-weight:500;  
 }
 
 .btn-cancelar{
@@ -814,6 +819,91 @@ async function restaurarBackup(url){
   carregar();
 }
 
+/* ================= ABRIR MODAL ================= */
+let editandoId = null;
+
+function abrirModal(){
+  modal.classList.add("show");
+
+  setTimeout(()=> m_nome.focus(),150);
+}
+
+/* ================= FECHAR MODAL ================= */
+function fecharModal(){
+  modal.classList.remove("show");
+
+  // limpa campos
+  m_nome.value = "";
+  m_cpf.value = "";
+  m_tel.value = "";
+  m_email.value = "";
+  m_endereco.value = "";
+  m_mensal.value = "";
+
+  editandoId = null;
+}
+
+/* ================= NOVO ASSOCIADO ================= */
+function novo(){
+  editandoId = null;
+
+  modalTitulo.innerText = "Novo Associado";
+
+  m_nome.value = "";
+  m_cpf.value = "";
+  m_tel.value = "";
+  m_email.value = "";
+  m_endereco.value = "";
+  m_mensal.value = "";
+
+  abrirModal();
+}
+
+/* ================= EDITAR ASSOCIADO ================= */
+function editar(id){
+  console.log("EDITANDO ID:", id); // debug
+
+  const a = associados.find(x=>x[0]==id);
+
+  if(!a){
+    alert("Associado não encontrado");
+    return;
+  }
+
+  editandoId = id;
+
+  m_nome.value = a[1];
+  m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
+  m_tel.value = a[3];
+  m_email.value = a[4] || "";
+  m_endereco.value = a[5] || "";
+  m_mensal.value = a[6];
+
+  modalTitulo.innerText = "Editar Associado";
+
+  abrirModal();
+}
+
+/* =========== MODAL MENSALIDADE ============ */
+/* ========= ABRIR MODAL MENSALIDADE ======== */
+function abrirModalMensalidade(){
+
+  if(!associados.length){
+    alert("Nenhum associado encontrado");
+    return;
+  }
+
+  const valor = Number(associados[0][6] || 0);
+
+  document.getElementById("valorAtualMensalidade")
+    .innerText = "R$ " + valor.toFixed(2);
+
+  document.getElementById("novoValorMensalidade").value = "";
+
+  document.getElementById("modalMensalidade")
+    .classList.add("show");
+}
+
 /* ================= ALTERAR MENSALIDADE ================= */
 async function alterarMensalidadeTodos(){
 
@@ -841,77 +931,7 @@ async function alterarMensalidadeTodos(){
   carregar();
 }
 
-/* ================= FORM ================= */
-let editandoId = null;
-
-function abrirModal(){
-  modal.classList.add("show");
-
-  setTimeout(()=> m_nome.focus(),150);
-}
-
-function fecharModal(){
-  modal.classList.remove("show");
-}
-
-function novo(){
-  editandoId = null;
-
-  modalTitulo.innerText = "Novo Associado";
-
-  m_nome.value = "";
-  m_cpf.value = "";
-  m_tel.value = "";
-  m_email.value = "";
-  m_endereco.value = "";
-  m_mensal.value = "";
-
-  abrirModal();
-}
-
-function editar(id){
-
-  const a = associados.find(x=>x[0]==id);
-
-  editandoId = id;
-
-  m_nome.value = a[1];
-  m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
-  m_tel.value = a[3];
-  m_email.value = a[4] || "";
-  m_endereco.value = a[5] || "";
-  m_mensal.value = a[6];
-
-  modalTitulo.innerText = "Editar Associado";
-
-  abrirModal();
-}
-
-function abrirModalMensalidade(){
-
-  if(!associados.length){
-    alert("Nenhum associado encontrado");
-    return;
-  }
-
-  const valor = Number(associados[0][6] || 0);
-
-  document.getElementById("valorAtualMensalidade")
-    .innerText = "R$ " + valor.toFixed(2);
-
-  document.getElementById("novoValorMensalidade").value = "";
-
-  document.getElementById("modalMensalidade")
-    .classList.add("show");
-}
-
-// ❌ fechar
-function fecharModalMensalidade(){
-  document.getElementById("modalMensalidade")
-    .classList.remove("show");
-}
-
-// 💾 salvar
+/* ============ 💾 SALVAR MODAL MENSALIDADE =================== */
 async function salvarMensalidade(){
 
   const valor = document.getElementById("novoValorMensalidade").value;
@@ -939,18 +959,10 @@ async function salvarMensalidade(){
   carregar(); // atualiza tela
 }
 
-function fecharModal(){
-  modal.style.display = "none";
-
-  // limpa campos
-  m_nome.value = "";
-  m_cpf.value = "";
-  m_tel.value = "";
-  m_email.value = "";
-  m_endereco.value = "";
-  m_mensal.value = "";
-
-  editandoId = null;
+/* ============ ❌ FECHAR MODAL MENSALIDADE =================== */
+function fecharModalMensalidade(){
+  document.getElementById("modalMensalidade")
+    .classList.remove("show");
 }
 
 /* ================= FORMATAR DATA ================= */
