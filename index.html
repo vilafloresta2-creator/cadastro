@@ -1281,6 +1281,7 @@ async function salvarModal(){
   }
 
   const btn = document.getElementById("btnSalvar");
+
   btn.classList.add("btn-loading");
   btn.innerText = "Salvando...";
 
@@ -1288,7 +1289,6 @@ async function salvarModal(){
 
     const res = await fetch(API,{
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
         acao:"salvar_associado",
         id: editandoId,
@@ -1309,9 +1309,11 @@ async function salvarModal(){
     }
 
     fecharModal();
+
     await carregar();
 
   }catch(e){
+    console.error(e);
     alert("Erro ao salvar");
   }
 
