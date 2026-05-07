@@ -691,7 +691,7 @@ function listarDevedores(){
   lista.sort((a,b)=>b[4]-a[4]).forEach(c => {
 
     const nome = c[1];
-    const mes = c[3];
+    const mes = formatarMes(c[3]);
     const valor = Number(c[4]);
 
     total += valor;
@@ -750,7 +750,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${c[3]}<br>
+        ${formatarMes(c[3])}<br>
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
@@ -976,6 +976,26 @@ function formatarData(dataISO){
   });
 }
 
+/* ================= FORMATAR MÊS ================= */
+function formatarMes(valor){
+
+  if(!valor) return "";
+
+  // se já estiver MM-YYYY
+  if(String(valor).includes("-") && String(valor).length <= 7){
+    return valor;
+  }
+
+  const d = new Date(valor);
+
+  if(isNaN(d)) return valor;
+
+  const mes = String(d.getMonth()+1).padStart(2,"0");
+  const ano = d.getFullYear();
+
+  return mes + "-" + ano;
+}
+
 /* ================= MASCARAS ================= */
 function maskCPF(v){
   v = String(v || "");
@@ -1132,7 +1152,7 @@ function gerarRecibo(c, numero){
 
   const nome = c[1];
   const cpf = c[2];
-  const mes = c[3];
+  const mes = formatarMes(c[3]);
   const valor = Number(c[4]).toFixed(2);
   const data = new Date().toLocaleDateString("pt-BR");
 
