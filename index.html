@@ -1188,7 +1188,7 @@ function editarCaixa(id){
 
   if(!c) return;
 
-  editandoCaixa = id;
+  editandoCaixa = String(id);
 
   document.getElementById("cx_tipo").value = c[2];
   document.getElementById("cx_categoria").value = c[3];
