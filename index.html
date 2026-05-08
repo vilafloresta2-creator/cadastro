@@ -350,6 +350,7 @@ input,select{
 <div class="container">
 
 <div class="nav">
+  <button onclick="ir('caixa')" id="btn_caixa">Caixa</button>
   <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
   <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
   <button onclick="ir('associados')" id="btn_associados">Associados</button>
@@ -369,6 +370,7 @@ const API = "https://script.google.com/macros/s/AKfycbzbOVnwfUJ98LqWKYPxrh8bjJHb
 
 let associados = [];
 let cobrancas = [];
+let caixa = [];
 let telaAtual = "dashboard";
 let recibos = [];
 let backups = []; // 🔥 FALTAVA ISSO
@@ -407,11 +409,70 @@ function ir(tela){
 function render(){
 
   if(telaAtual === "dashboard") renderDashboard();
+  if(telaAtual === "caixa") renderCaixa();
   if(telaAtual === "cobrancas") renderCobrancas();
   if(telaAtual === "associados") renderAssociados();
   if(telaAtual === "devedores") renderDevedores();
   if(telaAtual === "backups") renderBackups();
   /*if(telaAtual === "recibos") renderRecibos();*/
+}
+
+/* ================= RENDER CAIXA ================= */
+function renderCaixa(){
+
+  tela.innerHTML = `
+
+    <div class="top">
+
+      <div class="box">
+        <b>Entradas</b><br>
+        <span id="totalEntradas">R$ 0.00</span>
+      </div>
+
+      <div class="box">
+        <b>Saídas</b><br>
+        <span id="totalSaidas">R$ 0.00</span>
+      </div>
+
+      <div class="box">
+        <b>Saldo</b><br>
+        <span id="saldoFinal">R$ 0.00</span>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:15px;">
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+        <select id="cx_tipo" style="flex:1;min-width:150px;">
+          <option value="Entrada">Entrada</option>
+          <option value="Saida">Saída</option>
+        </select>
+
+        <input id="cx_categoria" placeholder="Categoria" style="flex:1;min-width:180px;">
+
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+
+        <input id="cx_descricao" placeholder="Descrição" style="flex:2;min-width:220px;">
+
+        <input id="cx_valor" type="number" step="0.01" placeholder="Valor" style="flex:1;min-width:120px;">
+
+      </div>
+
+      <button class="btn" style="margin-top:12px;" onclick="salvarCaixa()">
+        💾 Lançar
+      </button>
+
+    </div>
+
+    <div id="listaCaixa"></div>
+
+  `;
+
+  listarCaixa();
 }
 
 /* ================= RENDER BACKUPs ================= */
@@ -569,6 +630,71 @@ function renderAssociados(){
 }
 
 /* ================= LISTAS ================= */
+
+/* ================= LISTAR CAIXA ================= */
+function listarCaixa(){
+
+  let entradas = 0;
+  let saidas = 0;
+
+  let html = "";
+
+  caixa.slice().reverse().forEach(c => {
+
+    const tipo = c[2];
+    const categoria = c[3];
+    const descricao = c[4];
+    const valor = Number(c[5]);
+    const data = formatarData(c[1]);
+
+    if(tipo === "Entrada"){
+      entradas += valor;
+    }else{
+      saidas += valor;
+    }
+
+    html += `
+
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+
+        <div>
+
+          <div style="font-size:16px;font-weight:600;">
+            ${descricao}
+          </div>
+
+          <div style="font-size:12px;opacity:0.7;">
+            ${categoria} • ${data}
+          </div>
+
+        </div>
+
+        <div style="
+          font-weight:bold;
+          color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
+        ">
+          ${tipo === "Entrada" ? "+" : "-"}
+          R$ ${valor.toFixed(2)}
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  document.getElementById("listaCaixa").innerHTML = html;
+
+  document.getElementById("totalEntradas").innerText =
+    "R$ " + entradas.toFixed(2);
+
+  document.getElementById("totalSaidas").innerText =
+    "R$ " + saidas.toFixed(2);
+
+  document.getElementById("saldoFinal").innerText =
+    "R$ " + (entradas - saidas).toFixed(2);
+}
+
 /* ================= LISTAR RECIBOS ================= */
 function listarRecibos(){
 
@@ -931,6 +1057,35 @@ async function alterarMensalidadeTodos(){
   carregar();
 }
 
+/* ============ 💾 SALVAR CAIXA =================== */
+async function salvarCaixa(){
+
+  const tipo = document.getElementById("cx_tipo").value;
+  const categoria = document.getElementById("cx_categoria").value;
+  const descricao = document.getElementById("cx_descricao").value;
+  const valor = document.getElementById("cx_valor").value;
+
+  if(!categoria || !descricao || !valor){
+    alert("Preencha os campos");
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"lancar_caixa",
+      tipo,
+      categoria,
+      descricao,
+      valor
+    })
+  });
+
+  await carregar();
+
+  renderCaixa();
+}
+
 /* ============ 💾 SALVAR MODAL MENSALIDADE =================== */
 async function salvarMensalidade(){
 
@@ -1280,6 +1435,7 @@ async function carregar(){
     }
 
     // 🔥 BLINDAGEM TOTAL (resolve seu erro)
+    caixa = Array.isArray(data.caixa) ? data.caixa.slice(1) : [];
     associados = Array.isArray(data.associados) ? data.associados.slice(1) : [];
     cobrancas  = Array.isArray(data.cobrancas)  ? data.cobrancas.slice(1)  : [];
     recibos    = Array.isArray(data.recibos)    ? data.recibos.slice(1)    : [];
