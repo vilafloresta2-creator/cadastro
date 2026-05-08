@@ -370,6 +370,8 @@ const API = "https://script.google.com/macros/s/AKfycbzbOVnwfUJ98LqWKYPxrh8bjJHb
 
 let associados = [];
 let cobrancas = [];
+let fechamentos = [];
+let editandoCaixa = null;
 let caixa = [];
 let telaAtual = "dashboard";
 let recibos = [];
@@ -464,6 +466,10 @@ function renderCaixa(){
 
       <button class="btn" style="margin-top:12px;" onclick="salvarCaixa()">
         💾 Lançar
+      </button>
+
+      <button class="btn" style="margin-top:10px;" onclick="fecharMes()">
+        💰 Fechar Mês
       </button>
 
     </div>
@@ -630,7 +636,6 @@ function renderAssociados(){
 }
 
 /* ================= LISTAS ================= */
-
 /* ================= LISTAR CAIXA ================= */
 function listarCaixa(){
 
@@ -669,12 +674,26 @@ function listarCaixa(){
 
         </div>
 
-        <div style="
-          font-weight:bold;
-          color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
-        ">
-          ${tipo === "Entrada" ? "+" : "-"}
-          R$ ${valor.toFixed(2)}
+        <div style="display:flex;align-items:center;gap:8px;">
+
+          <div style="
+            font-weight:bold;
+            color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
+          ">
+            ${tipo === "Entrada" ? "+" : "-"}
+            R$ ${valor.toFixed(2)}
+          </div>
+
+          <button class="btn-edit btn-icon"
+            onclick="editarCaixa('${c[0]}')">
+            ✏️
+          </button>
+
+          <button class="btn-cancelar btn-icon"
+            onclick="excluirCaixa('${c[0]}')">
+            🗑️
+          </button>
+
         </div>
 
       </div>
@@ -928,6 +947,37 @@ function listarBackups(){
   document.getElementById("listaBackups").innerHTML = html;
 }
 
+/* ================= FECHAR MES ================= */
+async function fecharMes(){
+
+  const mes = prompt("Informe o mês (MM-YYYY)");
+
+  if(!mes) return;
+
+  if(!confirm("Fechar mês " + mes + "?")){
+    return;
+  }
+
+  const res = await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"fechar_mes",
+      mes
+    })
+  });
+
+  const resp = await res.json();
+
+  if(resp.erro){
+    alert(resp.erro);
+    return;
+  }
+
+  alert("Fechamento realizado!");
+
+  carregar();
+}
+
 /* ================= RESTAURAR BACKUP ================= */
 async function restaurarBackup(url){
 
@@ -945,6 +995,7 @@ async function restaurarBackup(url){
   carregar();
 }
 
+/* ================= MODAL ================= */
 /* ================= ABRIR MODAL ================= */
 let editandoId = null;
 
@@ -969,6 +1020,61 @@ function fecharModal(){
   editandoId = null;
 }
 
+/* =========== MODAL MENSALIDADE ============ */
+/* ========= ABRIR MODAL MENSALIDADE ======== */
+function abrirModalMensalidade(){
+
+  if(!associados.length){
+    alert("Nenhum associado encontrado");
+    return;
+  }
+
+  const valor = Number(associados[0][6] || 0);
+
+  document.getElementById("valorAtualMensalidade")
+    .innerText = "R$ " + valor.toFixed(2);
+
+  document.getElementById("novoValorMensalidade").value = "";
+
+  document.getElementById("modalMensalidade")
+    .classList.add("show");
+}
+
+/* ============ 💾 SALVAR MODAL MENSALIDADE =================== */
+async function salvarMensalidade(){
+
+  const valor = document.getElementById("novoValorMensalidade").value;
+
+  if(!valor || Number(valor) <= 0){
+    alert("Informe um valor válido");
+    return;
+  }
+
+  if(!confirm("Deseja aplicar esse valor para TODOS os associados?")){
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"mensalidade_todos",
+      valor: valor
+    })
+  });
+
+  alert("Mensalidade atualizada!");
+
+  fecharModalMensalidade();
+  carregar(); // atualiza tela
+}
+
+/* ============ ❌ FECHAR MODAL MENSALIDADE =================== */
+function fecharModalMensalidade(){
+  document.getElementById("modalMensalidade")
+    .classList.remove("show");
+}
+
+/* ===================== ASSOCIADO ================= */
 /* ================= NOVO ASSOCIADO ================= */
 function novo(){
   editandoId = null;
@@ -1010,26 +1116,7 @@ function editar(id){
   abrirModal();
 }
 
-/* =========== MODAL MENSALIDADE ============ */
-/* ========= ABRIR MODAL MENSALIDADE ======== */
-function abrirModalMensalidade(){
-
-  if(!associados.length){
-    alert("Nenhum associado encontrado");
-    return;
-  }
-
-  const valor = Number(associados[0][6] || 0);
-
-  document.getElementById("valorAtualMensalidade")
-    .innerText = "R$ " + valor.toFixed(2);
-
-  document.getElementById("novoValorMensalidade").value = "";
-
-  document.getElementById("modalMensalidade")
-    .classList.add("show");
-}
-
+/* ================= MENSALIDADE ================= */
 /* ================= ALTERAR MENSALIDADE ================= */
 async function alterarMensalidadeTodos(){
 
@@ -1057,6 +1144,7 @@ async function alterarMensalidadeTodos(){
   carregar();
 }
 
+/* ============ CAIXA =================== */
 /* ============ 💾 SALVAR CAIXA =================== */
 async function salvarCaixa(){
 
@@ -1074,10 +1162,57 @@ async function salvarCaixa(){
     method:"POST",
     body: JSON.stringify({
       acao:"lancar_caixa",
+      id: editandoCaixa,
       tipo,
       categoria,
       descricao,
       valor
+    })
+  });
+
+  editandoCaixa = null;
+
+  document.getElementById("cx_categoria").value = "";
+  document.getElementById("cx_descricao").value = "";
+  document.getElementById("cx_valor").value = "";
+
+  await carregar();
+
+  renderCaixa();
+}
+
+/* ================= EDITAR CAIXA ================= */
+function editarCaixa(id){
+
+  const c = caixa.find(x => x[0] == id);
+
+  if(!c) return;
+
+  editandoCaixa = id;
+
+  document.getElementById("cx_tipo").value = c[2];
+  document.getElementById("cx_categoria").value = c[3];
+  document.getElementById("cx_descricao").value = c[4];
+  document.getElementById("cx_valor").value = c[5];
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+/* ================= EXCLUIR CAIXA ================= */
+async function excluirCaixa(id){
+
+  if(!confirm("Excluir lançamento?")){
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"excluir_caixa",
+      id
     })
   });
 
@@ -1086,40 +1221,7 @@ async function salvarCaixa(){
   renderCaixa();
 }
 
-/* ============ 💾 SALVAR MODAL MENSALIDADE =================== */
-async function salvarMensalidade(){
-
-  const valor = document.getElementById("novoValorMensalidade").value;
-
-  if(!valor || Number(valor) <= 0){
-    alert("Informe um valor válido");
-    return;
-  }
-
-  if(!confirm("Deseja aplicar esse valor para TODOS os associados?")){
-    return;
-  }
-
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
-      acao:"mensalidade_todos",
-      valor: valor
-    })
-  });
-
-  alert("Mensalidade atualizada!");
-
-  fecharModalMensalidade();
-  carregar(); // atualiza tela
-}
-
-/* ============ ❌ FECHAR MODAL MENSALIDADE =================== */
-function fecharModalMensalidade(){
-  document.getElementById("modalMensalidade")
-    .classList.remove("show");
-}
-
+/* ================= FORMATAÇÕES  ================= */
 /* ================= FORMATAR DATA ================= */
 function formatarData(dataISO){
   if(!dataISO) return "-";
@@ -1439,6 +1541,7 @@ async function carregar(){
     associados = Array.isArray(data.associados) ? data.associados.slice(1) : [];
     cobrancas  = Array.isArray(data.cobrancas)  ? data.cobrancas.slice(1)  : [];
     recibos    = Array.isArray(data.recibos)    ? data.recibos.slice(1)    : [];
+    fechamentos = Array.isArray(data.fechamentos) ? data.fechamentos.slice(1) : [];
     backups    = Array.isArray(data.backups)    ? data.backups.slice(1)    : [];
 
     render();
