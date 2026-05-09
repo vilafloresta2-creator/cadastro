@@ -357,6 +357,7 @@ input,select{
   <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
   <button onclick="ir('backups')" id="btn_backups">Backups</button>
+  <button onclick="ir('fixas')" id="btn_fixas">Fixas</button>
 </div>
 
 <div id="tela"></div>
@@ -375,6 +376,7 @@ let editandoCaixa = null;
 let caixa = [];
 let telaAtual = "dashboard";
 let recibos = [];
+let fixas = [];
 let backups = []; // 🔥 FALTAVA ISSO
 
 /* ================= FUNCTIONS ================= */
@@ -416,6 +418,7 @@ function render(){
   if(telaAtual === "associados") renderAssociados();
   if(telaAtual === "devedores") renderDevedores();
   if(telaAtual === "backups") renderBackups();
+  if(telaAtual === "fixas") renderFixas();
   /*if(telaAtual === "recibos") renderRecibos();*/
 }
 
@@ -557,6 +560,43 @@ function renderDevedores(){
     listarDevedores();
   }
 
+/* ================= RENDER DESPESAS FIXAS ================= */
+function renderFixas(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <h3>Nova Despesa Fixa</h3>
+
+      <input id="fx_categoria" placeholder="Categoria">
+
+      <input id="fx_descricao" placeholder="Descrição"
+        style="margin-top:8px;">
+
+      <input id="fx_valor" type="number"
+        placeholder="Valor"
+        style="margin-top:8px;">
+
+      <input id="fx_dia" type="number"
+        placeholder="Dia do mês"
+        style="margin-top:8px;">
+
+      <button class="btn"
+        style="margin-top:10px;"
+        onclick="salvarFixa()">
+
+        Salvar
+      </button>
+
+    </div>
+
+    <div id="listaFixas"></div>
+  `;
+
+  listarFixas();
+}
+
 /* ================= DASHBOARD ================= */
 function renderDashboard(){
 
@@ -636,6 +676,38 @@ function renderAssociados(){
 }
 
 /* ================= LISTAS ================= */
+
+/* ================= LISTA DESPESAS FIXAS ================= */
+function listarFixas(){
+
+  let html = "";
+
+  fixas.forEach(f => {
+
+    html += `
+      <div class="card"
+        style="display:flex;
+        justify-content:space-between;
+        align-items:center;">
+
+        <div>
+          <b>${f[1]}</b><br>
+
+          ${f[2]}<br>
+
+          Dia ${f[4]}<br>
+
+          R$ ${Number(f[3]).toFixed(2)}
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("listaFixas")
+    .innerHTML = html;
+}
+
 /* ================= LISTAR CAIXA ================= */
 function listarCaixa(){
 
@@ -777,6 +849,7 @@ function listarRecibos(){
 function listarAssociados(){
 
   const busca = document.getElementById("busca").value.toLowerCase();
+  const ativo = (a[7] || "Ativo") === "Ativo";
 
   let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
 
@@ -793,8 +866,8 @@ function listarAssociados(){
             ${a[1]}
           </div>
 
-          <div style="font-size:13px;color:${status=="Devedor" ? "#ef4444" : "#22c55e"};">
-            ${status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
+          <div style="font-size:13px;color:${!ativo ? "#9ca3af" : status=="Devedor" ? "#ef4444" : "#22c55e"};">
+            ${!ativo ? "⚫ Inativo" : status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
           </div>
         </div>
 
@@ -1074,6 +1147,56 @@ function fecharModalMensalidade(){
     .classList.remove("show");
 }
 
+/* ================= SALVAR MODAL ================= */
+async function salvarModal(){
+
+  if(!validarCampos()){
+    alert("Preencha corretamente");
+    return;
+  }
+
+  const btn = document.getElementById("btnSalvar");
+
+  btn.classList.add("btn-loading");
+  btn.innerText = "Salvando...";
+
+  try{
+
+    const res = await fetch(API,{
+      method:"POST",
+      body: JSON.stringify({
+        acao:"salvar_associado",
+        id: editandoId,
+        nome: m_nome.value,
+        cpf: m_cpf.value.replace(/\D/g,""),
+        telefone: m_tel.value.replace(/\D/g,""),
+        email: m_email.value,
+        endereco: m_endereco.value,
+        mensalidade: m_mensal.value,
+        status: m_status.value
+      })
+    });
+
+    const resp = await res.json();
+
+    if(resp.erro){
+      alert(resp.erro);
+      return;
+    }
+
+    fecharModal();
+
+    await carregar();
+
+  }catch(e){
+    console.error(e);
+    alert("Erro ao salvar");
+  }
+
+  btn.classList.remove("btn-loading");
+  btn.innerText = "Salvar";
+} 
+
 /* ===================== ASSOCIADO ================= */
 /* ================= NOVO ASSOCIADO ================= */
 function novo(){
@@ -1087,6 +1210,7 @@ function novo(){
   m_email.value = "";
   m_endereco.value = "";
   m_mensal.value = "";
+  m_status.value = "Ativo";
 
   abrirModal();
 }
@@ -1110,6 +1234,7 @@ function editar(id){
   m_email.value = a[4] || "";
   m_endereco.value = a[5] || "";
   m_mensal.value = a[6];
+  m_status.value = a[7] || "Ativo";
 
   modalTitulo.innerText = "Editar Associado";
 
@@ -1542,7 +1667,8 @@ async function carregar(){
     cobrancas  = Array.isArray(data.cobrancas)  ? data.cobrancas.slice(1)  : [];
     recibos    = Array.isArray(data.recibos)    ? data.recibos.slice(1)    : [];
     fechamentos = Array.isArray(data.fechamentos) ? data.fechamentos.slice(1) : [];
-    backups    = Array.isArray(data.backups)    ? data.backups.slice(1)    : [];
+    fixas = Array.isArray(data.fixas) ? data.fixas.slice(1) : [];
+    backups = Array.isArray(data.backups) ? data.backups.slice(1) : [];
 
     render();
 
@@ -1586,54 +1712,41 @@ async function gerarCobrancas(){
   carregar();
 }
 
-/* ================= SALVAR MODAL ================= */
-async function salvarModal(){
+/* ================= SALVAR DESPESAS FIXAS ================= */
+async function salvarFixa(){
 
-  if(!validarCampos()){
-    alert("Preencha corretamente");
+  const categoria =
+    document.getElementById("fx_categoria").value;
+
+  const descricao =
+    document.getElementById("fx_descricao").value;
+
+  const valor =
+    document.getElementById("fx_valor").value;
+
+  const dia =
+    document.getElementById("fx_dia").value;
+
+  if(!categoria || !descricao || !valor || !dia){
+    alert("Preencha os campos");
     return;
   }
 
-  const btn = document.getElementById("btnSalvar");
+  await fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      acao:"salvar_fixa",
+      categoria,
+      descricao,
+      valor,
+      dia
+    })
+  });
 
-  btn.classList.add("btn-loading");
-  btn.innerText = "Salvando...";
+  await carregar();
 
-  try{
-
-    const res = await fetch(API,{
-      method:"POST",
-      body: JSON.stringify({
-        acao:"salvar_associado",
-        id: editandoId,
-        nome: m_nome.value,
-        cpf: m_cpf.value.replace(/\D/g,""),
-        telefone: m_tel.value.replace(/\D/g,""),
-        email: m_email.value,
-        endereco: m_endereco.value,
-        mensalidade: m_mensal.value
-      })
-    });
-
-    const resp = await res.json();
-
-    if(resp.erro){
-      alert(resp.erro);
-      return;
-    }
-
-    fecharModal();
-
-    await carregar();
-
-  }catch(e){
-    console.error(e);
-    alert("Erro ao salvar");
-  }
-
-  btn.classList.remove("btn-loading");
-  btn.innerText = "Salvar";
-} 
+  renderFixas();
+}
 
 /* ================= SALVAR ================= */
 async function salvar(obj){
