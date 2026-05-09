@@ -368,6 +368,7 @@ input,select{
 <script> 
 
 console.log("JS carregado");
+const tela = document.getElementById("tela");
 const API = "https://script.google.com/macros/s/AKfycbx28WB6HlWGyC2Larm3DgF3n1DMYH5VfEWvwyNYCSxmv2AJy1MWWZAyM00UAosLeqq8/exec";
 
 let associados = [];
@@ -502,7 +503,7 @@ function renderCaixa(){
 function renderBackups(){
 
   tela.innerHTML = `
-    <button class="btn" onclick="fazerBackup()">
+    <button class="btn" onclick="fazerBackup(event)">
       💾 Fazer Backup
     </button>
 
@@ -943,7 +944,7 @@ function listarRecibos(){
         <button 
           style="font-size:12px;padding:6px 10px;"
           onclick="reimprimir('${numero}')"
-          class="btn-recibo"
+          class="btn-recibo">
           🧾 Reimprimir
         </button>
 
@@ -962,7 +963,7 @@ function listarAssociados(){
     .toLowerCase();
 
   let lista = associados.filter(a =>
-    a[1].toLowerCase().includes(busca)
+    String(a[1] || "").toLowerCase().includes(busca)
   );
 
   let html = "";
@@ -1102,7 +1103,7 @@ function listarDevedores(){
 /* ================= LISTAR ================= */
 function listar(){
 
-  const mes = document.getElementById("filtroMes").value;
+  const mes = document.getElementById("filtroMes")?.value || "";
 
   let lista = cobrancas;
 
@@ -1222,7 +1223,7 @@ async function restaurarBackup(url){
 let editandoId = null;
 
 function abrirModal(){
-  modal.classList.add("show");
+  document.getElementById("modal").classList.add("show");
 
   setTimeout(()=> m_nome.focus(),150);
 }
@@ -1232,7 +1233,7 @@ function fecharModal(){
   modal.classList.remove("show");
 
   // limpa campos
-  m_nome.value = "";
+  m_nome value = "";
   m_cpf.value = "";
   m_tel.value = "";
   m_email.value = "";
@@ -1569,19 +1570,6 @@ function statusAssociado(cpf){
   return pendente ? "Devedor" : "Regular";
 }
 
-/*========================== FUNCTION FORMATAR DATA ======================*/
-function formatarData(dataISO){
-  if(!dataISO) return "";
-
-  const d = new Date(dataISO);
-
-  return d.toLocaleDateString("pt-BR",{
-    day:"2-digit",
-    month:"2-digit",
-    year:"numeric"
-  });
-}
-
 /*======================== FUNCTION VALIDAR CPF =========================*/
 function validarCPFFront(cpf){
 
@@ -1659,8 +1647,12 @@ function jaGerouMesAtual(){
 }
 
 /* INIT */
-carregar();
-ir("dashboard");
+async function init(){
+  await carregar();
+  ir("dashboard");
+}
+
+init();
 
 
 /* ==================== GERAR RELATORIOS ================*/
@@ -2080,9 +2072,9 @@ async function excluir(id){
 }
 
 /* ================= BACKUP ================= */
-async function fazerBackup(){
+async function fazerBackup(ev){
 
-  let btn = event?.target;
+  let btn = ev?.target;
 
   if(btn){
     btn.innerText = "Salvando...";
