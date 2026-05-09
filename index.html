@@ -848,32 +848,72 @@ function listarRecibos(){
 /* ================= LISTAR ASSOCIADOS ================= */
 function listarAssociados(){
 
-  const busca = document.getElementById("busca").value.toLowerCase();
-  const ativo = (a[7] || "Ativo") === "Ativo";
+  const busca = document.getElementById("busca")
+    .value
+    .toLowerCase();
 
-  let lista = associados.filter(a=>a[1].toLowerCase().includes(busca));
+  let lista = associados.filter(a =>
+    a[1].toLowerCase().includes(busca)
+  );
 
   let html = "";
 
   lista.forEach(a=>{
+
     const status = statusAssociado(a[2]);
 
+    const ativo =
+      (a[7] || "Ativo") === "Ativo";
+
     html += `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        
+      <div class="card" style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      ">
+
         <div>
-          <div style="font-size:18px;font-weight:600;">
+
+          <div style="
+            font-size:18px;
+            font-weight:600;
+          ">
             ${a[1]}
           </div>
 
-          <div style="font-size:13px;color:${!ativo ? "#9ca3af" : status=="Devedor" ? "#ef4444" : "#22c55e"};">
-            ${!ativo ? "⚫ Inativo" : status=="Devedor" ? "🔴 Devedor" : "🟢 Regular"}
+          <div style="
+            font-size:13px;
+            color:${
+              !ativo
+                ? "#9ca3af"
+                : status=="Devedor"
+                  ? "#ef4444"
+                  : "#22c55e"
+            };
+          ">
+
+            ${
+              !ativo
+                ? "⚫ Inativo"
+                : status=="Devedor"
+                  ? "🔴 Devedor"
+                  : "🟢 Regular"
+            }
+
           </div>
+
         </div>
 
         <div style="display:flex;gap:6px;">
-          <button class="btn-edit btn-icon" onclick="editar('${a[0]}')">✏️</button>
-          <button class="btn-cancelar btn-icon" onclick="excluir('${a[0]}')">🗑️</button>
+          <button class="btn-edit btn-icon"
+            onclick="editar('${a[0]}')">
+            ✏️
+          </button>
+
+          <button class="btn-cancelar btn-icon"
+            onclick="excluir('${a[0]}')">
+            🗑️
+          </button>
         </div>
 
       </div>
