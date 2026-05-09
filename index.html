@@ -358,6 +358,7 @@ input,select{
   <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
   <button onclick="ir('backups')" id="btn_backups">Backups</button>
   <button onclick="ir('fixas')" id="btn_fixas">Fixas</button>
+  <button onclick="ir('relatorios')" id="btn_relatorios">Relatórios</button>
 </div>
 
 <div id="tela"></div>
@@ -367,7 +368,7 @@ input,select{
 <script> 
 
 console.log("JS carregado");
-const API = "https://script.google.com/macros/s/AKfycbwEo1WmVQ6wWw6udqHOz7_v8xtSIi5z2ziBkL6wl1UbvBPGqArADzE4a5HTPyPnBvjH/exec";
+const API = "https://script.google.com/macros/s/AKfycbw917-BQBlcYq1lAQ_xnoeBRw9rz9vi-mv_mg7Id7NwQI9Hd-0BngSkQUTGaKe4HsTv/exec";
 
 let associados = [];
 let cobrancas = [];
@@ -378,24 +379,6 @@ let telaAtual = "dashboard";
 let recibos = [];
 let fixas = [];
 let backups = []; // 🔥 FALTAVA ISSO
-
-/* ================= FUNCTIONS ================= */
-/* ================= NORMALIZAR CPF ================= */
-function normalizarCPF(cpf){
-  return String(cpf || "")
-    .replace(/\D/g,"")
-    .padStart(11,"0");
-}
-
-document.addEventListener("input", e=>{
-  if(e.target.id === "m_cpf"){
-    e.target.value = maskCPF(e.target.value);
-  }
-
-  if(e.target.id === "m_tel"){
-    e.target.value = maskTel(e.target.value);
-  }
-});
 
 /* ================= NAVEGAÇÃO ================= */
 function ir(tela){
@@ -419,7 +402,38 @@ function render(){
   if(telaAtual === "devedores") renderDevedores();
   if(telaAtual === "backups") renderBackups();
   if(telaAtual === "fixas") renderFixas();
+  if(telaAtual === "relatorios") renderRelatorios();
   /*if(telaAtual === "recibos") renderRecibos();*/
+}
+
+/* ================= RENDER RELATORIOS ================= */
+function renderRelatorios(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <h3>Relatório Financeiro</h3>
+
+      <input
+        id="mesRelatorio"
+        placeholder="MM-YYYY"
+      >
+
+      <button
+        class="btn"
+        style="margin-top:10px;"
+        onclick="gerarRelatorioMensal()">
+
+        Gerar Relatório
+
+      </button>
+
+    </div>
+
+    <div id="resultadoRelatorio"></div>
+
+  `;
 }
 
 /* ================= RENDER CAIXA ================= */
@@ -597,32 +611,127 @@ function renderFixas(){
   listarFixas();
 }
 
-/* ================= DASHBOARD ================= */
+/* ================= RENDER DASHBOARD ================= */
 function renderDashboard(){
 
-  let total=0, aberto=0;
+  const hoje = new Date();
 
-  cobrancas.forEach(c=>{
-    if(c[5]=="Pago") total+=Number(c[4]);
-    else aberto+=Number(c[4]);
+  const mesAtual =
+    String(hoje.getMonth()+1).padStart(2,"0")
+    + "-"
+    + hoje.getFullYear();
+
+  let entradas = 0;
+  let saidas = 0;
+  let inadimplencia = 0;
+  let ativos = 0;
+
+  // CAIXA
+  caixa.forEach(c => {
+
+    let mes = "";
+
+    if(c[1]){
+
+      const d = new Date(c[1]);
+
+      mes =
+        String(d.getMonth()+1).padStart(2,"0")
+        + "-"
+        + d.getFullYear();
+    }
+
+    if(mes !== mesAtual){
+      return;
+    }
+
+    const tipo =
+      String(c[2]).trim();
+
+    const valor =
+      Number(c[5]) || 0;
+
+    if(tipo === "Entrada"){
+      entradas += valor;
+    }
+
+    if(
+      tipo === "Saída"
+      || tipo === "Saida"
+    ){
+      saidas += valor;
+    }
+
   });
 
+  // INADIMPLÊNCIA
+  cobrancas.forEach(c => {
+
+    if(String(c[5]).trim() === "Pendente"){
+      inadimplencia += Number(c[4]) || 0;
+    }
+
+  });
+
+  // ASSOCIADOS ATIVOS
+  associados.forEach(a => {
+
+    const status =
+      String(a[7] || "Ativo").trim();
+
+    if(status === "Ativo"){
+      ativos++;
+    }
+
+  });
+
+  const saldo = entradas - saidas;
+
   tela.innerHTML = `
+
     <div class="top">
+
       <div class="box">
-        <b>Recebido</b><br>R$ ${total.toFixed(2)}
+        <b>Entradas</b><br>
+        <span style="color:#22c55e;">
+          R$ ${entradas.toFixed(2)}
+        </span>
       </div>
+
       <div class="box">
-        <b>Pendente</b><br>R$ ${aberto.toFixed(2)}
+        <b>Saídas</b><br>
+        <span style="color:#ef4444;">
+          R$ ${saidas.toFixed(2)}
+        </span>
       </div>
+
       <div class="box">
-        <b>Associados</b><br>${associados.length}
+        <b>Saldo</b><br>
+        <span>
+          R$ ${saldo.toFixed(2)}
+        </span>
       </div>
+
+      <div class="box">
+        <b>Inadimplência</b><br>
+        <span style="color:#f59e0b;">
+          R$ ${inadimplencia.toFixed(2)}
+        </span>
+      </div>
+
+      <div class="box">
+        <b>Associados Ativos</b><br>
+        <span>
+          ${ativos}
+        </span>
+      </div>
+
     </div>
+
   `;
 }
 
-/* ================= COBRANÇAS ================= */
+/* ================= RENDER COBRANÇAS ================= */
 function renderCobrancas(){
 
   let meses = [...new Set(cobrancas.map(c=>c[3]))];
@@ -658,7 +767,7 @@ function renderCobrancas(){
   listar();
 }
 
-/* ================= ASSOCIADOS ================= */
+/* ================= RENDER ASSOCIADOS ================= */
 function renderAssociados(){
 
   tela.innerHTML = `
@@ -1305,7 +1414,6 @@ async function alterarMensalidadeTodos(){
   });
 
   alert("Mensalidade atualizada!");
-
   carregar();
 }
 
@@ -1336,13 +1444,11 @@ async function salvarCaixa(){
   });
 
   editandoCaixa = null;
-
   document.getElementById("cx_categoria").value = "";
   document.getElementById("cx_descricao").value = "";
   document.getElementById("cx_valor").value = "";
 
   await carregar();
-
   renderCaixa();
 }
 
@@ -1350,11 +1456,9 @@ async function salvarCaixa(){
 function editarCaixa(id){
 
   const c = caixa.find(x => x[0] == id);
-
   if(!c) return;
 
   editandoCaixa = String(id);
-
   document.getElementById("cx_tipo").value = c[2];
   document.getElementById("cx_categoria").value = c[3];
   document.getElementById("cx_descricao").value = c[4];
@@ -1382,11 +1486,27 @@ async function excluirCaixa(id){
   });
 
   await carregar();
-
   renderCaixa();
 }
 
 /* ================= FORMATAÇÕES  ================= */
+/* ================= NORMALIZAR CPF ================= */
+function normalizarCPF(cpf){
+  return String(cpf || "")
+    .replace(/\D/g,"")
+    .padStart(11,"0");
+}
+
+document.addEventListener("input", e=>{
+  if(e.target.id === "m_cpf"){
+    e.target.value = maskCPF(e.target.value);
+  }
+
+  if(e.target.id === "m_tel"){
+    e.target.value = maskTel(e.target.value);
+  }
+});
+
 /* ================= FORMATAR DATA ================= */
 function formatarData(dataISO){
   if(!dataISO) return "-";
@@ -1419,6 +1539,7 @@ function formatarMes(valor){
 }
 
 /* ================= MASCARAS ================= */
+/* ================= MASCARA CPF ================= */
 function maskCPF(v){
   v = String(v || "");
   v = v.replace(/\D/g,"").slice(0,11);
@@ -1428,6 +1549,7 @@ function maskCPF(v){
   return v;
 }
 
+/* ================= MASCARA TELEFONE ================= */
 function maskTel(v){
   v = String(v || "");
   v = v.replace(/\D/g,"").slice(0,11);
@@ -1441,11 +1563,13 @@ function maskTel(v){
   return v;
 }
 
+/*====================== FUNCTION STATUS ASSOCIADO ===============*/
 function statusAssociado(cpf){
   const pendente = cobrancas.some(c => c[2] == cpf && c[5] == "Pendente");
   return pendente ? "Devedor" : "Regular";
 }
 
+/*========================== FUNCTION FORMATAR DATA ======================*/
 function formatarData(dataISO){
   if(!dataISO) return "";
 
@@ -1458,6 +1582,7 @@ function formatarData(dataISO){
   });
 }
 
+/*======================== FUNCTION VALIDAR CPF =========================*/
 function validarCPFFront(cpf){
 
   cpf = String(cpf).replace(/\D/g,"");
@@ -1502,6 +1627,7 @@ function validarCPFFront(cpf){
   return true;
 }
 
+/*===================== FUNCTION VALIDAR CAMPOS =================*/
 function validarCampos(){
 
   let ok = true;
@@ -1523,6 +1649,7 @@ function validarCampos(){
   return ok;
 }
 
+/* ==================== JA GEROU ================*/
 function jaGerouMesAtual(){
 
   const hoje = new Date();
@@ -1536,6 +1663,141 @@ carregar();
 ir("dashboard");
 
 
+/* ==================== GERAR RELATORIOS ================*/
+function gerarRelatorioMensal(){
+
+  const mes =
+    document.getElementById("mesRelatorio").value;
+
+  if(!mes){
+    alert("Informe o mês");
+    return;
+  }
+
+  let entradas = 0;
+  let saidas = 0;
+
+  let categorias = {};
+
+  caixa.forEach(c => {
+
+    if(!c[1]) return;
+
+    const d = new Date(c[1]);
+
+    const mesLinha =
+      String(d.getMonth()+1).padStart(2,"0")
+      + "-"
+      + d.getFullYear();
+
+    if(mesLinha !== mes){
+      return;
+    }
+
+    const tipo =
+      String(c[2]).trim();
+
+    const categoria =
+      String(c[3]).trim();
+
+    const valor =
+      Number(c[5]) || 0;
+
+    if(tipo === "Entrada"){
+      entradas += valor;
+    }
+
+    if(
+      tipo === "Saída"
+      || tipo === "Saida"
+    ){
+
+      saidas += valor;
+
+      if(!categorias[categoria]){
+        categorias[categoria] = 0;
+      }
+
+      categorias[categoria] += valor;
+    }
+
+  });
+
+  let inadimplencia = 0;
+
+  cobrancas.forEach(c => {
+
+    if(
+      String(c[3]).trim() === mes
+      && String(c[5]).trim() === "Pendente"
+    ){
+
+      inadimplencia += Number(c[4]) || 0;
+    }
+
+  });
+
+  const saldo = entradas - saidas;
+
+  let htmlCategorias = "";
+
+  Object.keys(categorias).forEach(cat => {
+
+    htmlCategorias += `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-top:5px;
+      ">
+        <span>${cat}</span>
+        <b>R$ ${categorias[cat].toFixed(2)}</b>
+      </div>
+    `;
+  });
+
+  document.getElementById("resultadoRelatorio")
+    .innerHTML = `
+
+    <div class="card" style="margin-top:15px;">
+
+      <h2>
+        Relatório ${mes}
+      </h2>
+
+      <hr>
+
+      <p>
+        <b>Entradas:</b>
+        R$ ${entradas.toFixed(2)}
+      </p>
+
+      <p>
+        <b>Saídas:</b>
+        R$ ${saidas.toFixed(2)}
+      </p>
+
+      <p>
+        <b>Saldo Final:</b>
+        R$ ${saldo.toFixed(2)}
+      </p>
+
+      <p>
+        <b>Inadimplência:</b>
+        R$ ${inadimplencia.toFixed(2)}
+      </p>
+
+      <hr>
+
+      <h3>Despesas por Categoria</h3>
+
+      ${htmlCategorias || "Nenhuma despesa"}
+
+    </div>
+
+  `;
+}
+
+/*=========== GERAR RECIBOS =================*/
 function gerarHTMLRecibo(dados){
 
   return `
