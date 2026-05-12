@@ -159,7 +159,19 @@ function validarCampos(){
 function jaGerouMesAtual(){
 
   const hoje = new Date();
-  const mes = String(hoje.getMonth()+1).padStart(2,"0") + "-" + hoje.getFullYear();
 
-  return cobrancas.some(c => c[3] == mes);
+  const mesAtual =
+    hoje.getFullYear()
+    + "-"
+    + String(hoje.getMonth()+1).padStart(2,"0");
+
+  return cobrancas.some(c => {
+
+    const mesCobranca = String(c[3])
+      .trim()
+      .substring(0,7);
+
+    return mesCobranca === mesAtual;
+
+  });
 }
