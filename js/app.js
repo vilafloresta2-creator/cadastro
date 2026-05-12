@@ -1,5 +1,4 @@
 console.log("JS carregado");
-const tela = document.getElementById("tela");
 
 let associados = [];
 let cobrancas = [];
