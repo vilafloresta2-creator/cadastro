@@ -324,7 +324,9 @@ function listarDevedores(){
   lista.sort((a,b)=>b[4]-a[4]).forEach(c => {
 
     const nome = c[1];
-    const mes = formatarMes(c[3]);
+    const mes = formatarMes(
+      String(c[3]).substring(0,7)
+    );
     const valor = Number(c[4]);
 
     total += valor;
@@ -383,7 +385,7 @@ function listar(){
     html += `
       <div class="card">
         <b>${c[1]}</b><br>
-        ${formatarMes(c[3])}<br>
+        ${formatarMes(String(c[3]).substring(0,7))}<br>
         <b>${c[5]}</b><br>
 
         ${c[5]=="Pendente" ? 
@@ -735,7 +737,9 @@ function gerarRecibo(c, numero){
 
   const nome = c[1];
   const cpf = c[2];
-  const mes = formatarMes(c[3]);
+  const mes = formatarMes(
+    String(c[3]).substring(0,7)
+  );
   const valor = Number(c[4]).toFixed(2);
   const data = new Date().toLocaleDateString("pt-BR");
 
