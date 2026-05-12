@@ -31,8 +31,18 @@ function formatarMes(valor){
 
   if(!valor) return "";
 
-  // se já estiver MM-YYYY
-  if(String(valor).includes("-") && String(valor).length <= 7){
+  valor = String(valor).trim();
+
+  // yyyy-MM
+  if(/^\d{4}-\d{2}$/.test(valor)){
+
+    const [ano, mes] = valor.split("-");
+
+    return mes + "-" + ano;
+  }
+
+  // MM-yyyy
+  if(/^\d{2}-\d{4}$/.test(valor)){
     return valor;
   }
 
@@ -40,7 +50,9 @@ function formatarMes(valor){
 
   if(isNaN(d)) return valor;
 
-  const mes = String(d.getMonth()+1).padStart(2,"0");
+  const mes = String(d.getMonth()+1)
+    .padStart(2,"0");
+
   const ano = d.getFullYear();
 
   return mes + "-" + ano;
