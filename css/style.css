@@ -139,6 +139,9 @@ input,select{
   background:#020617;
   color:#fff;
   border:1px solid rgba(255,255,255,0.08);
+
+  box-sizing:border-box;
+  min-width:0;
 }
 
 /* BOTÕES */
@@ -240,10 +243,15 @@ input,select{
 /* ===== CARD ===== */
 #modal .modal-box{
   background:#1e293b;
-  width:90%;
+  width:95%;
   max-width:420px;
+  max-height:90vh;
+
   border-radius:18px;
   padding:24px;
+
+  box-sizing:border-box;
+  overflow-y:auto;
 
   box-shadow:0 20px 60px rgba(0,0,0,0.6);
 
@@ -309,13 +317,15 @@ input,select{
 /* MOBILE */
 @media (max-width:600px){
 
-    .linha-filtros{
+  .linha-filtros{
     flex-direction:column;
+    width:100%;
   }
 
   .linha-filtros input,
   .linha-filtros select{
     width:100%;
+    max-width:100%;
   }
 
   .nav{
@@ -328,6 +338,20 @@ input,select{
 
   .top{
     grid-template-columns:1fr;
+  }
+
+  #modal .modal-box{
+    width:95%;
+    max-width:95%;
+    padding:16px;
+  }
+
+  #modal .acoes{
+    flex-direction:column;
+  }
+
+  #modal .acoes button{
+    width:100%;
   }
 
 }
