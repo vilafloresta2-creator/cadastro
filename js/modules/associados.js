@@ -95,8 +95,7 @@ function listarAssociados(){
 
 /* ================= NOVO ASSOCIADO ================= */
 function novo(){
-  editandoId = null;
-
+  
   modalTitulo.innerText = "Novo Associado";
 
   m_nome.value = "";
