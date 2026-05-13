@@ -1,6 +1,5 @@
 /* ================= ABRIR MODAL ================= */
 
-
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
 

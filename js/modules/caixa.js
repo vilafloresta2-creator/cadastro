@@ -172,6 +172,24 @@ async function salvarCaixa(){
   renderCaixa();
 }
 
+/* ================= EDITAR CAIXA ================= */
+function editarCaixa(id){
+
+  const c = caixa.find(x => x[0] == id);
+  if(!c) return;
+
+  editandoCaixa = String(id);
+  document.getElementById("cx_tipo").value = c[2];
+  document.getElementById("cx_categoria").value = c[3];
+  document.getElementById("cx_descricao").value = c[4];
+  document.getElementById("cx_valor").value = c[5];
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
 /* ================= EXCLUIR CAIXA ================= */
 async function excluirCaixa(id){
 
