@@ -1,3 +1,40 @@
+/* ================= RENDER DESPESAS FIXAS ================= */
+function renderFixas(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <h3>Nova Despesa Fixa</h3>
+
+      <input id="fx_categoria" placeholder="Categoria">
+
+      <input id="fx_descricao" placeholder="Descrição"
+        style="margin-top:8px;">
+
+      <input id="fx_valor" type="number"
+        placeholder="Valor"
+        style="margin-top:8px;">
+
+      <input id="fx_dia" type="number"
+        placeholder="Dia do mês"
+        style="margin-top:8px;">
+
+      <button class="btn"
+        style="margin-top:10px;"
+        onclick="salvarFixa()">
+
+        Salvar
+      </button>
+
+    </div>
+
+    <div id="listaFixas"></div>
+  `;
+
+  listarFixas();
+}
+
 /* ================= LISTA DESPESAS FIXAS ================= */
 function listarFixas(){
 

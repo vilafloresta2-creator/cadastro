@@ -1,3 +1,38 @@
+/* ================= RENDER DEVEDORES ================= */
+function renderDevedores(){
+
+  let meses = [...new Set(cobrancas.map(c => c[3]))];
+
+    tela.innerHTML = `
+      
+      <div class="box" style="margin-bottom:10px;">
+        <b>Total em aberto</b><br>
+        <span id="totalDivida">R$ 0.00</span>
+      </div>
+
+      <div class="linha-filtros">
+        
+        <input placeholder="Buscar devedor..." id="buscaDevedor">
+
+        <select id="filtroMesDevedor">
+          <option value="">Todos</option>
+          ${meses.map(m => `<option>${m}</option>`).join("")}
+        </select>
+
+      </div>
+
+      <div id="listaDevedores"></div>
+    `;
+
+    const busca = document.getElementById("buscaDevedor");
+    const filtro = document.getElementById("filtroMesDevedor");
+
+    if(busca) busca.oninput = listarDevedores;
+    if(filtro) filtro.onchange = listarDevedores;
+
+    listarDevedores();
+  }
+
 /* ================= LISTAR DEVEDORES================= */
 function listarDevedores(){
 

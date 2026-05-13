@@ -1,3 +1,17 @@
+/* ================= RENDER BACKUPs ================= */
+function renderBackups(){
+
+  tela.innerHTML = `
+    <button class="btn" onclick="fazerBackup(event)">
+      💾 Fazer Backup
+    </button>
+
+    <div id="listaBackups" style="margin-top:10px;"></div>
+  `;
+
+  listarBackups();
+}
+
 /* ================= LISTAR BACKUPS ================= */
 function listarBackups(){
 

@@ -1,3 +1,30 @@
+/* ================= RENDER RECIBOS ================= */
+function renderRecibos(){
+
+  // 🔒 garante que recibos existe
+  if(!Array.isArray(recibos)){
+    recibos = [];
+  }
+
+  tela.innerHTML = `
+  <div class="filtro-linha" style="display:flex; gap:10px; margin-bottom:10px;">
+    <input placeholder="Buscar..." style="flex:1;">
+    <select style="width:200px;">
+      <option>Todos</option>
+    </select>
+  </div>
+  <div id="listaRecibos"></div>
+  `;
+
+  // 🔒 protege contra null
+  const busca = document.getElementById("buscaRecibo");
+  if(busca){
+    busca.oninput = listarRecibos;
+  }
+
+  listarRecibos();
+}
+
 /* ================= LISTAR RECIBOS ================= */
 function listarRecibos(){
 

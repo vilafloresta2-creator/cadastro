@@ -1,3 +1,33 @@
+/* ================= RENDER RELATORIOS ================= */
+function renderRelatorios(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <h3>Relatório Financeiro</h3>
+
+      <input
+        id="mesRelatorio"
+        placeholder="MM-YYYY"
+      >
+
+      <button
+        class="btn"
+        style="margin-top:10px;"
+        onclick="gerarRelatorioMensal()">
+
+        Gerar Relatório
+
+      </button>
+
+    </div>
+
+    <div id="resultadoRelatorio"></div>
+
+  `;
+}
+
 /* ==================== GERAR RELATORIOS ================*/
 function gerarRelatorioMensal(){
 
