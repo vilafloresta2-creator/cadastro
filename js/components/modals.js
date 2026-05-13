@@ -1,5 +1,5 @@
 /* ================= ABRIR MODAL ================= */
-let editandoId = null;
+
 
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
