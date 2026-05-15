@@ -92,9 +92,11 @@ function gerarRelatorioMensal(){
 
   cobrancas.forEach(c => {
 
+    const mesCobranca = formatarMes(c[3]);
+
     if(
-      String(c[3]).trim() === mes
-      && String(c[5]).trim() === "Pendente"
+      mesCobranca === mes &&
+      String(c[5]).trim() === "Pendente"
     ){
 
       inadimplencia += Number(c[4]) || 0;
