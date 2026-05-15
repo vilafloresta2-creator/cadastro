@@ -1,4 +1,4 @@
-/* ================= RENDER RELATORIOS ================= */
+/* ============= RENDER RELATORIO ============= */
 function renderRelatorios(){
 
   tela.innerHTML = `
@@ -17,7 +17,7 @@ function renderRelatorios(){
         style="margin-top:10px;"
         onclick="gerarRelatorioMensal()">
 
-        Gerar Relatório
+        📊 Gerar Relatório
 
       </button>
 
@@ -28,27 +28,36 @@ function renderRelatorios(){
   `;
 }
 
-/* ==================== GERAR RELATORIOS ================*/
+
+/* ============= GERAR RELATORIO ============= */
 function gerarRelatorioMensal(){
 
   const mes =
-    document.getElementById("mesRelatorio").value;
+    document.getElementById("mesRelatorio")
+      .value
+      .trim();
 
   if(!mes){
+
     alert("Informe o mês");
     return;
   }
 
   let entradas = 0;
   let saidas = 0;
+  let inadimplencia = 0;
 
-  let categorias = {};
+  const categorias = {};
 
+
+/* ================== CAIXA ================== */
   caixa.forEach(c => {
 
     if(!c[1]) return;
 
     const d = new Date(c[1]);
+
+    if(isNaN(d)) return;
 
     const mesLinha =
       String(d.getMonth()+1).padStart(2,"0")
@@ -60,21 +69,23 @@ function gerarRelatorioMensal(){
     }
 
     const tipo =
-      String(c[2]).trim();
+      String(c[2] || "").trim();
 
     const categoria =
-      String(c[3]).trim();
+      String(c[3] || "Sem categoria").trim();
 
     const valor =
       Number(c[5]) || 0;
 
+    /* ENTRADAS */
     if(tipo === "Entrada"){
       entradas += valor;
     }
 
+    /* SAIDAS */
     if(
-      tipo === "Saída"
-      || tipo === "Saida"
+      tipo === "Saída" ||
+      tipo === "Saida"
     ){
 
       saidas += valor;
@@ -88,11 +99,14 @@ function gerarRelatorioMensal(){
 
   });
 
-  let inadimplencia = 0;
 
+/* ============== INADIMPLENCIA ============== */
   cobrancas.forEach(c => {
 
-    const mesCobranca = formatarMes(c[3]);
+    const mesCobranca =
+      formatarMes(
+        String(c[3]).substring(0,7)
+      );
 
     if(
       mesCobranca === mes &&
@@ -106,58 +120,116 @@ function gerarRelatorioMensal(){
 
   const saldo = entradas - saidas;
 
+
+/* ============ ORDENAR CATEGORIAS ============ */
+  const categoriasOrdenadas =
+    Object.entries(categorias)
+      .sort((a,b) => b[1] - a[1]);
+
   let htmlCategorias = "";
 
-  Object.keys(categorias).forEach(cat => {
+  if(!categoriasOrdenadas.length){
+
+    htmlCategorias = `
+      <div style="margin-top:10px;opacity:0.7;">
+        Nenhuma despesa encontrada.
+      </div>
+    `;
+  }
+
+  categoriasOrdenadas.forEach(([cat, valor]) => {
 
     htmlCategorias += `
+
       <div style="
         display:flex;
         justify-content:space-between;
-        margin-top:5px;
+        align-items:center;
+        margin-top:8px;
+        padding:8px 0;
+        border-bottom:1px solid rgba(255,255,255,.06);
       ">
+
         <span>${cat}</span>
-        <b>R$ ${categorias[cat].toFixed(2)}</b>
+
+        <b>
+          R$ ${valor.toFixed(2)}
+        </b>
+
       </div>
+
     `;
   });
+  
 
+/* ================== RENDER ================== */
   document.getElementById("resultadoRelatorio")
     .innerHTML = `
 
     <div class="card" style="margin-top:15px;">
 
       <h2>
-        Relatório ${mes}
+        📅 Relatório ${mes}
       </h2>
 
       <hr>
 
-      <p>
-        <b>Entradas:</b>
-        R$ ${entradas.toFixed(2)}
-      </p>
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:10px;
+        margin-top:15px;
+      ">
 
-      <p>
-        <b>Saídas:</b>
-        R$ ${saidas.toFixed(2)}
-      </p>
+        <div class="box">
 
-      <p>
-        <b>Saldo Final:</b>
-        R$ ${saldo.toFixed(2)}
-      </p>
+          <b>Entradas</b><br>
 
-      <p>
-        <b>Inadimplência:</b>
-        R$ ${inadimplencia.toFixed(2)}
-      </p>
+          <span style="color:#22c55e;">
+            R$ ${entradas.toFixed(2)}
+          </span>
 
-      <hr>
+        </div>
 
-      <h3>Despesas por Categoria</h3>
+        <div class="box">
 
-      ${htmlCategorias || "Nenhuma despesa"}
+          <b>Saídas</b><br>
+
+          <span style="color:#ef4444;">
+            R$ ${saidas.toFixed(2)}
+          </span>
+
+        </div>
+
+        <div class="box">
+
+          <b>Saldo Final</b><br>
+
+          <span>
+            R$ ${saldo.toFixed(2)}
+          </span>
+
+        </div>
+
+        <div class="box">
+
+          <b>Inadimplência</b><br>
+
+          <span style="color:#f59e0b;">
+            R$ ${inadimplencia.toFixed(2)}
+          </span>
+
+        </div>
+
+      </div>
+
+      <hr style="margin-top:20px;">
+
+      <h3>
+        📂 Despesas por Categoria
+      </h3>
+
+      ${htmlCategorias}
 
     </div>
 

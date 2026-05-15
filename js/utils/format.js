@@ -1,15 +1,20 @@
-/* ================= FORMATAR DATA ================= */
+/* ============== FORMATAR DATA ============== */
 function formatarData(dataISO){
-  if(!dataISO) return "-";
+
+  if(!dataISO){
+    return "-";
+  }
+
   const d = new Date(dataISO);
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
+
+  if(isNaN(d)){
+    return "-";
+  }
+
+  return d.toLocaleDateString("pt-BR");
 }
 
-/* ================= FORMATAR MÊS ================= */
+/* =============== FORMATAR MÊS =============== */
 function formatarMes(valor){
 
   if(!valor) return "";

@@ -1,4 +1,4 @@
-/* ================= RENDER ASSOCIADOS ================= */
+/* ============= RENDER ASSOCIADO ============= */
 function renderAssociados(){
 
   tela.innerHTML = `
@@ -15,14 +15,15 @@ function renderAssociados(){
   listarAssociados();
 }
 
-/* ================= LISTAR ASSOCIADOS ================= */
+
+/* ============= LISTAR ASSOCIADO ============= */
 function listarAssociados(){
 
-  const busca = document.getElementById("busca")
-    .value
-    .toLowerCase();
+  const busca = (
+    document.getElementById("busca")?.value || ""
+  ).toLowerCase();
 
-  let lista = associados.filter(a =>
+  const lista = associados.filter(a =>
     String(a[1] || "").toLowerCase().includes(busca)
   );
 
@@ -33,7 +34,7 @@ function listarAssociados(){
     const status = statusAssociado(a[2]);
 
     const ativo =
-      (a[7] || "Ativo") === "Ativo";
+    String(a[7] || "Ativo").trim() === "Ativo";
 
     html += `
       <div class="card" style="
@@ -56,7 +57,7 @@ function listarAssociados(){
             color:${
               !ativo
                 ? "#9ca3af"
-                : status=="Devedor"
+                : status==="Devedor"
                   ? "#ef4444"
                   : "#22c55e"
             };
@@ -65,7 +66,7 @@ function listarAssociados(){
             ${
               !ativo
                 ? "⚫ Inativo"
-                : status=="Devedor"
+                : status==="Devedor"
                   ? "🔴 Devedor"
                   : "🟢 Regular"
             }
@@ -93,10 +94,11 @@ function listarAssociados(){
   document.getElementById("lista").innerHTML = html;
 }
 
-/* ================= NOVO ASSOCIADO ================= */
+
+/* ============== NOVO ASSOCIADO ============== */
 function novo(){
   
-  modalTitulo.innerText = "Novo Associado";
+  document.getElementById("modalTitulo").innerText = "Novo Associado";
 
   m_nome.value = "";
   m_cpf.value = "";
@@ -109,11 +111,12 @@ function novo(){
   abrirModal();
 }
 
-/* ================= EDITAR ASSOCIADO ================= */
+
+/* ============= EDITAR ASSOCIADO ============= */
 function editar(id){
   console.log("EDITANDO ID:", id); // debug
 
-  const a = associados.find(x=>x[0]==id);
+  const a = associados.find(x => String(x[0]) === String(id));
 
   if(!a){
     alert("Associado não encontrado");
@@ -122,20 +125,95 @@ function editar(id){
 
   editandoId = id;
 
-  m_nome.value = a[1];
+  m_nome.value = String(a[1] || "").trim();
   m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
   m_tel.value = a[3];
-  m_email.value = a[4] || "";
-  m_endereco.value = a[5] || "";
+  m_email.value = String(a[4] || "").trim();
+  m_endereco.value = String(a[5] || "").trim();
   m_mensal.value = a[6];
   m_status.value = a[7] || "Ativo";
 
-  modalTitulo.innerText = "Editar Associado";
+  document.getElementById("modalTitulo").innerText = "Editar Associado";
 
   abrirModal();
 }
 
-/* ================= SALVAR MODAL ================= */
+
+/* ================= EXCLUIR ================= */
+async function excluir(id){
+
+  if(!confirm("Tem certeza que deseja excluir este associado?")){
+    return;
+  }
+
+  try{
+
+    const resp = await postAPI({
+      acao:"excluir_associado",
+      id
+    });
+
+    if(resp.erro){
+      alert(resp.erro);
+      return;
+    }
+
+    await carregar();
+
+  }catch(e){
+
+    console.error(e);
+
+    alert("Erro ao excluir associado");
+  }
+}
+
+
+/* ========= SALVAR MODAL MENSALIDADE ========= */
+async function salvarMensalidade(){
+
+  const valor =
+    document.getElementById("novoValorMensalidade").value;
+
+  if(!valor || Number(valor) <= 0){
+    alert("Informe um valor válido");
+    return;
+  }
+
+  if(!confirm(
+    "Deseja aplicar esse valor para TODOS os associados?"
+  )){
+    return;
+  }
+
+  try{
+
+    const resp = await postAPI({
+      acao:"mensalidade_todos",
+      valor
+    });
+
+    if(resp.erro){
+      alert(resp.erro);
+      return;
+    }
+
+    alert("Mensalidade atualizada!");
+
+    fecharModalMensalidade();
+
+    await carregar();
+
+  }catch(e){
+
+    console.error(e);
+
+    alert("Erro ao atualizar mensalidade");
+  }
+}
+
+
+/* =============== SALVAR MODAL =============== */
 async function salvarModal(){
 
   if(!validarCampos()){
@@ -150,22 +228,17 @@ async function salvarModal(){
 
   try{
 
-    const res = await fetch(API,{
-      method:"POST",
-      body: JSON.stringify({
+    const resp = await postAPI({      
         acao:"salvar_associado",
         id: editandoId,
-        nome: m_nome.value,
+        nome: String(m_nome.value).trim(),
         cpf: m_cpf.value.replace(/\D/g,""),
         telefone: m_tel.value.replace(/\D/g,""),
-        email: m_email.value,
-        endereco: m_endereco.value,
+        email: String(m_email.value).trim(),
+        endereco: String(m_endereco.value).trim(),
         mensalidade: m_mensal.value,
-        status: m_status.value
-      })
-    });
-
-    const resp = await res.json();
+        status: m_status.value      
+    });    
 
     if(resp.erro){
       alert(resp.erro);
@@ -179,8 +252,55 @@ async function salvarModal(){
   }catch(e){
     console.error(e);
     alert("Erro ao salvar");
-  }
+    }finally{
 
   btn.classList.remove("btn-loading");
   btn.innerText = "Salvar";
+  }
+}
+
+
+/* ================= ALTERAR MENSALIDADE ================= */
+async function alterarMensalidadeTodos(){
+
+  const valor =
+    prompt("Novo valor da mensalidade:");
+
+  if(!valor){
+    return;
+  }
+
+  if(isNaN(valor)){
+    alert("Valor inválido");
+    return;
+  }
+
+  if(!confirm(
+    "Atualizar mensalidade de TODOS os associados?"
+  )){
+    return;
+  }
+
+  try{
+
+    const resp = await postAPI({
+      acao:"mensalidade_todos",
+      valor
+    });
+
+    if(resp.erro){
+      alert(resp.erro);
+      return;
+    }
+
+    alert("Mensalidade atualizada!");
+
+    await carregar();
+
+  }catch(e){
+
+    console.error(e);
+
+    alert("Erro ao atualizar mensalidade");
+  }
 }

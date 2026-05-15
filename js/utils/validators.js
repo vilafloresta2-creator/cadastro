@@ -1,4 +1,4 @@
-/*======================== FUNCTION VALIDAR CPF =========================*/
+/* =============== VALIDAR CPFs =============== */
 function validarCPFFront(cpf){
 
   cpf = String(cpf).replace(/\D/g,"");
@@ -16,11 +16,11 @@ function validarCPFFront(cpf){
 
   resto = (soma * 10) % 11;
 
-  if((resto == 10) || (resto == 11)){
+  if(resto === 10 || resto === 11){
     resto = 0;
   }
 
-  if(resto != parseInt(cpf.substring(9,10))){
+  if(resto !== parseInt(cpf.substring(9,10))){
     return false;
   }
 
@@ -32,18 +32,18 @@ function validarCPFFront(cpf){
 
   resto = (soma * 10) % 11;
 
-  if((resto == 10) || (resto == 11)){
+  if(resto === 10 || resto === 11){
     resto = 0;
   }
 
-  if(resto != parseInt(cpf.substring(10,11))){
+  if(resto !== parseInt(cpf.substring(10,11))){
     return false;
   }
 
   return true;
 }
 
-/*===================== FUNCTION VALIDAR CAMPOS =================*/
+/* ============== VALIDAR CAMPOS ============== */
 function validarCampos(){
 
   let ok = true;

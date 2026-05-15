@@ -1,4 +1,4 @@
-/* ================= RENDER CAIXA ================= */
+/* =============== RENDER CAIXA =============== */
 function renderCaixa(){
 
   tela.innerHTML = `
@@ -28,7 +28,7 @@ function renderCaixa(){
 
         <select id="cx_tipo" style="flex:1;min-width:150px;">
           <option value="Entrada">Entrada</option>
-          <option value="Saida">Saída</option>
+          <option value="Saída">Saída</option>
         </select>
 
         <input id="cx_categoria" placeholder="Categoria" style="flex:1;min-width:180px;">
@@ -60,8 +60,24 @@ function renderCaixa(){
   listarCaixa();
 }
 
-/* ================= LISTAR CAIXA ================= */
+
+/* =============== LISTAR CAIXA =============== */
 function listarCaixa(){
+
+  if(!caixa.length){
+
+    document.getElementById("listaCaixa").innerHTML = `
+      <div class="card">
+        Nenhum lançamento encontrado.
+      </div>
+    `;
+
+    document.getElementById("totalEntradas").innerText = "R$ 0.00";
+    document.getElementById("totalSaidas").innerText = "R$ 0.00";
+    document.getElementById("saldoFinal").innerText = "R$ 0.00";
+
+    return;
+  }
 
   let entradas = 0;
   let saidas = 0;
@@ -84,46 +100,45 @@ function listarCaixa(){
 
     html += `
 
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
 
-        <div>
+    <div>
 
-          <div style="font-size:16px;font-weight:600;">
-            ${descricao}
-          </div>
-
-          <div style="font-size:12px;opacity:0.7;">
-            ${categoria} • ${data}
-          </div>
-
-        </div>
-
-        <div style="display:flex;align-items:center;gap:8px;">
-
-          <div style="
-            font-weight:bold;
-            color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
-          ">
-            ${tipo === "Entrada" ? "+" : "-"}
-            R$ ${valor.toFixed(2)}
-          </div>
-
-          <button class="btn-edit btn-icon"
-            onclick="editarCaixa('${c[0]}')">
-            ✏️
-          </button>
-
-          <button class="btn-cancelar btn-icon"
-            onclick="excluirCaixa('${c[0]}')">
-            🗑️
-          </button>
-
-        </div>
-
+      <div style="font-size:16px;font-weight:600;">
+        ${descricao}
       </div>
 
-    `;
+      <div style="font-size:12px;opacity:0.7;">
+        ${categoria} • ${data}
+      </div>
 
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;">
+
+      <div style="
+        font-weight:bold;
+        color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
+      ">
+        ${tipo === "Entrada" ? "+" : "-"}
+        R$ ${valor.toFixed(2)}
+      </div>
+
+      <button class="btn-edit btn-icon"
+        onclick="editarCaixa('${c[0]}')">
+        ✏️
+      </button>
+
+      <button class="btn-cancelar btn-icon"
+        onclick="excluirCaixa('${c[0]}')">
+        🗑️
+      </button>
+
+    </div>
+
+  </div>
+
+`;
   });
 
   document.getElementById("listaCaixa").innerHTML = html;
@@ -138,7 +153,8 @@ function listarCaixa(){
     "R$ " + (entradas - saidas).toFixed(2);
 }
 
-/* ============ 💾 SALVAR CAIXA =================== */
+
+/* =============== SALVAR CAIXA =============== */
 async function salvarCaixa(){
 
   const tipo = document.getElementById("cx_tipo").value;
@@ -151,16 +167,13 @@ async function salvarCaixa(){
     return;
   }
 
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
+  await postAPI({    
       acao:"lancar_caixa",
       id: editandoCaixa,
       tipo,
       categoria,
       descricao,
-      valor
-    })
+      valor    
   });
 
   editandoCaixa = null;
@@ -168,14 +181,16 @@ async function salvarCaixa(){
   document.getElementById("cx_descricao").value = "";
   document.getElementById("cx_valor").value = "";
 
-  await carregar();
-  renderCaixa();
+  await carregar();  
 }
 
-/* ================= EDITAR CAIXA ================= */
+
+/* =============== EDITAR CAIXA =============== */
 function editarCaixa(id){
 
-  const c = caixa.find(x => x[0] == id);
+  const c = caixa.find(x =>
+    String(x[0]) === String(id)
+  );
   if(!c) return;
 
   editandoCaixa = String(id);
@@ -190,29 +205,45 @@ function editarCaixa(id){
   });
 }
 
-/* ================= EXCLUIR CAIXA ================= */
+
+/* ============== EXCLUIR CAIXA ============== */
 async function excluirCaixa(id){
 
   if(!confirm("Excluir lançamento?")){
     return;
   }
 
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
+  await postAPI({   
       acao:"excluir_caixa",
-      id
-    })
+      id    
   });
 
-  await carregar();
-  renderCaixa();
+  await carregar();  
 }
 
-/* INIT */
-async function init(){
-  await carregar();
-  ir("dashboard");
-}
 
-init();
+/* ================ FECHAR MES ================ */
+async function fecharMes(){
+
+  const mes = prompt("Informe o mês (MM-YYYY)");
+
+  if(!mes) return;
+
+  if(!confirm("Fechar mês " + mes + "?")){
+    return;
+  }
+
+  const resp = await postAPI({    
+      acao:"fechar_mes",
+      mes    
+  });
+  
+  if(resp.erro){
+    alert(resp.erro);
+    return;
+  }
+
+  alert("Fechamento realizado!");
+
+  await carregar();
+}

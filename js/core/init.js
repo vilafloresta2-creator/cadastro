@@ -9,10 +9,11 @@ init();
 
 document.addEventListener("keydown",(e)=>{
 
-  if(e.key === "Escape"){
-
-    fecharModal();
-    fecharModalMensalidade();
+  if(e.key !== "Escape"){
+    return;
   }
+
+  fecharModal?.();
+  fecharModalMensalidade?.();
 
 });

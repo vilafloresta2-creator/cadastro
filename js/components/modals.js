@@ -1,14 +1,19 @@
-/* ================= ABRIR MODAL ================= */
-
+/* =============== ABRIR MODAL =============== */
 function abrirModal(){
-  document.getElementById("modal").classList.add("show");
 
-  setTimeout(()=> m_nome.focus(),150);
+  document.getElementById("modal")
+    .classList.add("show");
+
+  setTimeout(()=>{
+    document.getElementById("m_nome").focus();
+  },150);
 }
 
-/* ================= FECHAR MODAL ================= */
+/* =============== FECHAR MODAL =============== */
 function fecharModal(){
-  modal.classList.remove("show");
+
+  document.getElementById("modal")
+    .classList.remove("show");
 
   // limpa campos
   m_nome.value = "";
@@ -21,7 +26,7 @@ function fecharModal(){
   editandoId = null;
 }
 
-/* ========= ABRIR MODAL MENSALIDADE ======== */
+/* ========= ABRIR MODAL MENSALIDADE ========= */
 function abrirModalMensalidade(){
 
   if(!associados.length){
@@ -40,9 +45,7 @@ function abrirModalMensalidade(){
     .classList.add("show");
 }
 
-
-
-/* ============ ❌ FECHAR MODAL MENSALIDADE =================== */
+/* ========= FECHAR MODAL MENSALIDADE ========= */
 function fecharModalMensalidade(){
   document.getElementById("modalMensalidade")
     .classList.remove("show");

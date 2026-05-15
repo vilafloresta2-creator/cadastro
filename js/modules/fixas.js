@@ -1,4 +1,4 @@
-/* ================= RENDER DESPESAS FIXAS ================= */
+/* ========== RENDER DESPESAS FIXAS ========== */
 function renderFixas(){
 
   tela.innerHTML = `
@@ -7,23 +7,39 @@ function renderFixas(){
 
       <h3>Nova Despesa Fixa</h3>
 
-      <input id="fx_categoria" placeholder="Categoria">
+      <input
+        id="fx_categoria"
+        placeholder="Categoria"
+      >
 
-      <input id="fx_descricao" placeholder="Descrição"
-        style="margin-top:8px;">
+      <input
+        id="fx_descricao"
+        placeholder="Descrição"
+        style="margin-top:8px;"
+      >
 
-      <input id="fx_valor" type="number"
+      <input
+        id="fx_valor"
+        type="number"
+        step="0.01"
         placeholder="Valor"
-        style="margin-top:8px;">
+        style="margin-top:8px;"
+      >
 
-      <input id="fx_dia" type="number"
+      <input
+        id="fx_dia"
+        type="number"
+        min="1"
+        max="31"
         placeholder="Dia do mês"
-        style="margin-top:8px;">
+        style="margin-top:8px;"
+      >
 
-      <button class="btn"
+      <button
+        class="btn"
         style="margin-top:10px;"
-        onclick="salvarFixa()">
-
+        onclick="salvarFixa()"
+      >
         Salvar
       </button>
 
@@ -35,33 +51,138 @@ function renderFixas(){
   listarFixas();
 }
 
-/* ================= LISTA DESPESAS FIXAS ================= */
+
+/* ========== LISTAR DESPESAS FIXAS ========== */
 function listarFixas(){
 
-  let html = "";
+  const lista =
+    document.getElementById("listaFixas");
 
-  fixas.forEach(f => {
+  if(!lista){
+    return;
+  }
+  /* =============== lista vazia =============== */
+  if(!fixas.length){
+
+    lista.innerHTML = `
+      <div class="card">
+        Nenhuma despesa fixa cadastrada.
+      </div>
+    `;
+
+    return;
+  }
+  /* ================ ordenação ================ */
+  const listaOrdenada = fixas
+    .slice()
+    .sort((a, b) => {
+
+      const diaA = Number(a[4]) || 0;
+      const diaB = Number(b[4]) || 0;
+
+      return diaA - diaB;
+
+    });
+
+  let html = "";
+  /* ================== render ================== */
+  listaOrdenada.forEach(f => {
+
+    const categoria =
+      String(f[1] || "").trim();
+
+    const descricao =
+      String(f[2] || "").trim();
+
+    const valor =
+      Number(f[3]) || 0;
+
+    const dia =
+      Number(f[4]) || 0;
 
     html += `
-      <div class="card"
-        style="display:flex;
-        justify-content:space-between;
-        align-items:center;">
+
+      <div
+        class="card"
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+        "
+      >
 
         <div>
-          <b>${f[1]}</b><br>
 
-          ${f[2]}<br>
+          <div style="
+            font-size:16px;
+            font-weight:600;
+          ">
+            ${categoria}
+          </div>
 
-          Dia ${f[4]}<br>
+          <div style="
+            font-size:13px;
+            opacity:.8;
+            margin-top:4px;
+          ">
+            ${descricao}
+          </div>
 
-          R$ ${Number(f[3]).toFixed(2)}
+          <div style="
+            font-size:12px;
+            opacity:.7;
+            margin-top:6px;
+          ">
+            Dia ${dia}
+          </div>
+
+        </div>
+
+        <div style="
+          font-weight:bold;
+          color:#ef4444;
+        ">
+          R$ ${valor.toFixed(2)}
         </div>
 
       </div>
+
     `;
+
   });
 
-  document.getElementById("listaFixas")
-    .innerHTML = html;
+  lista.innerHTML = html;
+}
+
+
+/* ========== SALVAR DESPESAS FIXAS ========== */
+async function salvarFixa(){
+
+  const categoria =
+    document.getElementById("fx_categoria").value;
+
+  const descricao =
+    document.getElementById("fx_descricao").value;
+
+  const valor =
+    document.getElementById("fx_valor").value;
+
+  const dia =
+    document.getElementById("fx_dia").value;
+
+  if(!categoria || !descricao || !valor || !dia){
+    alert("Preencha os campos");
+    return;
+  }
+
+  await postAPI({    
+      acao:"salvar_fixa",
+      categoria,
+      descricao,
+      valor,
+      dia
+    });  
+
+  await carregar();
+  
 }

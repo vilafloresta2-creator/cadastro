@@ -6,7 +6,7 @@ let caixa = [];
 let recibos = [];
 let backups = [];
 let fixas = [];
-let relatorios = [];
+let fechamentos = [];
 
 let telaAtual = "dashboard";
 

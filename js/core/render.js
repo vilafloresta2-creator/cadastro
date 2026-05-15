@@ -1,35 +1,43 @@
 function render(){
 
-  if(telaAtual === "dashboard"){
-    renderDashboard();
-  }
+  switch(telaAtual){
 
-  if(telaAtual === "associados"){
-    renderAssociados();
-  }
+    case "dashboard":
+      renderDashboard();
+      break;
 
-  if(telaAtual === "cobrancas"){
-    renderCobrancas();
-  }
+    case "associados":
+      renderAssociados();
+      break;
 
-  if(telaAtual === "caixa"){
-    renderCaixa();
-  }
+    case "cobrancas":
+      renderCobrancas();
+      break;
 
-  if(telaAtual === "devedores"){
-    renderDevedores();
-  }
+    case "devedores":
+      renderDevedores();
+      break;
 
-  if(telaAtual === "backups"){
-    renderBackups();
-  }
+    case "caixa":
+      renderCaixa();
+      break;
 
-  if(telaAtual === "fixas"){
-    renderFixas();
-  }
+    case "fixas":
+      renderFixas();
+      break;
 
-  if(telaAtual === "relatorios"){
-    renderRelatorios();
+    case "recibos":
+      renderRecibos();
+      break;
+
+    case "relatorios":
+      renderRelatorios();
+      break;
+
+    case "backups":
+      renderBackups();
+      break;
+
   }
 
 }

@@ -1,10 +1,10 @@
-/*====================== FUNCTION STATUS ASSOCIADO ===============*/
+/* ============= STATUS ASSOCIADO ============= */
 function statusAssociado(cpf){
   const pendente = cobrancas.some(c => c[2] == cpf && c[5] == "Pendente");
   return pendente ? "Devedor" : "Regular";
 }
 
-/* ==================== JA GEROU ================*/
+/* ================== JA GEROU ================*/
 function jaGerouMesAtual(){
 
   const hoje = new Date();
@@ -12,7 +12,7 @@ function jaGerouMesAtual(){
   const mesAtual =
     hoje.getFullYear()
     + "-"
-    + String(hoje.getMonth()+1).padStart(2,"0");
+    + String(hoje.getMonth() + 1).padStart(2,"0");
 
   return cobrancas.some(c => {
 
@@ -21,6 +21,5 @@ function jaGerouMesAtual(){
       .substring(0,7);
 
     return mesCobranca === mesAtual;
-
   });
 }
