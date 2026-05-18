@@ -386,7 +386,7 @@ function atualizarResumoCaixa(
 
 
 /* =============== SALVAR CAIXA =============== */
-async function salvarCaixa(){
+function salvarCaixa(){
 
   const tipo =
     document.getElementById(
@@ -609,7 +609,7 @@ function limparFormularioCaixa(){
 
 
 /* ============== EXCLUIR CAIXA ============== */
-async function excluirCaixa(id){
+function excluirCaixa(id){
 
   const confirmado =
     await showConfirm(
@@ -670,7 +670,7 @@ async function excluirCaixa(id){
 
 
 /* ================ FECHAR MÊS ================ */
-async function fecharMes(){
+function fecharMes(){
 
   const mes =
     await showPrompt(

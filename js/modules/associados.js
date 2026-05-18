@@ -285,7 +285,7 @@ function editar(id){
 
 
 /* ================= EXCLUIR ================= */
-async function excluir(id){
+function excluir(id){
 
   const confirmado =
     await showConfirm(
@@ -346,7 +346,7 @@ async function excluir(id){
 
 
 /* ========= SALVAR MENSALIDADE ========= */
-async function salvarMensalidade(){
+function salvarMensalidade(){
 
   const valor =
     numero(
@@ -428,7 +428,7 @@ async function salvarMensalidade(){
 
 
 /* =============== SALVAR MODAL =============== */
-async function salvarModal(){
+function salvarModal(){
 
   if(!validarCampos()){
 

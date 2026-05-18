@@ -197,7 +197,7 @@ function listarFixas(){
 
 
 /* ========== SALVAR DESPESA FIXA ========== */
-async function salvarFixa(){
+function salvarFixa(){
 
   const categoria =
 

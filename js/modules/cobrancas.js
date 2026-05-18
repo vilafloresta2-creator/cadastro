@@ -283,7 +283,7 @@ function listarCobrancas(){
 
 
 /* ================== PAGAR ================== */
-async function pagar(id){
+function pagar(id){
 
   const item =
     safeArray(state.cobrancas)
@@ -370,7 +370,7 @@ async function pagar(id){
 
 
 /* ============= GERAR COBRANÇAS ============= */
-async function gerarCobrancas(){
+function gerarCobrancas(){
 
   const confirmado =
     await showConfirm(
