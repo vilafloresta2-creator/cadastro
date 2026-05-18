@@ -245,14 +245,16 @@ async function fazerBackup(ev){
 
     await carregar();
 
-    showToast(
-      "Backup criado com sucesso!"
-    );
+hideLoading();
 
-    const abrir =
-      await showConfirm(
-        "Deseja abrir o backup agora?"
-      );
+showToast(
+  "Backup criado com sucesso!"
+);
+
+const abrir =
+  await showConfirm(
+    "Deseja abrir o backup agora?"
+  );
 
     if(
       abrir
