@@ -9,7 +9,6 @@ async function postAPI(dados = {}){
   try{
 
     const response = await fetch(API_URL, {
-
       method:"POST",
 
       headers:{
@@ -17,7 +16,6 @@ async function postAPI(dados = {}){
       },
 
       body:JSON.stringify(dados)
-
     });
 
     if(!response.ok){
@@ -40,10 +38,7 @@ async function postAPI(dados = {}){
     );
 
     return {
-
-      erro:
-        "Erro de conexão com servidor"
-
+      erro:"Erro de conexão com servidor"
     };
   }
 }
@@ -56,7 +51,11 @@ async function carregar(
 
   try{
 
-    if(exibirLoading){
+    if(
+      exibirLoading
+      &&
+      typeof showLoading === "function"
+    ){
 
       showLoading(
         "Carregando sistema..."
@@ -83,14 +82,13 @@ async function carregar(
 
     if(data.erro){
 
-      showToast(
+      showToast?.(
         data.erro,
         "error"
       );
 
       return;
     }
-
 
     /* =========================================
        STATE
@@ -100,42 +98,29 @@ async function carregar(
       safeArray(data.caixa)
         .slice(1);
 
-
     state.associados =
-
       safeArray(data.associados)
         .slice(1);
 
-
     state.cobrancas =
-
       safeArray(data.cobrancas)
         .slice(1);
 
-
     state.recibos =
-
       safeArray(data.recibos)
         .slice(1);
 
-
     state.fechamentos =
-
       safeArray(data.fechamentos)
         .slice(1);
 
-
     state.fixas =
-
       safeArray(data.fixas)
         .slice(1);
 
-
     state.backups =
-
       safeArray(data.backups)
         .slice(1);
-
 
     render();
 
@@ -146,13 +131,20 @@ async function carregar(
       error
     );
 
-    showToast(
+    showToast?.(
       "Erro de conexão com API",
       "error"
     );
 
   }finally{
 
-    hideLoading();
+    if(
+      exibirLoading
+      &&
+      typeof hideLoading === "function"
+    ){
+
+      hideLoading();
+    }
   }
 }
