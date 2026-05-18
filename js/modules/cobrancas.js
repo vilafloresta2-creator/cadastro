@@ -283,7 +283,7 @@ function listarCobrancas(){
 
 
 /* ================== PAGAR ================== */
-async function pagar(id){
+async function marcarPago(id){
 
   const item =
     safeArray(state.cobrancas)

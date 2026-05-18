@@ -386,7 +386,7 @@ function atualizarResumoCaixa(
 
 
 /* =============== SALVAR CAIXA =============== */
-async function salvarCaixa(){
+async function lancarCaixa(){
 
   const tipo =
     document.getElementById(
