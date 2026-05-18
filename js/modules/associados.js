@@ -71,8 +71,6 @@ function listarAssociados(){
 
   let html = "";
 
-
-  /* =============== LISTA VAZIA =============== */
   if(!lista.length){
 
     html = `
@@ -82,8 +80,6 @@ function listarAssociados(){
     `;
   }
 
-
-  /* ================== LISTA ================== */
   lista.forEach(a => {
 
     const status =
@@ -193,7 +189,7 @@ function novo(){
   state.editandoId =
     null;
 
-  limparErrosCampos();
+  limparErrosCampos?.();
 
   abrirModal();
 }
@@ -228,43 +224,24 @@ function editar(id){
     String(id);
 
   document.getElementById("m_nome").value =
-
-    String(
-      associado[1] || ""
-    ).trim();
+    String(associado[1] || "").trim();
 
   document.getElementById("m_cpf").value =
-
-    maskCPF(
-      associado[2]
-    );
+    maskCPF(associado[2]);
 
   document.getElementById("m_tel").value =
-
-    String(
-      associado[3] || ""
-    ).trim();
+    String(associado[3] || "").trim();
 
   document.getElementById("m_email").value =
-
-    String(
-      associado[4] || ""
-    ).trim();
+    String(associado[4] || "").trim();
 
   document.getElementById("m_endereco").value =
-
-    String(
-      associado[5] || ""
-    ).trim();
+    String(associado[5] || "").trim();
 
   document.getElementById("m_mensal").value =
-
-    numero(
-      associado[6]
-    );
+    numero(associado[6]);
 
   document.getElementById("m_status").value =
-
     associado[7] || "Ativo";
 
   const modalTitulo =
@@ -278,14 +255,14 @@ function editar(id){
       "Editar Associado";
   }
 
-  limparErrosCampos();
+  limparErrosCampos?.();
 
   abrirModal();
 }
 
 
 /* ================= EXCLUIR ================= */
-function excluir(id){
+async function excluir(id){
 
   const confirmado =
     await showConfirm(
@@ -346,7 +323,7 @@ function excluir(id){
 
 
 /* ========= SALVAR MENSALIDADE ========= */
-function salvarMensalidade(){
+async function salvarMensalidade(){
 
   const valor =
     numero(
@@ -428,7 +405,7 @@ function salvarMensalidade(){
 
 
 /* =============== SALVAR MODAL =============== */
-function salvarModal(){
+async function salvarModal(){
 
   if(!validarCampos()){
 

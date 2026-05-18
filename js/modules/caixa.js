@@ -154,6 +154,46 @@ function renderCaixa(){
 
   `;
 
+  if(state.editandoCaixa){
+
+    const item =
+      safeArray(state.caixa)
+        .find(c =>
+
+          String(c[0])
+            ===
+          String(state.editandoCaixa)
+
+        );
+
+    if(item){
+
+      document.getElementById(
+        "cx_tipo"
+      ).value =
+
+        String(item[2] || "");
+
+      document.getElementById(
+        "cx_categoria"
+      ).value =
+
+        String(item[3] || "");
+
+      document.getElementById(
+        "cx_descricao"
+      ).value =
+
+        String(item[4] || "");
+
+      document.getElementById(
+        "cx_valor"
+      ).value =
+
+        numero(item[5]);
+    }
+  }
+
   listarCaixa();
 }
 
@@ -386,7 +426,7 @@ function atualizarResumoCaixa(
 
 
 /* =============== SALVAR CAIXA =============== */
-function salvarCaixa(){
+async function salvarCaixa(){
 
   const tipo =
     document.getElementById(
@@ -478,7 +518,8 @@ function salvarCaixa(){
 
     );
 
-    state.editandoCaixa = null;
+    state.editandoCaixa =
+      null;
 
     await carregar();
 
@@ -524,30 +565,6 @@ function editarCaixa(id){
   state.editandoCaixa =
     String(id);
 
-  document.getElementById(
-    "cx_tipo"
-  ).value =
-
-    String(item[2] || "");
-
-  document.getElementById(
-    "cx_categoria"
-  ).value =
-
-    String(item[3] || "");
-
-  document.getElementById(
-    "cx_descricao"
-  ).value =
-
-    String(item[4] || "");
-
-  document.getElementById(
-    "cx_valor"
-  ).value =
-
-    numero(item[5]);
-
   renderCaixa();
 
   window.scrollTo({
@@ -568,7 +585,8 @@ function editarCaixa(id){
 /* ========== CANCELAR EDIÇÃO ========== */
 function cancelarEdicaoCaixa(){
 
-  state.editandoCaixa = null;
+  state.editandoCaixa =
+    null;
 
   limparFormularioCaixa();
 
@@ -609,7 +627,7 @@ function limparFormularioCaixa(){
 
 
 /* ============== EXCLUIR CAIXA ============== */
-function excluirCaixa(id){
+async function excluirCaixa(id){
 
   const confirmado =
     await showConfirm(
@@ -670,7 +688,7 @@ function excluirCaixa(id){
 
 
 /* ================ FECHAR MÊS ================ */
-function fecharMes(){
+async function fecharMes(){
 
   const mes =
     await showPrompt(

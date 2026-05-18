@@ -2,30 +2,147 @@
    RECIBOS
 ========================================= */
 
+
 /* ============= RENDER RECIBOS ============= */
 function renderRecibos(){
 
-  tela.innerHTML = `
+  const lista =
+    safeArray(state.recibos)
+      .slice()
+      .reverse();
+
+  let html = `
 
     <div class="card">
 
       <h3>
-        Recibos
+        Recibos Emitidos
       </h3>
-
-      <p style="
-        opacity:.7;
-        margin-top:8px;
-      ">
-
-        Módulo em desenvolvimento.
-
-      </p>
 
     </div>
 
   `;
+
+  if(!lista.length){
+
+    html += `
+
+      <div class="card">
+
+        Nenhum recibo encontrado.
+
+      </div>
+
+    `;
+
+    tela.innerHTML = html;
+
+    return;
+  }
+
+  lista.forEach(r => {
+
+    if(!r || !r.length){
+      return;
+    }
+
+    const numero =
+      String(r[1] || "")
+        .trim();
+
+    const nome =
+      String(r[2] || "")
+        .trim();
+
+    const mes =
+      formatarMes(r[4]);
+
+    const valor =
+      numeroMoeda(r[5]);
+
+    const data =
+      formatarData(r[6]);
+
+    html += `
+
+      <div
+        class="card"
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <div>
+
+          <div style="
+            font-size:16px;
+            font-weight:600;
+          ">
+
+            ${nome}
+
+          </div>
+
+          <div style="
+            font-size:13px;
+            opacity:.7;
+            margin-top:4px;
+          ">
+
+            ${numero}
+
+          </div>
+
+          <div style="
+            font-size:12px;
+            opacity:.7;
+            margin-top:4px;
+          ">
+
+            ${mes} • ${data}
+
+          </div>
+
+        </div>
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+        ">
+
+          <div style="
+            font-weight:bold;
+            color:#22c55e;
+          ">
+
+            ${moeda(valor)}
+
+          </div>
+
+          <button
+            class="btn-recibo"
+            onclick="reimprimir('${numero}')"
+          >
+
+            🧾 Reimprimir
+
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  });
+
+  tela.innerHTML = html;
 }
+
 
 /* =============== GERAR RECIBO =============== */
 function gerarRecibo(cobranca, numeroRecibo){
@@ -65,7 +182,7 @@ function gerarRecibo(cobranca, numeroRecibo){
     );
 
   const valor =
-    numero(cobranca[4]);
+    numeroMoeda(cobranca[4]);
 
   const data =
 
@@ -307,7 +424,7 @@ function reimprimir(numeroRecibo){
       .trim();
 
   const valor =
-    numero(recibo[5]);
+    numeroMoeda(recibo[5]);
 
   gerarRecibo(
 

@@ -107,6 +107,7 @@ function renderCobrancas(){
     );
 
   if(filtro){
+
     filtro.onchange =
       listarCobrancas;
   }
@@ -283,7 +284,7 @@ function listarCobrancas(){
 
 
 /* ================== PAGAR ================== */
-function pagar(id){
+async function pagar(id){
 
   const item =
     safeArray(state.cobrancas)
@@ -370,7 +371,7 @@ function pagar(id){
 
 
 /* ============= GERAR COBRANÇAS ============= */
-function gerarCobrancas(){
+async function gerarCobrancas(){
 
   const confirmado =
     await showConfirm(

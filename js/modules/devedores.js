@@ -17,6 +17,7 @@ function renderDevedores(){
         )
 
         .filter(Boolean)
+
     )
 
   ]
@@ -79,6 +80,7 @@ function renderDevedores(){
     );
 
   if(busca){
+
     busca.addEventListener(
       "input",
       listarDevedores
@@ -86,6 +88,7 @@ function renderDevedores(){
   }
 
   if(filtro){
+
     filtro.addEventListener(
       "change",
       listarDevedores
@@ -101,37 +104,41 @@ function listarDevedores(){
 
   const busca =
 
-    (
+    normalizarTexto(
+
       document.getElementById(
         "buscaDevedor"
       )?.value || ""
-    )
 
-      .toLowerCase()
-
-      .trim();
+    );
 
   const mes =
 
-    document.getElementById(
-      "filtroMesDevedor"
-    )?.value || "";
+    String(
+
+      document.getElementById(
+        "filtroMesDevedor"
+      )?.value || ""
+
+    ).trim();
 
   let lista =
 
     safeArray(state.cobrancas)
 
-      .filter(c =>
+      .filter(c => {
 
-        normalizarTexto(c?.[5])
+        return (
 
-          .toLowerCase()
+          normalizarTexto(c?.[5])
 
-        ===
+          ===
 
-        "pendente"
+          "pendente"
 
-      );
+        );
+
+      });
 
 
   /* ================= BUSCA ================= */
@@ -139,9 +146,7 @@ function listarDevedores(){
 
     lista = lista.filter(c =>
 
-      String(c?.[1] || "")
-
-        .toLowerCase()
+      normalizarTexto(c?.[1])
 
         .includes(busca)
 

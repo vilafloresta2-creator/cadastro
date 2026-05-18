@@ -180,7 +180,7 @@ function gerarRelatorioMensal(){
     if(
       mesCobranca === mes
       &&
-      status === "Pendente"
+      status === "pendente"
     ){
 
       inadimplencia +=
@@ -255,9 +255,16 @@ function gerarRelatorioMensal(){
 
 
   /* ================== RENDER ================== */
-  document.getElementById(
-    "resultadoRelatorio"
-  ).innerHTML = `
+  const resultado =
+    document.getElementById(
+      "resultadoRelatorio"
+    );
+
+  if(!resultado){
+    return;
+  }
+
+  resultado.innerHTML = `
 
     <div
       class="card"
