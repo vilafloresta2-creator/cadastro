@@ -140,7 +140,7 @@ function listarAssociados(){
 
           <button
             class="btn-cancelar btn-icon"
-            onclick="excluirAssociado('${a[0]}')"
+            onclick="excluir('${a[0]}')"
           >
             🗑️
           </button>
