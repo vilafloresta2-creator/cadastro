@@ -5,7 +5,6 @@
 
 /* ========== ELEMENTOS GLOBAIS ========== */
 const tela =
-
   document.getElementById(
     "tela"
   );
@@ -17,39 +16,41 @@ const tela =
 
 const state = {
 
-/* =========================================
-   DADOS GLOBAIS
-========================================= */
+  /* =========================================
+     DADOS
+  ========================================= */
 
-let associados = [];
+  associados: [],
 
-let cobrancas = [];
+  cobrancas: [],
 
-let caixa = [];
+  caixa: [],
 
-let recibos = [];
+  recibos: [],
 
-let backups = [];
+  backups: [],
 
-let fixas = [];
+  fixas: [],
 
-let fechamentos = [];
-
-
-/* =========================================
-   NAVEGAÇÃO
-========================================= */
-
-let telaAtual =
-  "dashboard";
+  fechamentos: [],
 
 
-/* =========================================
-   EDIÇÃO
-========================================= */
+  /* =========================================
+     NAVEGAÇÃO
+  ========================================= */
 
-let editandoId =
-  null;
+  telaAtual:
+    "dashboard",
 
-let editandoCaixa =
-  null;
+
+  /* =========================================
+     EDIÇÃO
+  ========================================= */
+
+  editandoId:
+    null,
+
+  editandoCaixa:
+    null
+
+};

@@ -74,7 +74,7 @@ function listarBackups(){
   }
 
   const listaBackups =
-    safeArray(backups);
+    safeArray(state.backups);
 
   /* ============== LISTA VAZIA ============== */
   if(!listaBackups.length){

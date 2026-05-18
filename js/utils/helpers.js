@@ -136,7 +136,7 @@ function statusAssociado(cpf){
 
   const pendente =
 
-    safeArray(cobrancas)
+    safeArray(state.cobrancas)
 
       .some(c =>
 
@@ -183,7 +183,7 @@ function jaGerouMesAtual(){
 
     hoje.getFullYear();
 
-  return safeArray(cobrancas)
+  return safeArray(state.cobrancas)
 
     .some(c => {
 

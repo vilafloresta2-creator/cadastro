@@ -17,13 +17,11 @@ function renderDevedores(){
         )
 
         .filter(Boolean)
-
     )
 
   ]
 
     .sort()
-
     .reverse();
 
   tela.innerHTML = `

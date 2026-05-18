@@ -53,7 +53,7 @@ function fecharModal(){
 
   });
 
-  editandoId = null;
+  state.editandoId = null;
 }
 
 
@@ -61,7 +61,7 @@ function fecharModal(){
 function abrirModalMensalidade(){
 
   const lista =
-    safeArray(associados);
+    safeArray(state.associados);
 
   if(!lista.length){
 
