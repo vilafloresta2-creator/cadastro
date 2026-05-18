@@ -2,6 +2,30 @@
    RECIBOS
 ========================================= */
 
+/* ============= RENDER RECIBOS ============= */
+function renderRecibos(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <h3>
+        Recibos
+      </h3>
+
+      <p style="
+        opacity:.7;
+        margin-top:8px;
+      ">
+
+        Módulo em desenvolvimento.
+
+      </p>
+
+    </div>
+
+  `;
+}
 
 /* =============== GERAR RECIBO =============== */
 function gerarRecibo(cobranca, numeroRecibo){

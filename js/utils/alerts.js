@@ -335,3 +335,57 @@ function showToast(
 
   }, 3000);
 }
+
+/* ================= LOADING ================= */
+
+function showLoading(
+  texto = "Carregando..."
+){
+
+  hideLoading();
+
+  const html = `
+
+    <div
+      class="loading-overlay show"
+      id="loadingOverlay"
+    >
+
+      <div class="loading-box">
+
+        <div class="loading-spinner"></div>
+
+        <div class="loading-text">
+
+          ${texto}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    html
+  );
+}
+
+
+/* ================= HIDE LOADING ================= */
+
+function hideLoading(){
+
+  const el =
+    document.getElementById(
+      "loadingOverlay"
+    );
+
+  if(!el){
+    return;
+  }
+
+  el.remove();
+}
