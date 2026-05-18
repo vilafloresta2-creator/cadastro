@@ -10,7 +10,7 @@ function ir(telaNome){
     return;
   }
 
-  telaAtual =
+  state.telaAtual =
 
     String(telaNome)
       .trim();
@@ -40,7 +40,7 @@ function ir(telaNome){
   const botao =
 
     document.getElementById(
-      "btn_" + telaAtual
+      "btn_" + state.telaAtual
     );
 
   if(botao){

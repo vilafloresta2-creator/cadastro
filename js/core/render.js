@@ -43,14 +43,14 @@ const SCREENS = {
 function render(){
 
   const renderTela =
-    SCREENS[telaAtual];
+    SCREENS[state.telaAtual];
 
   if(
     typeof renderTela
     !== "function"
   ){
 
-    telaAtual =
+    state.telaAtual =
       "dashboard";
 
     renderDashboard();
