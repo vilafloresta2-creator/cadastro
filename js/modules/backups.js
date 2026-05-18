@@ -210,7 +210,7 @@ function abrirBackup(url){
 
 
 /* =============== FAZER BACKUP =============== */
-async function backupManual(ev){
+async function fazerBackup(ev){
 
   const btn =
     ev?.target;

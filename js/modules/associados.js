@@ -285,7 +285,7 @@ function editar(id){
 
 
 /* ================= EXCLUIR ================= */
-async function excluirAssociado(id){
+async function excluir(id){
 
   const confirmado =
     await showConfirm(
