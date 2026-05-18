@@ -210,7 +210,7 @@ function abrirBackup(url){
 
 
 /* =============== FAZER BACKUP =============== */
-function fazerBackup(ev){
+async function fazerBackup(ev){
 
   const btn =
     ev?.target;
@@ -293,7 +293,7 @@ function fazerBackup(ev){
 
 
 /* ============= RESTAURAR BACKUP ============= */
-function restaurarBackup(url){
+async function restaurarBackup(url){
 
   if(!url){
 
