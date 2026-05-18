@@ -8,15 +8,22 @@ async function postAPI(dados = {}){
 
   try{
 
-    const response = await fetch(API_URL, {
-      method:"POST",
+    const form =
+      new URLSearchParams();
 
-      headers:{
-        "Content-Type":"application/json"
-      },
+    form.append(
+      "dados",
+      JSON.stringify(dados)
+    );
 
-      body:JSON.stringify(dados)
-    });
+    const response =
+      await fetch(API_URL, {
+
+        method:"POST",
+
+        body:form
+
+      });
 
     if(!response.ok){
 
@@ -25,10 +32,7 @@ async function postAPI(dados = {}){
       );
     }
 
-    const json =
-      await response.json();
-
-    return json;
+    return await response.json();
 
   }catch(error){
 
