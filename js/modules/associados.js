@@ -86,7 +86,6 @@ function listarAssociados(){
       statusAssociado(a[2]);
 
     const ativo =
-
       normalizarTexto(
         a[7] || "Ativo"
       )
@@ -283,7 +282,7 @@ async function excluir(id){
       await postAPI({
 
         acao:
-          "excluir_associado",
+          "excluirAssociado",
 
         id
 
