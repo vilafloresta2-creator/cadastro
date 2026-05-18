@@ -58,7 +58,7 @@ function renderRecibos(){
       formatarMes(r[4]);
 
     const valor =
-      numeroMoeda(r[5]);
+      numero(r[5]);
 
     const data =
       formatarData(r[6]);
@@ -182,7 +182,7 @@ function gerarRecibo(cobranca, numeroRecibo){
     );
 
   const valor =
-    numeroMoeda(cobranca[4]);
+    numero(cobranca[4]);
 
   const data =
 
@@ -424,7 +424,7 @@ function reimprimir(numeroRecibo){
       .trim();
 
   const valor =
-    numeroMoeda(recibo[5]);
+    numero(recibo[5]);
 
   gerarRecibo(
 

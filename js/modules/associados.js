@@ -140,7 +140,7 @@ function listarAssociados(){
 
           <button
             class="btn-cancelar btn-icon"
-            onclick="excluir('${a[0]}')"
+            onclick="excluirAssociado('${a[0]}')"
           >
             🗑️
           </button>
@@ -282,7 +282,7 @@ async function excluir(id){
       await postAPI({
 
         acao:
-          "excluirAssociado",
+          "excluir_associado",
 
         id
 
