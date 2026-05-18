@@ -1,14 +1,49 @@
-const tela = document.getElementById("tela");
+/* =========================================
+   STATE
+========================================= */
+
+
+/* ========== ELEMENTOS GLOBAIS ========== */
+const tela =
+
+  document.getElementById(
+    "tela"
+  );
+
+
+/* =========================================
+   DADOS GLOBAIS
+========================================= */
 
 let associados = [];
+
 let cobrancas = [];
+
 let caixa = [];
+
 let recibos = [];
+
 let backups = [];
+
 let fixas = [];
+
 let fechamentos = [];
 
-let telaAtual = "dashboard";
 
-let editandoId = null;
-let editandoCaixa = null;
+/* =========================================
+   NAVEGAÇÃO
+========================================= */
+
+let telaAtual =
+  "dashboard";
+
+
+/* =========================================
+   EDIÇÃO
+========================================= */
+
+let editandoId =
+  null;
+
+let editandoCaixa =
+  null;

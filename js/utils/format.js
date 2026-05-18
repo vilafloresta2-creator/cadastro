@@ -1,47 +1,121 @@
-/* ============== FORMATAR DATA ============== */
+/* =========================================
+   FORMAT
+========================================= */
+
+
+/* ========== MOEDA ========== */
+function moeda(valor){
+
+  return numero(valor)
+
+    .toLocaleString(
+
+      "pt-BR",
+
+      {
+        style:"currency",
+        currency:"BRL"
+      }
+
+    );
+}
+
+
+/* ========== DATA ========== */
 function formatarData(dataISO){
 
   if(!dataISO){
     return "-";
   }
 
-  const d = new Date(dataISO);
+  const data =
+    new Date(dataISO);
 
-  if(isNaN(d)){
+  if(
+    isNaN(data.getTime())
+  ){
     return "-";
   }
 
-  return d.toLocaleDateString("pt-BR");
+  return data
+    .toLocaleDateString(
+      "pt-BR"
+    );
 }
 
-/* =============== FORMATAR MÊS =============== */
+
+/* ========== MES ========== */
 function formatarMes(valor){
 
-  if(!valor) return "";
-
-  valor = String(valor).trim();
-
-  // yyyy-MM
-  if(/^\d{4}-\d{2}$/.test(valor)){
-
-    const [ano, mes] = valor.split("-");
-
-    return mes + "-" + ano;
+  if(!valor){
+    return "";
   }
 
-  // MM-yyyy
-  if(/^\d{2}-\d{4}$/.test(valor)){
-    return valor;
+  const texto =
+
+    String(valor)
+      .trim();
+
+
+  /* =========================================
+     YYYY-MM
+  ========================================= */
+
+  if(
+    /^\d{4}-\d{2}$/
+      .test(texto)
+  ){
+
+    const [
+      ano,
+      mes
+    ] = texto.split("-");
+
+    return `${mes}-${ano}`;
   }
 
-  const d = new Date(valor);
 
-  if(isNaN(d)) return valor;
+  /* =========================================
+     MM-YYYY
+  ========================================= */
 
-  const mes = String(d.getMonth()+1)
-    .padStart(2,"0");
+  if(
+    /^\d{2}-\d{4}$/
+      .test(texto)
+  ){
 
-  const ano = d.getFullYear();
+    return texto;
+  }
 
-  return mes + "-" + ano;
+
+  /* =========================================
+     DATE
+  ========================================= */
+
+  const data =
+    new Date(texto);
+
+  if(
+    isNaN(data.getTime())
+  ){
+    return texto;
+  }
+
+  return (
+
+    String(
+      data.getMonth() + 1
+    )
+
+      .padStart(2,"0")
+
+    +
+
+    "-"
+
+    +
+
+    data.getFullYear()
+
+  );
 }

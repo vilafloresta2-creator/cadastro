@@ -1,3 +1,8 @@
+/* =========================================
+   FIXAS
+========================================= */
+
+
 /* ========== RENDER DESPESAS FIXAS ========== */
 function renderFixas(){
 
@@ -40,12 +45,15 @@ function renderFixas(){
         style="margin-top:10px;"
         onclick="salvarFixa()"
       >
-        Salvar
+
+        💾 Salvar
+
       </button>
 
     </div>
 
     <div id="listaFixas"></div>
+
   `;
 
   listarFixas();
@@ -55,50 +63,74 @@ function renderFixas(){
 /* ========== LISTAR DESPESAS FIXAS ========== */
 function listarFixas(){
 
-  const lista =
-    document.getElementById("listaFixas");
+  const listaEl =
+    document.getElementById(
+      "listaFixas"
+    );
 
-  if(!lista){
+  if(!listaEl){
     return;
   }
-  /* =============== lista vazia =============== */
-  if(!fixas.length){
 
-    lista.innerHTML = `
+  const listaFixas =
+    safeArray(state.fixas);
+
+  /* ============== LISTA VAZIA ============== */
+  if(!listaFixas.length){
+
+    listaEl.innerHTML = `
+
       <div class="card">
         Nenhuma despesa fixa cadastrada.
       </div>
+
     `;
 
     return;
   }
-  /* ================ ordenação ================ */
-  const listaOrdenada = fixas
-    .slice()
-    .sort((a, b) => {
 
-      const diaA = Number(a[4]) || 0;
-      const diaB = Number(b[4]) || 0;
+  /* ================ ORDENAÇÃO ================ */
+  const listaOrdenada =
 
-      return diaA - diaB;
+    listaFixas
 
-    });
+      .slice()
+
+      .sort((a, b) =>
+
+        numero(a?.[4])
+
+        -
+
+        numero(b?.[4])
+
+      );
 
   let html = "";
-  /* ================== render ================== */
+
+
+  /* ================== RENDER ================== */
   listaOrdenada.forEach(f => {
 
+    if(!f || !f.length){
+      return;
+    }
+
     const categoria =
-      String(f[1] || "").trim();
+
+      String(f[1] || "")
+        .trim();
 
     const descricao =
-      String(f[2] || "").trim();
+
+      String(f[2] || "")
+        .trim();
 
     const valor =
-      Number(f[3]) || 0;
+      numero(f[3]);
 
     const dia =
-      Number(f[4]) || 0;
+      numero(f[4]);
 
     html += `
 
@@ -108,6 +140,7 @@ function listarFixas(){
           display:flex;
           justify-content:space-between;
           align-items:center;
+          gap:10px;
         "
       >
 
@@ -117,7 +150,9 @@ function listarFixas(){
             font-size:16px;
             font-weight:600;
           ">
-            ${categoria}
+
+            ${categoria || "-"}
+
           </div>
 
           <div style="
@@ -125,7 +160,9 @@ function listarFixas(){
             opacity:.8;
             margin-top:4px;
           ">
-            ${descricao}
+
+            ${descricao || "-"}
+
           </div>
 
           <div style="
@@ -133,7 +170,9 @@ function listarFixas(){
             opacity:.7;
             margin-top:6px;
           ">
-            Dia ${dia}
+
+            📅 Dia ${dia}
+
           </div>
 
         </div>
@@ -141,48 +180,154 @@ function listarFixas(){
         <div style="
           font-weight:bold;
           color:#ef4444;
+          white-space:nowrap;
         ">
-          R$ ${valor.toFixed(2)}
+
+          ${moeda(valor)}
+
         </div>
 
       </div>
 
     `;
-
   });
 
-  lista.innerHTML = html;
+  listaEl.innerHTML = html;
 }
 
 
-/* ========== SALVAR DESPESAS FIXAS ========== */
+/* ========== SALVAR DESPESA FIXA ========== */
 async function salvarFixa(){
 
   const categoria =
-    document.getElementById("fx_categoria").value;
+
+    String(
+      document.getElementById(
+        "fx_categoria"
+      )?.value || ""
+    )
+
+      .trim();
 
   const descricao =
-    document.getElementById("fx_descricao").value;
+
+    String(
+      document.getElementById(
+        "fx_descricao"
+      )?.value || ""
+    )
+
+      .trim();
 
   const valor =
-    document.getElementById("fx_valor").value;
+
+    numero(
+
+      document.getElementById(
+        "fx_valor"
+      )?.value
+
+    );
 
   const dia =
-    document.getElementById("fx_dia").value;
 
-  if(!categoria || !descricao || !valor || !dia){
-    alert("Preencha os campos");
+    numero(
+
+      document.getElementById(
+        "fx_dia"
+      )?.value
+
+    );
+
+  /* ================= VALIDAÇÃO ================= */
+  if(
+    !categoria
+    ||
+    !descricao
+    ||
+    !valorPositivo(valor)
+  ){
+
+    showToast(
+      "Preencha os campos corretamente",
+      "warning"
+    );
+
     return;
   }
 
-  await postAPI({    
+  if(dia < 1 || dia > 31){
+
+    showToast(
+      "Dia inválido",
+      "warning"
+    );
+
+    return;
+  }
+
+  showLoading(
+    "Salvando despesa fixa..."
+  );
+
+  try{
+
+    const resp = await postAPI({
+
       acao:"salvar_fixa",
+
       categoria,
       descricao,
       valor,
       dia
-    });  
 
-  await carregar();
-  
+    });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    /* ================= LIMPA FORM ================= */
+    document.getElementById(
+      "fx_categoria"
+    ).value = "";
+
+    document.getElementById(
+      "fx_descricao"
+    ).value = "";
+
+    document.getElementById(
+      "fx_valor"
+    ).value = "";
+
+    document.getElementById(
+      "fx_dia"
+    ).value = "";
+
+    showToast(
+      "Despesa fixa salva!",
+      "success"
+    );
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Erro ao salvar despesa fixa",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
 }

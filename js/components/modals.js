@@ -1,52 +1,108 @@
 /* =============== ABRIR MODAL =============== */
 function abrirModal(){
 
-  document.getElementById("modal")
-    .classList.add("show");
+  const modal =
+    document.getElementById("modal");
 
-  setTimeout(()=>{
-    document.getElementById("m_nome").focus();
-  },150);
+  if(!modal){
+    return;
+  }
+
+  modal.classList.add("show");
+
+  setTimeout(() => {
+
+    const campo =
+      document.getElementById("m_nome");
+
+    if(campo){
+      campo.focus();
+    }
+
+  }, 150);
 }
+
 
 /* =============== FECHAR MODAL =============== */
 function fecharModal(){
 
-  document.getElementById("modal")
-    .classList.remove("show");
+  const modal =
+    document.getElementById("modal");
 
-  // limpa campos
-  m_nome.value = "";
-  m_cpf.value = "";
-  m_tel.value = "";
-  m_email.value = "";
-  m_endereco.value = "";
-  m_mensal.value = "";
+  if(modal){
+    modal.classList.remove("show");
+  }
+
+  const campos = [
+    "m_nome",
+    "m_cpf",
+    "m_tel",
+    "m_email",
+    "m_endereco",
+    "m_mensal"
+  ];
+
+  campos.forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.value = "";
+    }
+
+  });
 
   editandoId = null;
 }
 
+
 /* ========= ABRIR MODAL MENSALIDADE ========= */
 function abrirModalMensalidade(){
 
-  if(!associados.length){
+  const lista =
+    safeArray(associados);
+
+  if(!lista.length){
+
     alert("Nenhum associado encontrado");
     return;
   }
 
-  const valor = Number(associados[0][6] || 0);
+  const valor =
+    numero(lista[0][6]);
 
-  document.getElementById("valorAtualMensalidade")
-    .innerText = "R$ " + valor.toFixed(2);
+  const valorAtual =
+    document.getElementById("valorAtualMensalidade");
 
-  document.getElementById("novoValorMensalidade").value = "";
+  const novoValor =
+    document.getElementById("novoValorMensalidade");
 
-  document.getElementById("modalMensalidade")
-    .classList.add("show");
+  const modal =
+    document.getElementById("modalMensalidade");
+
+  if(valorAtual){
+    valorAtual.innerText =
+      moeda(valor);
+  }
+
+  if(novoValor){
+    novoValor.value = "";
+  }
+
+  if(modal){
+    modal.classList.add("show");
+  }
 }
+
 
 /* ========= FECHAR MODAL MENSALIDADE ========= */
 function fecharModalMensalidade(){
-  document.getElementById("modalMensalidade")
-    .classList.remove("show");
+
+  const modal =
+    document.getElementById("modalMensalidade");
+
+  if(modal){
+    modal.classList.remove("show");
+  }
 }

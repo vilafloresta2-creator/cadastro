@@ -1,144 +1,276 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vila Floresta 2</title>
-    <link rel="stylesheet" href="css/style.css">
-  </head>  
 
-  <body>
+<head>
 
-  <header>Associação Moradores Vila Floresta 2</header>
+  <meta charset="UTF-8">
 
-<div class="container">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-<div class="nav">
-  <button onclick="ir('relatorios')">📊 Relatórios</button>
-  <button onclick="ir('caixa')" id="btn_caixa">Caixa</button>
-  <button onclick="ir('dashboard')" id="btn_dashboard">Dashboard</button>
-  <button onclick="ir('cobrancas')" id="btn_cobrancas">Cobranças</button>
-  <button onclick="ir('associados')" id="btn_associados">Associados</button>
-  <!--<button onclick="ir('recibos')" id="btn_recibos">Recibos</button>-->
-  <button onclick="ir('devedores')" id="btn_devedores">Devedores</button>
-  <button onclick="ir('backups')" id="btn_backups">Backups</button>
-  <button onclick="ir('fixas')" id="btn_fixas">Fixas</button>  
-</div>
+  <title>
+    Associação Vila Floresta 2
+  </title>
 
-<div id="tela"></div>
+  <!-- CSS -->
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
 
-</div>
+</head>
 
-<!-- CORE -->
-<script src="js/core/config.js"></script>
-<script src="js/core/state.js"></script>
+<body>
 
-<!-- UTILS -->
-<script src="js/utils/format.js"></script>
-<script src="js/utils/helpers.js"></script>
-<script src="js/utils/masks.js"></script>
-<script src="js/utils/validators.js"></script>
-<script src="js/api/api.js"></script>
-
-<!--  MODULES -->
-<script src="js/modules/dashboard.js"></script>
-<script src="js/modules/associados.js"></script>
-<script src="js/modules/cobrancas.js"></script>
-<script src="js/modules/caixa.js"></script>
-<script src="js/modules/devedores.js"></script>
-<script src="js/modules/fixas.js"></script>
-<script src="js/modules/backups.js"></script>
-<script src="js/modules/relatorios.js"></script>
-<script src="js/modules/recibos.js"></script>
-
-<!-- COMPONENTS -->
-<script src="js/components/modals.js"></script>
-
-<!-- CORE FINAL -->
-<script src="js/core/render.js"></script>
-<script src="js/core/navigation.js"></script>
-<script src="js/core/init.js"></script>
+  <!-- HEADER -->
+  <header>
+    Associação Moradores Vila Floresta 2
+  </header>
 
 
+  <!-- APP -->
+  <main class="container">
 
-          <!-- MODAL -->
-<div id="modal" onclick="fecharModal()">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    
-    <h3 id="modalTitulo">Novo Associado</h3>
+    <!-- NAV -->
+    <nav class="nav">
 
-    <input id="m_nome" placeholder="Nome">
-    <input id="m_cpf" placeholder="CPF">
-    <input id="m_tel" placeholder="Telefone">
-    <input id="m_email" placeholder="Email">
-    <input id="m_endereco" placeholder="Endereço">
-    <input id="m_mensal" placeholder="Mensalidade">
-
-    <select id="m_status">
-      <option value="Ativo">Ativo</option>
-      <option value="Inativo">Inativo</option>
-    </select>
-
-    <div class="acoes">
-      <button id="btnSalvar" class="btn" onclick="salvarModal()">
-        Salvar
+      <button
+        id="btn_dashboard"
+        onclick="ir('dashboard')"
+      >
+        Dashboard
       </button>
-      <button class="btn-cancelar" onclick="fecharModal()">
-        Cancelar
+
+      <button
+        id="btn_associados"
+        onclick="ir('associados')"
+      >
+        Associados
       </button>
-    </div>
 
-  </div>
-</div>
+      <button
+        id="btn_devedores"
+        onclick="ir('devedores')"
+      >
+        Devedores
+      </button>
 
-<div id="modalMensalidade" class="modal" onclick="fecharModalMensalidade()">
-  <div class="modal-box" onclick="event.stopPropagation()">
+      <button
+        id="btn_cobrancas"
+        onclick="ir('cobrancas')"
+      >
+        Cobranças
+      </button>
 
-    <h3>Atualizar Mensalidade</h3>
+      <button
+        id="btn_caixa"
+        onclick="ir('caixa')"
+      >
+        Caixa
+      </button>
 
-    <p style="font-size:14px; opacity:0.7;">
-      Valor atual:
-    </p>
+      <button
+        id="btn_fixas"
+        onclick="ir('fixas')"
+      >
+        Fixas
+      </button>
 
-    <div id="valorAtualMensalidade" style="
-      font-size:22px;
-      font-weight:bold;
-      margin-bottom:15px;
-    ">
-      R$ 0.00
-    </div>
+      <button
+        id="btn_relatorios"
+        onclick="ir('relatorios')"
+      >
+        📊 Relatórios
+      </button>
 
-    <input 
-      id="novoValorMensalidade" 
-      placeholder="Novo valor (ex: 15)"
-      type="number"
+      <button
+        id="btn_backups"
+        onclick="ir('backups')"
+      >
+        Backups
+      </button>
+
+    </nav>
+
+
+    <!-- TELA -->
+    <section id="tela"></section>
+
+  </main>
+
+
+  <!-- FAB -->
+  <button
+    class="fab"
+    onclick="novo()"
+    aria-label="Novo associado"
+  >
+    +
+  </button>
+
+
+  <!-- MODAL ASSOCIADO -->
+  <div
+    id="modal"
+    class="modal"
+    onclick="fecharModal()"
+  >
+
+    <div
+      class="modal-box"
+      onclick="event.stopPropagation()"
     >
 
-    <div class="acoes">
-      <button class="btn" onclick="salvarMensalidade()">Salvar</button>
-      <button class="btn-cancelar" onclick="fecharModalMensalidade()">Cancelar</button>
+      <h3 id="modalTitulo">
+        Novo Associado
+      </h3>
+
+      <input id="m_nome" placeholder="Nome">
+
+      <input id="m_cpf" placeholder="CPF">
+
+      <input id="m_tel" placeholder="Telefone">
+
+      <input id="m_email" placeholder="Email">
+
+      <input id="m_endereco" placeholder="Endereço">
+
+      <input
+        id="m_mensal"
+        placeholder="Mensalidade"
+      >
+
+      <select id="m_status">
+
+        <option value="Ativo">
+          Ativo
+        </option>
+
+        <option value="Inativo">
+          Inativo
+        </option>
+
+      </select>
+
+      <div class="acoes">
+
+        <button
+          id="btnSalvar"
+          class="btn"
+          onclick="salvarModal()"
+        >
+          Salvar
+        </button>
+
+        <button
+          class="btn-cancelar"
+          onclick="fecharModal()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
     </div>
 
   </div>
-</div>
 
-<button onclick="novo()" style="
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#2563eb;
-  color:#fff;
-  font-size:28px;
-  border:none;
-  box-shadow:0 10px 25px rgba(0,0,0,0.4);
-  cursor:pointer;
-">
-  +
-</button>
+
+  <!-- MODAL MENSALIDADE -->
+  <div
+    id="modalMensalidade"
+    class="modal"
+    onclick="fecharModalMensalidade()"
+  >
+
+    <div
+      class="modal-box"
+      onclick="event.stopPropagation()"
+    >
+
+      <h3>
+        Atualizar Mensalidade
+      </h3>
+
+      <p class="modal-subtitle">
+        Valor atual:
+      </p>
+
+      <div id="valorAtualMensalidade"
+        class="valor-mensalidade"
+      >
+        R$ 0,00
+      </div>
+
+      <input
+        id="novoValorMensalidade"
+        type="number"
+        placeholder="Novo valor"
+      >
+
+      <div class="acoes">
+
+        <button
+          class="btn"
+          onclick="salvarMensalidade()"
+        >
+          Salvar
+        </button>
+
+        <button
+          class="btn-cancelar"
+          onclick="fecharModalMensalidade()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- CORE -->
+  <script src="js/core/config.js"></script>
+  <script src="js/core/state.js"></script>
+
+
+  <!-- UTILS -->
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/utils/format.js"></script>
+  <script src="js/utils/masks.js"></script>
+  <script src="js/utils/validators.js"></script>
+  <script src="js/utils/alerts.js"></script>
+
+
+  <!-- API -->
+  <script src="js/api/api.js"></script>
+
+
+  <!-- COMPONENTS -->
+  <script src="js/components/modals.js"></script>
+
+
+  <!-- MODULES -->
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/associados.js"></script>
+  <script src="js/modules/devedores.js"></script>
+  <script src="js/modules/cobrancas.js"></script>
+  <script src="js/modules/caixa.js"></script>
+  <script src="js/modules/fixas.js"></script>
+  <script src="js/modules/relatorios.js"></script>
+  <script src="js/modules/backups.js"></script>
+  <script src="js/modules/recibos.js"></script>
+
+
+  <!-- CORE FINAL -->
+  <script src="js/core/navigation.js"></script>
+  <script src="js/core/render.js"></script>
+  <script src="js/core/init.js"></script>
 
 </body>
+
 </html>

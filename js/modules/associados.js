@@ -1,72 +1,131 @@
-/* ============= RENDER ASSOCIADO ============= */
+/* =========================================
+   ASSOCIADOS
+========================================= */
+
+
+/* ============= RENDER ASSOCIADOS ============= */
 function renderAssociados(){
 
   tela.innerHTML = `
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <input placeholder="Buscar..." id="busca" style="flex:1;">      
-      <!-- <button class="btn" onclick="alterarMensalidadeTodos()">💰 Atualizar Mensalidade</button> -->
-      <button class="btn" onclick="abrirModalMensalidade()">💰 Alterar Mensalidade</button>
+
+    <div class="linha-filtros">
+
+      <input
+        placeholder="Buscar..."
+        id="busca"
+      >
+
+      <button
+        class="btn"
+        onclick="abrirModalMensalidade()"
+      >
+        💰 Alterar Mensalidade
+      </button>
+
     </div>
+
     <div id="lista"></div>
+
   `;
 
-  document.getElementById("busca").oninput = listarAssociados;
+  const busca =
+    document.getElementById("busca");
+
+  if(busca){
+
+    busca.oninput =
+      listarAssociados;
+  }
 
   listarAssociados();
 }
 
 
-/* ============= LISTAR ASSOCIADO ============= */
+/* ============= LISTAR ASSOCIADOS ============= */
 function listarAssociados(){
 
-  const busca = (
-    document.getElementById("busca")?.value || ""
-  ).toLowerCase();
+  const termoBusca =
+    normalizarTexto(
 
-  const lista = associados.filter(a =>
-    String(a[1] || "").toLowerCase().includes(busca)
-  );
+      document.getElementById("busca")
+        ?.value || ""
+
+    );
+
+  const lista =
+    safeArray(state.associados)
+      .filter(a => {
+
+        if(!a || !a.length){
+          return false;
+        }
+
+        const nome =
+          normalizarTexto(a[1]);
+
+        return nome.includes(
+          termoBusca
+        );
+
+      });
 
   let html = "";
 
-  lista.forEach(a=>{
 
-    const status = statusAssociado(a[2]);
+  /* =============== LISTA VAZIA =============== */
+  if(!lista.length){
+
+    html = `
+      <div class="card">
+        Nenhum associado encontrado.
+      </div>
+    `;
+  }
+
+
+  /* ================== LISTA ================== */
+  lista.forEach(a => {
+
+    const status =
+      statusAssociado(a[2]);
 
     const ativo =
-    String(a[7] || "Ativo").trim() === "Ativo";
+
+      normalizarTexto(
+        a[7] || "Ativo"
+      )
+
+      ===
+
+      "ativo";
 
     html += `
-      <div class="card" style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      ">
+
+      <div class="card associado-card">
 
         <div>
 
-          <div style="
-            font-size:18px;
-            font-weight:600;
-          ">
-            ${a[1]}
+          <div class="associado-nome">
+            ${a[1] || "-"}
           </div>
 
-          <div style="
-            font-size:13px;
-            color:${
-              !ativo
-                ? "#9ca3af"
-                : status==="Devedor"
-                  ? "#ef4444"
-                  : "#22c55e"
-            };
-          ">
+          <div
+            class="associado-status"
+            style="
+              color:${
+                !ativo
+                  ? "#9ca3af"
+                  : status === "Devedor"
+                    ? "#ef4444"
+                    : "#22c55e"
+              };
+            "
+          >
 
             ${
               !ativo
                 ? "⚫ Inativo"
-                : status==="Devedor"
+                : status === "Devedor"
                   ? "🔴 Devedor"
                   : "🟢 Regular"
             }
@@ -75,38 +134,66 @@ function listarAssociados(){
 
         </div>
 
-        <div style="display:flex;gap:6px;">
-          <button class="btn-edit btn-icon"
-            onclick="editar('${a[0]}')">
+        <div class="acoes-lista">
+
+          <button
+            class="btn-edit btn-icon"
+            onclick="editar('${a[0]}')"
+          >
             ✏️
           </button>
 
-          <button class="btn-cancelar btn-icon"
-            onclick="excluir('${a[0]}')">
+          <button
+            class="btn-cancelar btn-icon"
+            onclick="excluir('${a[0]}')"
+          >
             🗑️
           </button>
+
         </div>
 
       </div>
+
     `;
   });
 
-  document.getElementById("lista").innerHTML = html;
+  const listaEl =
+    document.getElementById("lista");
+
+  if(listaEl){
+
+    listaEl.innerHTML =
+      html;
+  }
 }
 
 
-/* ============== NOVO ASSOCIADO ============== */
+/* ============= NOVO ASSOCIADO ============= */
 function novo(){
-  
-  document.getElementById("modalTitulo").innerText = "Novo Associado";
 
-  m_nome.value = "";
-  m_cpf.value = "";
-  m_tel.value = "";
-  m_email.value = "";
-  m_endereco.value = "";
-  m_mensal.value = "";
-  m_status.value = "Ativo";
+  const modalTitulo =
+    document.getElementById(
+      "modalTitulo"
+    );
+
+  if(modalTitulo){
+
+    modalTitulo.innerText =
+      "Novo Associado";
+  }
+
+  document.getElementById("m_nome").value = "";
+  document.getElementById("m_cpf").value = "";
+  document.getElementById("m_tel").value = "";
+  document.getElementById("m_email").value = "";
+  document.getElementById("m_endereco").value = "";
+  document.getElementById("m_mensal").value = "";
+  document.getElementById("m_status").value = "Ativo";
+
+  state.editandoId =
+    null;
+
+  limparErrosCampos();
 
   abrirModal();
 }
@@ -114,26 +201,84 @@ function novo(){
 
 /* ============= EDITAR ASSOCIADO ============= */
 function editar(id){
-  console.log("EDITANDO ID:", id); // debug
 
-  const a = associados.find(x => String(x[0]) === String(id));
+  const associado =
+    safeArray(state.associados)
+      .find(x =>
 
-  if(!a){
-    alert("Associado não encontrado");
+        String(x[0])
+
+        ===
+
+        String(id)
+
+      );
+
+  if(!associado){
+
+    showToast(
+      "Associado não encontrado",
+      "error"
+    );
+
     return;
   }
 
-  editandoId = id;
+  state.editandoId =
+    String(id);
 
-  m_nome.value = String(a[1] || "").trim();
-  m_cpf.value = maskCPF(String(a[2]).padStart(11,"0"));
-  m_tel.value = a[3];
-  m_email.value = String(a[4] || "").trim();
-  m_endereco.value = String(a[5] || "").trim();
-  m_mensal.value = a[6];
-  m_status.value = a[7] || "Ativo";
+  document.getElementById("m_nome").value =
 
-  document.getElementById("modalTitulo").innerText = "Editar Associado";
+    String(
+      associado[1] || ""
+    ).trim();
+
+  document.getElementById("m_cpf").value =
+
+    maskCPF(
+      associado[2]
+    );
+
+  document.getElementById("m_tel").value =
+
+    String(
+      associado[3] || ""
+    ).trim();
+
+  document.getElementById("m_email").value =
+
+    String(
+      associado[4] || ""
+    ).trim();
+
+  document.getElementById("m_endereco").value =
+
+    String(
+      associado[5] || ""
+    ).trim();
+
+  document.getElementById("m_mensal").value =
+
+    numero(
+      associado[6]
+    );
+
+  document.getElementById("m_status").value =
+
+    associado[7] || "Ativo";
+
+  const modalTitulo =
+    document.getElementById(
+      "modalTitulo"
+    );
+
+  if(modalTitulo){
+
+    modalTitulo.innerText =
+      "Editar Associado";
+  }
+
+  limparErrosCampos();
 
   abrirModal();
 }
@@ -142,73 +287,142 @@ function editar(id){
 /* ================= EXCLUIR ================= */
 async function excluir(id){
 
-  if(!confirm("Tem certeza que deseja excluir este associado?")){
+  const confirmado =
+    await showConfirm(
+      "Tem certeza que deseja excluir este associado?"
+    );
+
+  if(!confirmado){
     return;
   }
 
+  showLoading(
+    "Excluindo associado..."
+  );
+
   try{
 
-    const resp = await postAPI({
-      acao:"excluir_associado",
-      id
-    });
+    const resp =
+      await postAPI({
+
+        acao:
+          "excluir_associado",
+
+        id
+
+      });
 
     if(resp.erro){
-      alert(resp.erro);
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
       return;
     }
 
+    showToast(
+      "Associado excluído!",
+      "success"
+    );
+
     await carregar();
 
-  }catch(e){
+  }catch(error){
 
-    console.error(e);
+    console.error(error);
 
-    alert("Erro ao excluir associado");
+    showToast(
+      "Erro ao excluir associado",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
   }
 }
 
 
-/* ========= SALVAR MODAL MENSALIDADE ========= */
+/* ========= SALVAR MENSALIDADE ========= */
 async function salvarMensalidade(){
 
   const valor =
-    document.getElementById("novoValorMensalidade").value;
+    numero(
 
-  if(!valor || Number(valor) <= 0){
-    alert("Informe um valor válido");
+      document.getElementById(
+        "novoValorMensalidade"
+      )?.value
+
+    );
+
+  if(!valorPositivo(valor)){
+
+    showToast(
+      "Informe um valor válido",
+      "warning"
+    );
+
     return;
   }
 
-  if(!confirm(
-    "Deseja aplicar esse valor para TODOS os associados?"
-  )){
+  const confirmado =
+    await showConfirm(
+      "Deseja aplicar esse valor para TODOS os associados?"
+    );
+
+  if(!confirmado){
     return;
   }
+
+  showLoading(
+    "Atualizando mensalidade..."
+  );
 
   try{
 
-    const resp = await postAPI({
-      acao:"mensalidade_todos",
-      valor
-    });
+    const resp =
+      await postAPI({
+
+        acao:
+          "mensalidade_todos",
+
+        valor
+
+      });
 
     if(resp.erro){
-      alert(resp.erro);
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
       return;
     }
 
-    alert("Mensalidade atualizada!");
-
     fecharModalMensalidade();
+
+    showToast(
+      "Mensalidade atualizada!",
+      "success"
+    );
 
     await carregar();
 
-  }catch(e){
+  }catch(error){
 
-    console.error(e);
+    console.error(error);
 
-    alert("Erro ao atualizar mensalidade");
+    showToast(
+      "Erro ao atualizar mensalidade",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
   }
 }
 
@@ -217,90 +431,124 @@ async function salvarMensalidade(){
 async function salvarModal(){
 
   if(!validarCampos()){
-    alert("Preencha corretamente");
+
+    showToast(
+      "Preencha corretamente",
+      "warning"
+    );
+
     return;
   }
 
-  const btn = document.getElementById("btnSalvar");
+  const editando =
+    !!state.editandoId;
 
-  btn.classList.add("btn-loading");
-  btn.innerText = "Salvando...";
+  const btn =
+    document.getElementById(
+      "btnSalvar"
+    );
+
+  if(btn){
+
+    btn.disabled = true;
+
+    btn.innerText =
+      "Salvando...";
+  }
+
+  showLoading(
+    "Salvando associado..."
+  );
 
   try{
 
-    const resp = await postAPI({      
-        acao:"salvar_associado",
-        id: editandoId,
-        nome: String(m_nome.value).trim(),
-        cpf: m_cpf.value.replace(/\D/g,""),
-        telefone: m_tel.value.replace(/\D/g,""),
-        email: String(m_email.value).trim(),
-        endereco: String(m_endereco.value).trim(),
-        mensalidade: m_mensal.value,
-        status: m_status.value      
-    });    
+    const resp =
+      await postAPI({
+
+        acao:
+          "salvar_associado",
+
+        id:
+          state.editandoId,
+
+        nome:
+          String(
+            document.getElementById("m_nome")?.value || ""
+          ).trim(),
+
+        cpf:
+          limparCPF(
+            document.getElementById("m_cpf")?.value
+          ),
+
+        telefone:
+          String(
+            document.getElementById("m_tel")?.value || ""
+          ).replace(/\D/g,""),
+
+        email:
+          String(
+            document.getElementById("m_email")?.value || ""
+          ).trim(),
+
+        endereco:
+          String(
+            document.getElementById("m_endereco")?.value || ""
+          ).trim(),
+
+        mensalidade:
+          numero(
+            document.getElementById("m_mensal")?.value
+          ),
+
+        status:
+          document.getElementById("m_status")?.value || "Ativo"
+
+      });
 
     if(resp.erro){
-      alert(resp.erro);
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
       return;
     }
 
     fecharModal();
 
+    showToast(
+
+      editando
+        ? "Associado atualizado!"
+        : "Associado cadastrado!",
+
+      "success"
+
+    );
+
     await carregar();
 
-  }catch(e){
-    console.error(e);
-    alert("Erro ao salvar");
-    }finally{
+  }catch(error){
 
-  btn.classList.remove("btn-loading");
-  btn.innerText = "Salvar";
-  }
-}
+    console.error(error);
 
+    showToast(
+      "Erro ao salvar associado",
+      "error"
+    );
 
-/* ================= ALTERAR MENSALIDADE ================= */
-async function alterarMensalidadeTodos(){
+  }finally{
 
-  const valor =
-    prompt("Novo valor da mensalidade:");
+    if(btn){
 
-  if(!valor){
-    return;
-  }
+      btn.disabled = false;
 
-  if(isNaN(valor)){
-    alert("Valor inválido");
-    return;
-  }
-
-  if(!confirm(
-    "Atualizar mensalidade de TODOS os associados?"
-  )){
-    return;
-  }
-
-  try{
-
-    const resp = await postAPI({
-      acao:"mensalidade_todos",
-      valor
-    });
-
-    if(resp.erro){
-      alert(resp.erro);
-      return;
+      btn.innerText =
+        "Salvar";
     }
 
-    alert("Mensalidade atualizada!");
-
-    await carregar();
-
-  }catch(e){
-
-    console.error(e);
-
-    alert("Erro ao atualizar mensalidade");
+    hideLoading();
   }
 }

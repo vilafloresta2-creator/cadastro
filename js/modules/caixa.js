@@ -1,3 +1,8 @@
+/* =========================================
+   CAIXA
+========================================= */
+
+
 /* =============== RENDER CAIXA =============== */
 function renderCaixa(){
 
@@ -7,49 +12,141 @@ function renderCaixa(){
 
       <div class="box">
         <b>Entradas</b><br>
-        <span id="totalEntradas">R$ 0.00</span>
+        <span id="totalEntradas">
+          ${moeda(0)}
+        </span>
       </div>
 
       <div class="box">
         <b>Saídas</b><br>
-        <span id="totalSaidas">R$ 0.00</span>
+        <span id="totalSaidas">
+          ${moeda(0)}
+        </span>
       </div>
 
       <div class="box">
         <b>Saldo</b><br>
-        <span id="saldoFinal">R$ 0.00</span>
+        <span id="saldoFinal">
+          ${moeda(0)}
+        </span>
       </div>
 
     </div>
 
-    <div class="card" style="margin-top:15px;">
+    <div
+      class="card"
+      style="margin-top:15px;"
+    >
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+        "
+      >
 
-        <select id="cx_tipo" style="flex:1;min-width:150px;">
-          <option value="Entrada">Entrada</option>
-          <option value="Saída">Saída</option>
+        <select
+          id="cx_tipo"
+          style="
+            flex:1;
+            min-width:150px;
+          "
+        >
+          <option value="Entrada">
+            Entrada
+          </option>
+
+          <option value="Saída">
+            Saída
+          </option>
         </select>
 
-        <input id="cx_categoria" placeholder="Categoria" style="flex:1;min-width:180px;">
+        <input
+          id="cx_categoria"
+          placeholder="Categoria"
+          style="
+            flex:1;
+            min-width:180px;
+          "
+        >
 
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          margin-top:10px;
+          flex-wrap:wrap;
+        "
+      >
 
-        <input id="cx_descricao" placeholder="Descrição" style="flex:2;min-width:220px;">
+        <input
+          id="cx_descricao"
+          placeholder="Descrição"
+          style="
+            flex:2;
+            min-width:220px;
+          "
+        >
 
-        <input id="cx_valor" type="number" step="0.01" placeholder="Valor" style="flex:1;min-width:120px;">
+        <input
+          id="cx_valor"
+          type="number"
+          step="0.01"
+          placeholder="Valor"
+          style="
+            flex:1;
+            min-width:120px;
+          "
+        >
 
       </div>
 
-      <button class="btn" style="margin-top:12px;" onclick="salvarCaixa()">
-        💾 Lançar
-      </button>
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:12px;
+        "
+      >
 
-      <button class="btn" style="margin-top:10px;" onclick="fecharMes()">
-        💰 Fechar Mês
-      </button>
+        <button
+          class="btn"
+          onclick="salvarCaixa()"
+        >
+
+          ${
+            state.editandoCaixa
+              ? "💾 Atualizar"
+              : "💾 Lançar"
+          }
+
+        </button>
+
+        ${
+          state.editandoCaixa
+            ? `
+              <button
+                class="btn-cancelar"
+                onclick="cancelarEdicaoCaixa()"
+              >
+                Cancelar edição
+              </button>
+            `
+            : ""
+        }
+
+        <button
+          class="btn"
+          onclick="fecharMes()"
+        >
+          💰 Fechar Mês
+        </button>
+
+      </div>
 
     </div>
 
@@ -64,17 +161,32 @@ function renderCaixa(){
 /* =============== LISTAR CAIXA =============== */
 function listarCaixa(){
 
-  if(!caixa.length){
+  const lista =
+    safeArray(state.caixa);
 
-    document.getElementById("listaCaixa").innerHTML = `
+  const listaEl =
+    document.getElementById(
+      "listaCaixa"
+    );
+
+  if(!listaEl){
+    return;
+  }
+
+  if(!lista.length){
+
+    listaEl.innerHTML = `
+
       <div class="card">
         Nenhum lançamento encontrado.
       </div>
+
     `;
 
-    document.getElementById("totalEntradas").innerText = "R$ 0.00";
-    document.getElementById("totalSaidas").innerText = "R$ 0.00";
-    document.getElementById("saldoFinal").innerText = "R$ 0.00";
+    atualizarResumoCaixa(
+      0,
+      0
+    );
 
     return;
   }
@@ -84,166 +196,559 @@ function listarCaixa(){
 
   let html = "";
 
-  caixa.slice().reverse().forEach(c => {
+  lista
+    .slice()
+    .reverse()
+    .forEach(c => {
 
-    const tipo = c[2];
-    const categoria = c[3];
-    const descricao = c[4];
-    const valor = Number(c[5]);
-    const data = formatarData(c[1]);
+      if(!Array.isArray(c)){
+        return;
+      }
 
-    if(tipo === "Entrada"){
-      entradas += valor;
-    }else{
-      saidas += valor;
-    }
+      const id =
+        String(c[0] || "");
 
-    html += `
+      const tipo =
+        String(c[2] || "")
+          .trim();
 
-  <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      const categoria =
+        String(c[3] || "")
+          .trim();
 
-    <div>
+      const descricao =
+        String(c[4] || "")
+          .trim();
 
-      <div style="font-size:16px;font-weight:600;">
-        ${descricao}
-      </div>
+      const valor =
+        numero(c[5]);
 
-      <div style="font-size:12px;opacity:0.7;">
-        ${categoria} • ${data}
-      </div>
+      const data =
+        formatarData(c[1]);
 
-    </div>
+      const entrada =
+        isEntrada(tipo);
 
-    <div style="display:flex;align-items:center;gap:8px;">
+      const saida =
+        isSaida(tipo);
 
-      <div style="
-        font-weight:bold;
-        color:${tipo === "Entrada" ? "#22c55e" : "#ef4444"};
-      ">
-        ${tipo === "Entrada" ? "+" : "-"}
-        R$ ${valor.toFixed(2)}
-      </div>
+      if(entrada){
+        entradas += valor;
+      }
 
-      <button class="btn-edit btn-icon"
-        onclick="editarCaixa('${c[0]}')">
-        ✏️
-      </button>
+      if(saida){
+        saidas += valor;
+      }
 
-      <button class="btn-cancelar btn-icon"
-        onclick="excluirCaixa('${c[0]}')">
-        🗑️
-      </button>
+      html += `
 
-    </div>
+        <div
+          class="card"
+          style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+          "
+        >
 
-  </div>
+          <div>
 
-`;
-  });
+            <div
+              style="
+                font-size:16px;
+                font-weight:600;
+              "
+            >
+              ${descricao || "-"}
+            </div>
 
-  document.getElementById("listaCaixa").innerHTML = html;
+            <div
+              style="
+                font-size:12px;
+                opacity:.7;
+              "
+            >
+              ${categoria || "-"}
+              •
+              ${data}
+            </div>
 
-  document.getElementById("totalEntradas").innerText =
-    "R$ " + entradas.toFixed(2);
+          </div>
 
-  document.getElementById("totalSaidas").innerText =
-    "R$ " + saidas.toFixed(2);
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:8px;
+            "
+          >
 
-  document.getElementById("saldoFinal").innerText =
-    "R$ " + (entradas - saidas).toFixed(2);
+            <div
+              style="
+                font-weight:bold;
+                color:${
+                  entrada
+                    ? "#22c55e"
+                    : "#ef4444"
+                };
+              "
+            >
+
+              ${
+                entrada
+                  ? "+"
+                  : "-"
+              }
+
+              ${moeda(valor)}
+
+            </div>
+
+            <button
+              class="btn-edit btn-icon"
+              onclick="editarCaixa('${id}')"
+              title="Editar"
+            >
+              ✏️
+            </button>
+
+            <button
+              class="btn-cancelar btn-icon"
+              onclick="excluirCaixa('${id}')"
+              title="Excluir"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+    });
+
+  listaEl.innerHTML = html;
+
+  atualizarResumoCaixa(
+    entradas,
+    saidas
+  );
+}
+
+
+/* ========== ATUALIZAR RESUMO ========== */
+function atualizarResumoCaixa(
+  entradas = 0,
+  saidas = 0
+){
+
+  const saldo =
+    entradas - saidas;
+
+  const entradasEl =
+    document.getElementById(
+      "totalEntradas"
+    );
+
+  const saidasEl =
+    document.getElementById(
+      "totalSaidas"
+    );
+
+  const saldoEl =
+    document.getElementById(
+      "saldoFinal"
+    );
+
+  if(entradasEl){
+    entradasEl.innerText =
+      moeda(entradas);
+  }
+
+  if(saidasEl){
+    saidasEl.innerText =
+      moeda(saidas);
+  }
+
+  if(saldoEl){
+
+    saldoEl.innerText =
+      moeda(saldo);
+
+    saldoEl.style.color =
+      saldo >= 0
+        ? "#22c55e"
+        : "#ef4444";
+  }
 }
 
 
 /* =============== SALVAR CAIXA =============== */
 async function salvarCaixa(){
 
-  const tipo = document.getElementById("cx_tipo").value;
-  const categoria = document.getElementById("cx_categoria").value;
-  const descricao = document.getElementById("cx_descricao").value;
-  const valor = document.getElementById("cx_valor").value;
+  const tipo =
+    document.getElementById(
+      "cx_tipo"
+    )?.value;
 
-  if(!categoria || !descricao || !valor){
-    alert("Preencha os campos");
+  const categoria =
+    String(
+      document.getElementById(
+        "cx_categoria"
+      )?.value || ""
+    ).trim();
+
+  const descricao =
+    String(
+      document.getElementById(
+        "cx_descricao"
+      )?.value || ""
+    ).trim();
+
+  const valor =
+    numero(
+      document.getElementById(
+        "cx_valor"
+      )?.value
+    );
+
+  if(
+    !categoria
+    ||
+    !descricao
+    ||
+    !valorPositivo(valor)
+  ){
+
+    showToast(
+      "Preencha os campos corretamente",
+      "warning"
+    );
+
     return;
   }
 
-  await postAPI({    
-      acao:"lancar_caixa",
-      id: editandoCaixa,
-      tipo,
-      categoria,
-      descricao,
-      valor    
-  });
+  showLoading(
 
-  editandoCaixa = null;
-  document.getElementById("cx_categoria").value = "";
-  document.getElementById("cx_descricao").value = "";
-  document.getElementById("cx_valor").value = "";
+    state.editandoCaixa
+      ? "Atualizando lançamento..."
+      : "Salvando lançamento..."
 
-  await carregar();  
+  );
+
+  try{
+
+    const resp =
+      await postAPI({
+
+        acao:
+          "lancar_caixa",
+
+        id:
+          state.editandoCaixa,
+
+        tipo,
+        categoria,
+        descricao,
+        valor
+
+      });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    limparFormularioCaixa();
+
+    showToast(
+
+      state.editandoCaixa
+        ? "Lançamento atualizado!"
+        : "Lançamento salvo!",
+
+      "success"
+
+    );
+
+    state.editandoCaixa = null;
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Erro ao salvar lançamento",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
 }
 
 
 /* =============== EDITAR CAIXA =============== */
 function editarCaixa(id){
 
-  const c = caixa.find(x =>
-    String(x[0]) === String(id)
-  );
-  if(!c) return;
+  const item =
+    safeArray(state.caixa)
+      .find(c =>
 
-  editandoCaixa = String(id);
-  document.getElementById("cx_tipo").value = c[2];
-  document.getElementById("cx_categoria").value = c[3];
-  document.getElementById("cx_descricao").value = c[4];
-  document.getElementById("cx_valor").value = c[5];
+        String(c[0])
+          ===
+        String(id)
+
+      );
+
+  if(!item){
+
+    showToast(
+      "Lançamento não encontrado",
+      "error"
+    );
+
+    return;
+  }
+
+  state.editandoCaixa =
+    String(id);
+
+  document.getElementById(
+    "cx_tipo"
+  ).value =
+
+    String(item[2] || "");
+
+  document.getElementById(
+    "cx_categoria"
+  ).value =
+
+    String(item[3] || "");
+
+  document.getElementById(
+    "cx_descricao"
+  ).value =
+
+    String(item[4] || "");
+
+  document.getElementById(
+    "cx_valor"
+  ).value =
+
+    numero(item[5]);
+
+  renderCaixa();
 
   window.scrollTo({
     top:0,
     behavior:"smooth"
   });
+
+  setTimeout(() => {
+
+    document.getElementById(
+      "cx_categoria"
+    )?.focus();
+
+  }, 100);
+}
+
+
+/* ========== CANCELAR EDIÇÃO ========== */
+function cancelarEdicaoCaixa(){
+
+  state.editandoCaixa = null;
+
+  limparFormularioCaixa();
+
+  renderCaixa();
+}
+
+
+/* ========== LIMPAR FORMULÁRIO ========== */
+function limparFormularioCaixa(){
+
+  const categoria =
+    document.getElementById(
+      "cx_categoria"
+    );
+
+  const descricao =
+    document.getElementById(
+      "cx_descricao"
+    );
+
+  const valor =
+    document.getElementById(
+      "cx_valor"
+    );
+
+  if(categoria){
+    categoria.value = "";
+  }
+
+  if(descricao){
+    descricao.value = "";
+  }
+
+  if(valor){
+    valor.value = "";
+  }
 }
 
 
 /* ============== EXCLUIR CAIXA ============== */
 async function excluirCaixa(id){
 
-  if(!confirm("Excluir lançamento?")){
+  const confirmado =
+    await showConfirm(
+      "Excluir lançamento?"
+    );
+
+  if(!confirmado){
     return;
   }
 
-  await postAPI({   
-      acao:"excluir_caixa",
-      id    
-  });
+  showLoading(
+    "Excluindo lançamento..."
+  );
 
-  await carregar();  
+  try{
+
+    const resp =
+      await postAPI({
+
+        acao:
+          "excluir_caixa",
+
+        id
+
+      });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    showToast(
+      "Lançamento excluído!",
+      "success"
+    );
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Erro ao excluir lançamento",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
 }
 
 
-/* ================ FECHAR MES ================ */
+/* ================ FECHAR MÊS ================ */
 async function fecharMes(){
 
-  const mes = prompt("Informe o mês (MM-YYYY)");
+  const mes =
+    await showPrompt(
+      "Informe o mês (MM-YYYY)"
+    );
 
-  if(!mes) return;
-
-  if(!confirm("Fechar mês " + mes + "?")){
+  if(!mes){
     return;
   }
 
-  const resp = await postAPI({    
-      acao:"fechar_mes",
-      mes    
-  });
-  
-  if(resp.erro){
-    alert(resp.erro);
+  const texto =
+    String(mes).trim();
+
+  if(
+    !/^\d{2}-\d{4}$/.test(texto)
+  ){
+
+    showToast(
+      "Formato inválido. Use MM-YYYY",
+      "warning"
+    );
+
     return;
   }
 
-  alert("Fechamento realizado!");
+  const confirmado =
+    await showConfirm(
+      `Fechar mês ${texto}?`
+    );
 
-  await carregar();
+  if(!confirmado){
+    return;
+  }
+
+  showLoading(
+    "Fechando mês..."
+  );
+
+  try{
+
+    const resp =
+      await postAPI({
+
+        acao:
+          "fechar_mes",
+
+        mes:texto
+
+      });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    showToast(
+      "Fechamento realizado!",
+      "success"
+    );
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Erro ao fechar mês",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
 }

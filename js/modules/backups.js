@@ -1,12 +1,92 @@
+/* =========================================
+   BACKUPS
+========================================= */
+
+
+/* ============== RENDER BACKUPS ============== */
+function renderBackups(){
+
+  tela.innerHTML = `
+
+    <div class="card">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+      ">
+
+        <div>
+
+          <h3 style="margin:0;">
+            Backups do Sistema
+          </h3>
+
+          <p style="
+            margin-top:5px;
+            opacity:.7;
+            font-size:13px;
+          ">
+
+            Faça backups antes de alterações importantes.
+
+          </p>
+
+        </div>
+
+        <button
+          class="btn"
+          id="btnBackup"
+          onclick="fazerBackup(event)"
+        >
+
+          💾 Fazer Backup
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div
+      id="listaBackups"
+      style="margin-top:10px;"
+    ></div>
+
+  `;
+
+  listarBackups();
+}
+
+
 /* ============== LISTAR BACKUPS ============== */
 function listarBackups(){
 
-  if(!backups.length){
+  const lista =
+    document.getElementById(
+      "listaBackups"
+    );
 
-    document.getElementById("listaBackups").innerHTML = `
+  if(!lista){
+    return;
+  }
+
+  const listaBackups =
+    safeArray(backups);
+
+  /* ============== LISTA VAZIA ============== */
+  if(!listaBackups.length){
+
+    lista.innerHTML = `
+
       <div class="card">
+
         Nenhum backup encontrado.
+
       </div>
+
     `;
 
     return;
@@ -14,62 +94,138 @@ function listarBackups(){
 
   let html = "";
 
-  backups.slice().reverse().forEach(b => {
 
-    const data = formatarData(b[0]);
-    const nome = b[1];
-    const link = b[2];
+  /* ================== LISTA ================== */
+  listaBackups
+    .slice()
+    .reverse()
+    .forEach(b => {
 
-    html += `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        
-        <div>
-          <b>${nome}</b><br>
-          <small>${data}</small>
+      if(!b || !b.length){
+        return;
+      }
+
+      const data =
+        formatarData(b[0]);
+
+      const nome =
+
+        String(b[1] || "")
+          .trim();
+
+      const link =
+
+        String(b[2] || "")
+          .trim();
+
+      html += `
+
+        <div
+          class="card"
+          style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+          "
+        >
+
+          <div>
+
+            <div style="
+              font-size:16px;
+              font-weight:600;
+            ">
+
+              ${nome || "Backup"}
+
+            </div>
+
+            <div style="
+              font-size:12px;
+              opacity:.7;
+              margin-top:4px;
+            ">
+
+              ${data}
+
+            </div>
+
+          </div>
+
+          <div style="
+            display:flex;
+            gap:6px;
+            flex-wrap:wrap;
+          ">
+
+            <button
+              class="btn"
+              onclick="abrirBackup('${link}')"
+            >
+
+              Abrir
+
+            </button>
+
+            <button
+              class="btn-light"
+              onclick="restaurarBackup('${link}')"
+            >
+
+              Restaurar
+
+            </button>
+
+          </div>
+
         </div>
 
-        <div style="display:flex;gap:6px;">
-          <button class="btn" onclick="window.open('${link}','_blank')">
-            Abrir
-          </button>
+      `;
+    });
 
-          <button class="btn-light" onclick="restaurarBackup('${link}')">
-            Restaurar
-          </button>
-        </div>
-
-      </div>
-    `;
-  });
-
-  document.getElementById("listaBackups").innerHTML = html;
+  lista.innerHTML = html;
 }
 
 
-/* ============== RENDER BACKUPS ============== */
-function renderBackups(){
+/* =============== ABRIR BACKUP =============== */
+function abrirBackup(url){
 
-  tela.innerHTML = `
-    <button class="btn" onclick="fazerBackup(event)">
-      💾 Fazer Backup
-    </button>
+  if(!url){
 
-    <div id="listaBackups" style="margin-top:10px;"></div>
-  `;
+    showToast(
+      "Link do backup inválido",
+      "error"
+    );
 
-  listarBackups();
+    return;
+  }
+
+  window.open(
+    url,
+    "_blank"
+  );
 }
 
 
 /* =============== FAZER BACKUP =============== */
 async function fazerBackup(ev){
 
-  let btn = ev?.target;
+  const btn =
+    ev?.target;
 
   if(btn){
-    btn.innerText = "Salvando...";
+
+    btn.innerText =
+      "Salvando...";
+
     btn.disabled = true;
   }
+
+  showLoading(
+    "Gerando backup..."
+  );
 
   try{
 
@@ -78,23 +234,60 @@ async function fazerBackup(ev){
     });
 
     if(resp.erro){
-      alert(resp.erro);
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
       return;
     }
 
     await carregar();
 
-    if(confirm("Backup criado! Deseja abrir agora?")){
-      window.open(resp.url, "_blank");
+    showToast(
+      "Backup criado com sucesso!"
+    );
+
+    const abrir =
+      await showConfirm(
+        "Deseja abrir o backup agora?"
+      );
+
+    if(
+      abrir
+      &&
+      resp.url
+    ){
+
+      abrirBackup(
+        resp.url
+      );
     }
 
-  }catch(e){
-    alert("Erro ao gerar backup");
-  }
+  }catch(error){
 
-  if(btn){
-    btn.innerText = "💾 Fazer Backup";
-    btn.disabled = false;
+    console.error(
+      "BACKUP ERROR:",
+      error
+    );
+
+    showToast(
+      "Erro ao gerar backup",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+
+    if(btn){
+
+      btn.innerText =
+        "💾 Fazer Backup";
+
+      btn.disabled = false;
+    }
   }
 }
 
@@ -102,13 +295,68 @@ async function fazerBackup(ev){
 /* ============= RESTAURAR BACKUP ============= */
 async function restaurarBackup(url){
 
-  if(!confirm("⚠️ Isso vai substituir TODOS os dados. Continuar?")) return;
+  if(!url){
 
-  await postAPI({    
+    showToast(
+      "Backup inválido",
+      "error"
+    );
+
+    return;
+  }
+
+  const confirmar =
+    await showConfirm(
+      "⚠️ Isso vai substituir TODOS os dados. Continuar?"
+    );
+
+  if(!confirmar){
+    return;
+  }
+
+  showLoading(
+    "Restaurando backup..."
+  );
+
+  try{
+
+    const resp = await postAPI({
+
       acao:"restore",
-      url    
-  });
+      url
 
-  alert("Backup restaurado!");
-  await carregar();
+    });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    showToast(
+      "Backup restaurado!"
+    );
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(
+      "RESTORE ERROR:",
+      error
+    );
+
+    showToast(
+      "Erro ao restaurar backup",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
 }

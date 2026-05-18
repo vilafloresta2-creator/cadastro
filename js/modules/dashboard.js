@@ -1,137 +1,187 @@
+/* =========================================
+   DASHBOARD
+========================================= */
+
+
 /* ============= RENDER DASHBOARD ============= */
 function renderDashboard(){
 
-  const hoje = new Date();
-
   const mesAtual =
-    String(hoje.getMonth() + 1).padStart(2, "0")
-    + "-"
-    + hoje.getFullYear();
+    obterMes(new Date());
 
   let entradas = 0;
   let saidas = 0;
   let inadimplencia = 0;
   let ativos = 0;
 
-/* ================== CAIXA ================== */
+  const listaCaixa =
+    safeArray(state.caixa);
 
-  caixa.forEach(c => {
+  const listaCobrancas =
+    safeArray(state.cobrancas);
 
-    let mes = "";
+  const listaAssociados =
+    safeArray(state.associados);
 
-    if(c[1]){
+  /* =========================================
+     CAIXA
+  ========================================= */
 
-      const d = new Date(c[1]);
+  listaCaixa.forEach(c => {
 
-      // blindagem contra data inválida
-      if(isNaN(d)){
-        return;
-      }
-
-      mes =
-        String(d.getMonth() + 1).padStart(2, "0")
-        + "-"
-        + d.getFullYear();
+    if(!c || !c.length){
+      return;
     }
 
-    // considera apenas mês atual
+    const data =
+      c[1];
+
+    if(!dataValida(data)){
+      return;
+    }
+
+    const mes =
+      obterMes(data);
+
+    /* ===== apenas mês atual ===== */
     if(mes !== mesAtual){
       return;
     }
 
-    // normaliza Saída/Saida
-    const tipo = String(c[2] || "")
-      .trim()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    const tipo =
+      normalizarTexto(c[2])
+        .toLowerCase();
 
-    const valor = Number(c[5]) || 0;
+    const valor =
+      numero(c[5]);
 
-    if(tipo === "Entrada"){
+    if(tipo === "entrada"){
       entradas += valor;
     }
 
-    if(tipo === "Saida"){
+    if(tipo === "saida"){
       saidas += valor;
     }
 
   });
 
-/* ============== INADIMPLÊNCIA ============== */
+  /* =========================================
+     INADIMPLÊNCIA
+  ========================================= */
 
-  cobrancas.forEach(c => {
+  listaCobrancas.forEach(c => {
 
-    const status = String(c[5] || "").trim();
-    const mesCobranca = String(c[3] || "").trim();
+    if(!c || !c.length){
+      return;
+    }
 
-    // apenas pendências do mês atual
+    const status =
+
+      normalizarTexto(c[5])
+        .toLowerCase();
+
+    const mesCobranca =
+      formatarMes(c[3]);
+
     if(
-      status === "Pendente" &&
+
+      status === "pendente"
+      &&
       mesCobranca === mesAtual
+
     ){
-      inadimplencia += Number(c[4]) || 0;
+
+      inadimplencia +=
+        numero(c[4]);
     }
 
   });
 
-/* ================== ATIVOS ================== */
+  /* =========================================
+     ASSOCIADOS ATIVOS
+  ========================================= */
 
-  associados.forEach(a => {
+  listaAssociados.forEach(a => {
+
+    if(!a || !a.length){
+      return;
+    }
 
     const status =
-      String(a[7] || "Ativo").trim();
 
-    if(status === "Ativo"){
+      normalizarTexto(
+        a[7] || "Ativo"
+      )
+
+      .toLowerCase();
+
+    if(status === "ativo"){
       ativos++;
     }
 
   });
 
-  const saldo = entradas - saidas;
+  const saldo =
+    entradas - saidas;
+
+  /* =========================================
+     RENDER
+  ========================================= */
 
   tela.innerHTML = `
 
     <div class="top">
 
       <div class="box">
+
         <b>Entradas</b><br>
 
-        <span style="color:#22c55e;">
-          R$ ${entradas.toFixed(2)}
+        <span class="text-success">
+          ${moeda(entradas)}
         </span>
 
       </div>
 
       <div class="box">
+
         <b>Saídas</b><br>
 
-        <span style="color:#ef4444;">
-          R$ ${saidas.toFixed(2)}
+        <span class="text-danger">
+          ${moeda(saidas)}
         </span>
 
       </div>
 
       <div class="box">
+
         <b>Saldo</b><br>
 
-        <span style="
-          color:${saldo >= 0 ? "#22c55e" : "#ef4444"};
-        ">
-          R$ ${saldo.toFixed(2)}
+        <span
+          class="${
+            saldo >= 0
+              ? "text-success"
+              : "text-danger"
+          }"
+        >
+
+          ${moeda(saldo)}
+
         </span>
 
       </div>
 
       <div class="box">
+
         <b>Inadimplência</b><br>
 
-        <span style="color:#f59e0b;">
-          R$ ${inadimplencia.toFixed(2)}
+        <span class="text-warning">
+          ${moeda(inadimplencia)}
         </span>
 
       </div>
 
       <div class="box">
+
         <b>Associados Ativos</b><br>
 
         <span>

@@ -1,4 +1,9 @@
-/* ============= RENDER RELATORIO ============= */
+/* =========================================
+   RELATORIOS
+========================================= */
+
+
+/* ============= RENDER RELATÓRIO ============= */
 function renderRelatorios(){
 
   tela.innerHTML = `
@@ -10,12 +15,14 @@ function renderRelatorios(){
       <input
         id="mesRelatorio"
         placeholder="MM-YYYY"
+        maxlength="7"
       >
 
       <button
         class="btn"
         style="margin-top:10px;"
-        onclick="gerarRelatorioMensal()">
+        onclick="gerarRelatorioMensal()"
+      >
 
         📊 Gerar Relatório
 
@@ -26,20 +33,63 @@ function renderRelatorios(){
     <div id="resultadoRelatorio"></div>
 
   `;
+
+  const input =
+    document.getElementById(
+      "mesRelatorio"
+    );
+
+  if(input){
+
+    input.addEventListener(
+      "keydown",
+      e => {
+
+        if(e.key === "Enter"){
+          gerarRelatorioMensal();
+        }
+
+      }
+    );
+  }
 }
 
 
-/* ============= GERAR RELATORIO ============= */
+/* ============= GERAR RELATÓRIO ============= */
 function gerarRelatorioMensal(){
 
   const mes =
-    document.getElementById("mesRelatorio")
-      .value
+
+    String(
+
+      document.getElementById(
+        "mesRelatorio"
+      )?.value || ""
+
+    )
+
       .trim();
 
+  /* ================= VALIDAÇÃO ================= */
   if(!mes){
 
-    alert("Informe o mês");
+    showToast(
+      "Informe o mês",
+      "warning"
+    );
+
+    return;
+  }
+
+  if(
+    !/^\d{2}-\d{4}$/.test(mes)
+  ){
+
+    showToast(
+      "Formato inválido. Use MM-YYYY",
+      "warning"
+    );
+
     return;
   }
 
@@ -49,44 +99,55 @@ function gerarRelatorioMensal(){
 
   const categorias = {};
 
+  const listaCaixa =
+    safeArray(state.caixa);
 
-/* ================== CAIXA ================== */
-  caixa.forEach(c => {
+  const listaCobrancas =
+    safeArray(state.cobrancas);
 
-    if(!c[1]) return;
 
-    const d = new Date(c[1]);
+  /* ================== CAIXA ================== */
+  listaCaixa.forEach(c => {
 
-    if(isNaN(d)) return;
+    if(!c || !c.length){
+      return;
+    }
+
+    const data =
+      c[1];
+
+    if(!dataValida(data)){
+      return;
+    }
 
     const mesLinha =
-      String(d.getMonth()+1).padStart(2,"0")
-      + "-"
-      + d.getFullYear();
+      obterMes(data);
 
     if(mesLinha !== mes){
       return;
     }
 
     const tipo =
-      String(c[2] || "").trim();
+      normalizarTexto(c[2]);
 
     const categoria =
-      String(c[3] || "Sem categoria").trim();
+
+      String(
+        c[3] || "Sem categoria"
+      )
+
+        .trim();
 
     const valor =
-      Number(c[5]) || 0;
+      numero(c[5]);
 
-    /* ENTRADAS */
-    if(tipo === "Entrada"){
+    /* =============== ENTRADAS =============== */
+    if(isEntrada(tipo)){
       entradas += valor;
     }
 
-    /* SAIDAS */
-    if(
-      tipo === "Saída" ||
-      tipo === "Saida"
-    ){
+    /* ================= SAÍDAS ================= */
+    if(isSaida(tipo)){
 
       saidas += valor;
 
@@ -100,44 +161,72 @@ function gerarRelatorioMensal(){
   });
 
 
-/* ============== INADIMPLENCIA ============== */
-  cobrancas.forEach(c => {
+  /* ============== INADIMPLÊNCIA ============== */
+  listaCobrancas.forEach(c => {
+
+    if(!c || !c.length){
+      return;
+    }
 
     const mesCobranca =
-      formatarMes(
-        String(c[3]).substring(0,7)
-      );
+
+      String(c[3] || "")
+        .replace("/", "-")
+        .trim();
+
+    const status =
+      normalizarTexto(c[5]);
 
     if(
-      mesCobranca === mes &&
-      String(c[5]).trim() === "Pendente"
+      mesCobranca === mes
+      &&
+      status === "Pendente"
     ){
 
-      inadimplencia += Number(c[4]) || 0;
+      inadimplencia +=
+        numero(c[4]);
     }
 
   });
 
-  const saldo = entradas - saidas;
+  const saldo =
+    entradas - saidas;
 
 
-/* ============ ORDENAR CATEGORIAS ============ */
+  /* ============ ORDENAR CATEGORIAS ============ */
   const categoriasOrdenadas =
+
     Object.entries(categorias)
-      .sort((a,b) => b[1] - a[1]);
+
+      .sort((a, b) =>
+
+        b[1] - a[1]
+
+      );
 
   let htmlCategorias = "";
 
+
+  /* ============== SEM DESPESAS ============== */
   if(!categoriasOrdenadas.length){
 
     htmlCategorias = `
-      <div style="margin-top:10px;opacity:0.7;">
+
+      <div style="
+        margin-top:10px;
+        opacity:.7;
+      ">
+
         Nenhuma despesa encontrada.
+
       </div>
+
     `;
   }
 
-  categoriasOrdenadas.forEach(([cat, valor]) => {
+
+  /* ================== LISTA ================== */
+  categoriasOrdenadas.forEach(([categoria, valor]) => {
 
     htmlCategorias += `
 
@@ -147,26 +236,33 @@ function gerarRelatorioMensal(){
         align-items:center;
         margin-top:8px;
         padding:8px 0;
-        border-bottom:1px solid rgba(255,255,255,.06);
+        border-bottom:
+          1px solid rgba(255,255,255,.06);
       ">
 
-        <span>${cat}</span>
+        <span>
+          ${categoria}
+        </span>
 
         <b>
-          R$ ${valor.toFixed(2)}
+          ${moeda(valor)}
         </b>
 
       </div>
 
     `;
   });
-  
 
-/* ================== RENDER ================== */
-  document.getElementById("resultadoRelatorio")
-    .innerHTML = `
 
-    <div class="card" style="margin-top:15px;">
+  /* ================== RENDER ================== */
+  document.getElementById(
+    "resultadoRelatorio"
+  ).innerHTML = `
+
+    <div
+      class="card"
+      style="margin-top:15px;"
+    >
 
       <h2>
         📅 Relatório ${mes}
@@ -176,7 +272,8 @@ function gerarRelatorioMensal(){
 
       <div style="
         display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        grid-template-columns:
+          repeat(auto-fit,minmax(180px,1fr));
         gap:10px;
         margin-top:15px;
       ">
@@ -186,7 +283,9 @@ function gerarRelatorioMensal(){
           <b>Entradas</b><br>
 
           <span style="color:#22c55e;">
-            R$ ${entradas.toFixed(2)}
+
+            ${moeda(entradas)}
+
           </span>
 
         </div>
@@ -196,7 +295,9 @@ function gerarRelatorioMensal(){
           <b>Saídas</b><br>
 
           <span style="color:#ef4444;">
-            R$ ${saidas.toFixed(2)}
+
+            ${moeda(saidas)}
+
           </span>
 
         </div>
@@ -205,8 +306,17 @@ function gerarRelatorioMensal(){
 
           <b>Saldo Final</b><br>
 
-          <span>
-            R$ ${saldo.toFixed(2)}
+          <span style="
+            color:
+              ${
+                saldo >= 0
+                  ? "#22c55e"
+                  : "#ef4444"
+              };
+          ">
+
+            ${moeda(saldo)}
+
           </span>
 
         </div>
@@ -216,7 +326,9 @@ function gerarRelatorioMensal(){
           <b>Inadimplência</b><br>
 
           <span style="color:#f59e0b;">
-            R$ ${inadimplencia.toFixed(2)}
+
+            ${moeda(inadimplencia)}
+
           </span>
 
         </div>

@@ -1,66 +1,194 @@
-/* =============== VALIDAR CPFs =============== */
+/* =========================================
+   VALIDATORS
+========================================= */
+
+
+/* ========== VALOR POSITIVO ========== */
+function valorPositivo(valor){
+
+  return numero(valor) > 0;
+}
+
+
+/* ========== CPF ========== */
 function validarCPFFront(cpf){
 
-  cpf = String(cpf).replace(/\D/g,"");
+  const texto =
+    limparCPF(cpf);
 
-  if(cpf.length !== 11) return false;
-
-  if(/^(\d)\1+$/.test(cpf)) return false;
-
-  let soma = 0;
-  let resto;
-
-  for(let i=1; i<=9; i++){
-    soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  if(texto.length !== 11){
+    return false;
   }
 
-  resto = (soma * 10) % 11;
+  /* CPF repetido */
+  if(/^(\d)\1+$/.test(texto)){
+    return false;
+  }
 
-  if(resto === 10 || resto === 11){
+  let soma = 0;
+  let resto = 0;
+
+  /* =========================================
+     PRIMEIRO DIGITO
+  ========================================= */
+
+  for(let i = 1; i <= 9; i++){
+
+    soma +=
+
+      Number(texto[i - 1])
+
+      *
+
+      (11 - i);
+  }
+
+  resto =
+    (soma * 10) % 11;
+
+  if(
+    resto === 10
+    ||
+    resto === 11
+  ){
     resto = 0;
   }
 
-  if(resto !== parseInt(cpf.substring(9,10))){
+  if(
+    resto !==
+    Number(texto[9])
+  ){
+
     return false;
   }
+
+  /* =========================================
+     SEGUNDO DIGITO
+  ========================================= */
 
   soma = 0;
 
   for(let i = 1; i <= 10; i++){
-    soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+
+    soma +=
+
+      Number(texto[i - 1])
+
+      *
+
+      (12 - i);
   }
 
-  resto = (soma * 10) % 11;
+  resto =
+    (soma * 10) % 11;
 
-  if(resto === 10 || resto === 11){
+  if(
+    resto === 10
+    ||
+    resto === 11
+  ){
     resto = 0;
   }
 
-  if(resto !== parseInt(cpf.substring(10,11))){
-    return false;
-  }
-
-  return true;
+  return (
+    resto ===
+    Number(texto[10])
+  );
 }
 
-/* ============== VALIDAR CAMPOS ============== */
-function validarCampos(){
 
-  let ok = true;
+/* ========== LIMPAR ERROS ========== */
+function limparErrosCampos(){
 
-  [m_nome, m_cpf, m_mensal].forEach(c=>{
-    c.classList.remove("input-erro");
+  document
+    .querySelectorAll(".input-erro")
+    .forEach(el => {
 
-    if(!c.value){
-      c.classList.add("input-erro");
-      ok = false;
-    }
-  });
+      el.classList.remove(
+        "input-erro"
+      );
 
-  if(!validarCPFFront(m_cpf.value)){
-    m_cpf.classList.add("input-erro");
-    ok = false;
+    });
+}
+
+
+/* ========== MARCAR ERRO ========== */
+function marcarErro(campo){
+
+  if(!campo){
+    return;
   }
 
-  return ok;
+  campo.classList.add(
+    "input-erro"
+  );
+}
+
+
+/* ========== CAMPOS MODAL ========== */
+function validarCampos(){
+
+  limparErrosCampos();
+
+  const nome =
+    document.getElementById(
+      "m_nome"
+    );
+
+  const cpf =
+    document.getElementById(
+      "m_cpf"
+    );
+
+  const mensalidade =
+    document.getElementById(
+      "m_mensal"
+    );
+
+  let valido = true;
+
+  /* =========================================
+     NOME
+  ========================================= */
+
+  if(
+    !nome?.value.trim()
+  ){
+
+    marcarErro(nome);
+
+    valido = false;
+  }
+
+  /* =========================================
+     CPF
+  ========================================= */
+
+  if(
+    !cpf?.value.trim()
+    ||
+    !validarCPFFront(cpf.value)
+  ){
+
+    marcarErro(cpf);
+
+    valido = false;
+  }
+
+  /* =========================================
+     MENSALIDADE
+  ========================================= */
+
+  if(
+    !valorPositivo(
+      mensalidade?.value
+    )
+  ){
+
+    marcarErro(mensalidade);
+
+    valido = false;
+  }
+
+  return valido;
 }

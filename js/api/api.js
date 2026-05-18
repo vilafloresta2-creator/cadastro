@@ -1,77 +1,158 @@
+/* =========================================
+   API
+========================================= */
+
+
 /* ================= POST API ================= */
+async function postAPI(dados = {}){
 
-async function postAPI(dados){
+  try{
 
-  const res = await fetch(API,{
-    method:"POST",
-    body: JSON.stringify(dados)
-  });
+    const response = await fetch(API_URL, {
 
-  return await res.json();
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify(dados)
+
+    });
+
+    if(!response.ok){
+
+      throw new Error(
+        `Erro HTTP ${response.status}`
+      );
+    }
+
+    const json =
+      await response.json();
+
+    return json;
+
+  }catch(error){
+
+    console.error(
+      "POST API ERROR:",
+      error
+    );
+
+    return {
+
+      erro:
+        "Erro de conexão com servidor"
+
+    };
+  }
 }
 
 
 /* ================= CARREGAR ================= */
-async function carregar(){
+async function carregar(
+  exibirLoading = false
+){
 
   try{
 
-    const res = await fetch(API);
+    if(exibirLoading){
 
-    if(!res.ok){
-      throw new Error("Erro HTTP");
+      showLoading(
+        "Carregando sistema..."
+      );
     }
 
-    const data = await res.json();
+    const response =
+      await fetch(API_URL);
 
-    console.log("API:", data);
+    if(!response.ok){
+
+      throw new Error(
+        `Erro HTTP ${response.status}`
+      );
+    }
+
+    const data =
+      await response.json();
+
+    console.log(
+      "API:",
+      data
+    );
 
     if(data.erro){
-      alert("Erro API: " + data.erro);
+
+      showToast(
+        data.erro,
+        "error"
+      );
+
       return;
     }
 
-    caixa =
-      Array.isArray(data.caixa)
-        ? data.caixa.slice(1)
-        : [];
 
-    associados =
-      Array.isArray(data.associados)
-        ? data.associados.slice(1)
-        : [];
+    /* =========================================
+       STATE
+    ========================================= */
 
-    cobrancas =
-      Array.isArray(data.cobrancas)
-        ? data.cobrancas.slice(1)
-        : [];
+    state.caixa =
+      safeArray(data.caixa)
+        .slice(1);
 
-    recibos =
-      Array.isArray(data.recibos)
-        ? data.recibos.slice(1)
-        : [];
 
-    fechamentos =
-      Array.isArray(data.fechamentos)
-        ? data.fechamentos.slice(1)
-        : [];
+    state.associados =
 
-    fixas =
-      Array.isArray(data.fixas)
-        ? data.fixas.slice(1)
-        : [];
+      safeArray(data.associados)
+        .slice(1);
 
-    backups =
-      Array.isArray(data.backups)
-        ? data.backups.slice(1)
-        : [];
+
+    state.cobrancas =
+
+      safeArray(data.cobrancas)
+        .slice(1);
+
+
+    state.recibos =
+
+      safeArray(data.recibos)
+        .slice(1);
+
+
+    state.fechamentos =
+
+      safeArray(data.fechamentos)
+        .slice(1);
+
+
+    state.fixas =
+
+      safeArray(data.fixas)
+        .slice(1);
+
+
+    state.backups =
+
+      safeArray(data.backups)
+        .slice(1);
+
 
     render();
 
-  }catch(e){
+  }catch(error){
 
-    console.error(e);
+    console.error(
+      "LOAD API ERROR:",
+      error
+    );
 
-    alert("Erro de conexão com API");
+    showToast(
+      "Erro de conexão com API",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
   }
 }

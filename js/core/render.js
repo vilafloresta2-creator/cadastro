@@ -1,44 +1,62 @@
+/* =========================================
+   RENDER
+========================================= */
+
+
+/* =========================================
+   SCREENS
+========================================= */
+
+const SCREENS = {
+
+  dashboard:
+    renderDashboard,
+
+  associados:
+    renderAssociados,
+
+  cobrancas:
+    renderCobrancas,
+
+  devedores:
+    renderDevedores,
+
+  caixa:
+    renderCaixa,
+
+  fixas:
+    renderFixas,
+
+  recibos:
+    renderRecibos,
+
+  relatorios:
+    renderRelatorios,
+
+  backups:
+    renderBackups
+
+};
+
+
+/* ================= RENDER ================= */
 function render(){
 
-  switch(telaAtual){
+  const renderTela =
+    SCREENS[telaAtual];
 
-    case "dashboard":
-      renderDashboard();
-      break;
+  if(
+    typeof renderTela
+    !== "function"
+  ){
 
-    case "associados":
-      renderAssociados();
-      break;
+    telaAtual =
+      "dashboard";
 
-    case "cobrancas":
-      renderCobrancas();
-      break;
+    renderDashboard();
 
-    case "devedores":
-      renderDevedores();
-      break;
-
-    case "caixa":
-      renderCaixa();
-      break;
-
-    case "fixas":
-      renderFixas();
-      break;
-
-    case "recibos":
-      renderRecibos();
-      break;
-
-    case "relatorios":
-      renderRelatorios();
-      break;
-
-    case "backups":
-      renderBackups();
-      break;
-
-    default:
-      renderDashboard();
+    return;
   }
+
+  renderTela();
 }

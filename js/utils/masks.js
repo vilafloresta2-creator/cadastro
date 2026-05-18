@@ -1,42 +1,34 @@
-/* =============== MASCARA CPF =============== */
-function maskCPF(v){
-  v = String(v || "");
-  v = v.replace(/\D/g,"").slice(0,11);
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d)/,"$1.$2");
-  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-  return v;
-}
+/* =========================================
+   MASKS
+========================================= */
 
-/* ============= MASCARA TELEFONE ============= */
-function maskTel(v){
-  v = String(v || "");
-  v = v.replace(/\D/g,"").slice(0,11);
 
-  if(v.length > 10){
-    v = v.replace(/(\d{2})(\d{5})(\d)/,"($1) $2-$3");
-  }else{
-    v = v.replace(/(\d{2})(\d{4})(\d)/,"($1) $2-$3");
-  }
+/* ========== LIMPAR CPF ========== */
+function limparCPF(cpf){
 
-  return v;
-}
-
-/* ============== NORMALIZAR CPF ============== */
-function normalizarCPF(cpf){
   return String(cpf || "")
-    .replace(/\D/g,"")
-    .padStart(11,"0");
+
+    .replace(/^'/, "")
+
+    .replace(/\D/g, "");
 }
 
-document.addEventListener("input", (e) => {
 
-  if(e.target.id === "m_cpf"){
-    e.target.value = maskCPF(e.target.value);
+/* ========== FORMATAR CPF ========== */
+function maskCPF(cpf){
+
+  const cpfLimpo =
+    limparCPF(cpf);
+
+  if(cpfLimpo.length !== 11){
+    return cpfLimpo;
   }
 
-  if(e.target.id === "m_tel"){
-    e.target.value = maskTel(e.target.value);
-  }
+  return cpfLimpo.replace(
 
-});
+    /(\d{3})(\d{3})(\d{3})(\d{2})/,
+
+    "$1.$2.$3-$4"
+
+  );
+}

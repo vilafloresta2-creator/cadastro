@@ -1,31 +1,51 @@
+/* =========================================
+   DEVEDORES
+========================================= */
+
+
 /* ============= RENDER DEVEDORES ============= */
 function renderDevedores(){
 
   const meses = [
+
     ...new Set(
-      cobrancas
-        .map(c => c[3])
+
+      safeArray(state.cobrancas)
+
+        .map(c =>
+          String(c?.[3] || "").trim()
+        )
+
         .filter(Boolean)
+
     )
-  ].sort().reverse();
+
+  ]
+
+    .sort()
+
+    .reverse();
 
   tela.innerHTML = `
-    
-    <div class="box" style="margin-bottom:10px;">
+
+    <div
+      class="box"
+      style="margin-bottom:10px;"
+    >
 
       <b>Total em aberto</b><br>
 
       <span id="totalDivida">
-        R$ 0.00
+        ${moeda(0)}
       </span>
 
     </div>
 
     <div class="linha-filtros">
-      
+
       <input
-        placeholder="Buscar devedor..."
         id="buscaDevedor"
+        placeholder="Buscar devedor..."
       >
 
       <select id="filtroMesDevedor">
@@ -35,9 +55,11 @@ function renderDevedores(){
         </option>
 
         ${meses.map(m => `
+
           <option value="${m}">
             ${formatarMes(m)}
           </option>
+
         `).join("")}
 
       </select>
@@ -45,20 +67,31 @@ function renderDevedores(){
     </div>
 
     <div id="listaDevedores"></div>
+
   `;
 
   const busca =
-    document.getElementById("buscaDevedor");
+    document.getElementById(
+      "buscaDevedor"
+    );
 
   const filtro =
-    document.getElementById("filtroMesDevedor");
+    document.getElementById(
+      "filtroMesDevedor"
+    );
 
   if(busca){
-    busca.oninput = listarDevedores;
+    busca.addEventListener(
+      "input",
+      listarDevedores
+    );
   }
 
   if(filtro){
-    filtro.onchange = listarDevedores;
+    filtro.addEventListener(
+      "change",
+      listarDevedores
+    );
   }
 
   listarDevedores();
@@ -69,107 +102,162 @@ function renderDevedores(){
 function listarDevedores(){
 
   const busca =
+
     (
-      document.getElementById("buscaDevedor")
-        ?.value || ""
-    ).toLowerCase();
+      document.getElementById(
+        "buscaDevedor"
+      )?.value || ""
+    )
+
+      .toLowerCase()
+
+      .trim();
 
   const mes =
-    document.getElementById("filtroMesDevedor")
-      ?.value || "";
 
-  let lista = cobrancas.filter(c =>
-    String(c[5]).trim() === "Pendente"
-  );
+    document.getElementById(
+      "filtroMesDevedor"
+    )?.value || "";
+
+  let lista =
+
+    safeArray(state.cobrancas)
+
+      .filter(c =>
+
+        normalizarTexto(c?.[5])
+
+          .toLowerCase()
+
+        ===
+
+        "pendente"
+
+      );
 
 
-/* ================== BUSCA ================== */
+  /* ================= BUSCA ================= */
   if(busca){
 
     lista = lista.filter(c =>
-      String(c[1] || "")
-        .toLowerCase()
-        .includes(busca)
-    );
 
+      String(c?.[1] || "")
+
+        .toLowerCase()
+
+        .includes(busca)
+
+    );
   }
 
 
-/* ================ FILTRO MÊS ================ */
+  /* ============== FILTRO MÊS ============== */
   if(mes){
 
     lista = lista.filter(c =>
-      String(c[3]).trim() === mes
-    );
 
+      String(c?.[3] || "").trim()
+
+      ===
+
+      mes
+
+    );
   }
 
 
-/* ================ ORDENAÇÃO ================ */
-  lista.sort((a, b) => {
+  /* ================ ORDENAÇÃO ================ */
+  lista.sort((a, b) =>
 
-    const valorA = Number(a[4]) || 0;
-    const valorB = Number(b[4]) || 0;
+    numero(b?.[4])
 
-    return valorB - valorA;
+    -
 
-  });
+    numero(a?.[4])
+
+  );
 
   let total = 0;
+
   let html = "";
 
 
-/* =============== LISTA VAZIA =============== */
+  /* ============== LISTA VAZIA ============== */
   if(!lista.length){
 
     html = `
-      <div class="card">
-        Nenhum devedor 🎉
-      </div>
-    `;
 
+      <div class="card">
+        Nenhum devedor encontrado 🎉
+      </div>
+
+    `;
   }
 
 
-/* ================== RENDER ================== */
+  /* ================= RENDER ================= */
   lista.forEach(c => {
 
-    const nome = c[1];
+    if(!c || !c.length){
+      return;
+    }
 
-    const mesFormatado = formatarMes(
-      String(c[3] || "").substring(0,7)
-    );
+    const nome =
 
-    const valor = Number(c[4]) || 0;
+      String(c[1] || "-")
+        .trim();
+
+    const mesFormatado =
+
+      formatarMes(
+        String(c[3] || "")
+      );
+
+    const valor =
+      numero(c[4]);
 
     total += valor;
 
     html += `
 
-      <div class="card" style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      ">
-        
+      <div
+        class="card"
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+        "
+      >
+
         <div>
 
           <div style="
             font-size:16px;
             font-weight:600;
           ">
+
             ${nome}
+
           </div>
 
           <div style="
             font-size:12px;
             color:#ef4444;
+            margin-top:4px;
           ">
+
             ${mesFormatado} • Em aberto
+
           </div>
 
-          <div style="margin-top:5px;">
-            R$ ${valor.toFixed(2)}
+          <div style="
+            margin-top:6px;
+            font-weight:bold;
+          ">
+
+            ${moeda(valor)}
+
           </div>
 
         </div>
@@ -179,31 +267,42 @@ function listarDevedores(){
           style="
             font-size:12px;
             padding:6px 12px;
+            white-space:nowrap;
           "
           onclick="ir('cobrancas')"
         >
+
           Ver
+
         </button>
 
       </div>
 
     `;
-
   });
 
 
-/* ================== TOTAL ================== */
-
+  /* ================= TOTAL ================= */
   const totalEl =
-    document.getElementById("totalDivida");
+
+    document.getElementById(
+      "totalDivida"
+    );
 
   if(totalEl){
 
     totalEl.innerText =
-      "R$ " + total.toFixed(2);
-
+      moeda(total);
   }
 
-  document.getElementById("listaDevedores")
-    .innerHTML = html;
+  const listaEl =
+
+    document.getElementById(
+      "listaDevedores"
+    );
+
+  if(listaEl){
+
+    listaEl.innerHTML = html;
+  }
 }

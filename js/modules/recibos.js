@@ -1,217 +1,54 @@
-/* ============== RENDER RECIBOS ============== */
-function renderRecibos(){
-
-  // garante array
-  if(!Array.isArray(recibos)){
-    recibos = [];
-  }
-
-  const meses = [
-    ...new Set(
-      recibos.map(r => r[4])
-    )
-  ];
-
-  tela.innerHTML = `
-
-    <div class="filtro-linha"
-      style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
-
-      <input
-        id="buscaRecibo"
-        placeholder="Buscar..."
-        style="flex:1; min-width:200px;">
-
-      <select id="filtroMesRecibo"
-        style="width:200px;">
-
-        <option value="">Todos</option>
-
-        ${meses.map(m => `
-          <option value="${m}">
-            ${formatarMes(m)}
-          </option>
-        `).join("")}
-
-      </select>
-
-    </div>
-
-    <div id="listaRecibos"></div>
-
-  `;
-
-  document.getElementById("buscaRecibo")
-    .oninput = listarRecibos;
-
-  document.getElementById("filtroMesRecibo")
-    .onchange = listarRecibos;
-
-  listarRecibos();
-}
-
-
-/* ============== LISTAR RECIBOS ============== */
-function listarRecibos(){
-
-  const busca =
-    (
-      document.getElementById("buscaRecibo")?.value || ""
-    ).toLowerCase();
-
-  const mes =
-    document.getElementById("filtroMesRecibo")?.value || "";
-
-  let lista = [...recibos];
-
-  if(busca){
-
-    lista = lista.filter(r =>
-      String(r[2] || "")
-        .toLowerCase()
-        .includes(busca)
-    );
-  }
-
-  if(mes){
-
-    lista = lista.filter(r =>
-      String(r[4]) === String(mes)
-    );
-  }
-
-  let html = "";
-
-  if(!lista.length){
-
-    html = `
-      <div class="card">
-        Nenhum recibo encontrado.
-      </div>
-    `;
-  }
-
-  lista.reverse().forEach(r => {
-
-    const numero = r[1];
-    const nome = r[2];
-    const valor = Number(r[5] || 0).toFixed(2);
-    const data = formatarData(r[6]);
-
-    html += `
-
-      <div class="card"
-        style="display:flex;justify-content:space-between;align-items:center;">
-
-        <div>
-
-          <div style="font-size:16px;font-weight:600;">
-            ${nome}
-          </div>
-
-          <div style="font-size:12px;opacity:0.7;">
-            ${numero} • ${data}
-          </div>
-
-          <div style="margin-top:5px;">
-            R$ ${valor}
-          </div>
-
-        </div>
-
-        <button
-          class="btn-recibo"
-          style="font-size:12px;padding:6px 10px;"
-          onclick="reimprimir('${numero}')">
-
-          🧾 Reimprimir
-
-        </button>
-
-      </div>
-
-    `;
-  });
-
-  document.getElementById("listaRecibos")
-    .innerHTML = html;
-}
-
-
-/* ============ GERAR RECIBOS HTML ============ */
-function gerarHTMLRecibo(dados){
-
-  return `
-
-    <div style="
-      font-family:Arial;
-      max-width:400px;
-      padding:20px;
-      border:1px solid #ccc;
-      border-radius:10px;
-      margin:auto;
-    ">
-
-      <div style="text-align:center;">
-
-        <img
-          src="https://github.com/vilafloresta2-creator/cadastro/blob/main/logo.png?raw=true"
-          style="height:70px;">
-
-        <br>
-
-        <b style="font-size:18px;">
-          Vila Floresta 2
-        </b>
-
-      </div>
-
-      <hr>
-
-      <h3 style="text-align:center;">
-        RECIBO
-      </h3>
-
-      <p><b>Nº:</b> ${dados.numero}</p>
-      <p><b>Nome:</b> ${dados.nome}</p>
-      <p><b>CPF:</b> ${dados.cpf}</p>
-      <p><b>Mês:</b> ${dados.mes}</p>
-      <p><b>Valor:</b> R$ ${Number(dados.valor).toFixed(2)}</p>
-
-      <hr>
-
-      <p style="text-align:center;">
-        Recebemos o valor acima referente à mensalidade.
-      </p>
-
-      <p style="text-align:center; margin-top:20px;">
-        ${new Date().toLocaleDateString("pt-BR")}
-      </p>
-
-    </div>
-
-  `;
-}
+/* =========================================
+   RECIBOS
+========================================= */
 
 
 /* =============== GERAR RECIBO =============== */
-function gerarRecibo(c, numero){
+function gerarRecibo(cobranca, numeroRecibo){
 
-  const nome = c[1];
+  if(
+    !cobranca
+    ||
+    !Array.isArray(cobranca)
+  ){
 
-  const cpf = maskCPF(
-    String(c[2]).padStart(11,"0")
-  );
+    showToast(
+      "Dados do recibo inválidos",
+      "error"
+    );
 
-  const mes = formatarMes(
-    String(c[3]).substring(0,7)
-  );
+    return;
+  }
+
+  const nome =
+
+    String(cobranca[1] || "")
+      .trim();
+
+  const cpf =
+
+    maskCPF(
+      limparCPF(cobranca[2])
+    );
+
+  const mes =
+
+    formatarMes(
+
+      String(cobranca[3] || "")
+        .substring(0,7)
+
+    );
 
   const valor =
-    Number(c[4] || 0).toFixed(2);
+    numero(cobranca[4]);
 
   const data =
-    new Date().toLocaleDateString("pt-BR");
+
+    new Date()
+      .toLocaleDateString(
+        "pt-BR"
+      );
 
   const html = `
 
@@ -219,22 +56,30 @@ function gerarRecibo(c, numero){
 
       <head>
 
-        <title>Recibo</title>
+        <title>
+          Recibo
+        </title>
 
         <style>
 
           body{
+
             font-family:Arial;
             padding:30px;
             text-align:center;
+            background:#fff;
+            color:#000;
+
           }
 
           .box{
+
             border:2px solid #000;
             padding:20px;
             border-radius:10px;
             max-width:500px;
             margin:auto;
+
           }
 
           h2{
@@ -242,13 +87,25 @@ function gerarRecibo(c, numero){
           }
 
           .numero{
+
             font-size:14px;
             margin-bottom:15px;
+
           }
 
           .linha{
+
             margin:10px 0;
             font-size:16px;
+
+          }
+
+          .assinatura{
+            margin-top:40px;
+          }
+
+          img{
+            max-width:100%;
           }
 
         </style>
@@ -259,50 +116,90 @@ function gerarRecibo(c, numero){
 
         <div class="box">
 
-          <h2>RECIBO DE PAGAMENTO</h2>
+          <h2>
+
+            RECIBO DE PAGAMENTO
+
+          </h2>
 
           <div class="numero">
-            <b>Nº:</b> ${numero}
+
+            <b>Nº:</b>
+
+            ${numeroRecibo}
+
           </div>
 
           <img
             src="https://github.com/vilafloresta2-creator/cadastro/blob/main/logo.png?raw=true"
-            style="height:80px;margin-bottom:15px;">
+
+            alt="Logo"
+
+            style="
+              height:80px;
+              margin-bottom:15px;
+            "
+          >
 
           <div class="linha">
-            <b>Recebemos de:</b> ${nome}
+
+            <b>Recebemos de:</b>
+
+            ${nome || "-"}
+
           </div>
 
           <div class="linha">
-            <b>CPF:</b> ${cpf}
+
+            <b>CPF:</b>
+
+            ${cpf}
+
           </div>
 
           <div class="linha">
-            <b>Referente:</b> ${mes}
+
+            <b>Referente:</b>
+
+            ${mes}
+
           </div>
 
           <div class="linha">
-            <b>Valor:</b> R$ ${valor}
+
+            <b>Valor:</b>
+
+            ${moeda(valor)}
+
           </div>
 
           <div class="linha">
-            <b>Data:</b> ${data}
+
+            <b>Data:</b>
+
+            ${data}
+
           </div>
 
-          <br><br>
+          <div class="assinatura">
 
-          ___________________________
-          <br>
+            ___________________________
 
-          Assinatura
+            <br>
+
+            Assinatura
+
+          </div>
 
         </div>
 
         <script>
 
           window.onload = function(){
+
             window.print();
-          }
+
+          };
 
         </script>
 
@@ -312,45 +209,94 @@ function gerarRecibo(c, numero){
 
   `;
 
-  const w = window.open("", "_blank");
+  const janela =
+    window.open(
+      "",
+      "_blank"
+    );
 
-  w.document.write(html);
-  w.document.close();
+  if(!janela){
+
+    showToast(
+      "Permita popups para imprimir recibos",
+      "error"
+    );
+
+    return;
+  }
+
+  janela.document.write(html);
+
+  janela.document.close();
 }
 
 
 /* ================ REIMPRIMIR ================ */
-function reimprimir(numero){
+function reimprimir(numeroRecibo){
 
-  if(!numero){
+  if(!numeroRecibo){
 
-    alert("Recibo sem número");
+    showToast(
+      "Recibo sem número",
+      "error"
+    );
+
     return;
   }
 
-  const rec = recibos.find(r =>
-    String(r[1]).trim() === String(numero).trim()
-  );
+  const recibo =
 
-  if(!rec){
+    safeArray(state.recibos)
+      .find(r =>
 
-    alert("Recibo não encontrado");
+        String(r[1] || "")
+          .trim()
+
+          ===
+
+        String(numeroRecibo)
+          .trim()
+
+      );
+
+  if(!recibo){
+
+    showToast(
+      "Recibo não encontrado",
+      "error"
+    );
+
     return;
   }
 
-  const nome = rec[2];
+  const nome =
+
+    String(recibo[2] || "")
+      .trim();
 
   const cpf =
-    String(rec[3]).padStart(11,"0");
+    limparCPF(recibo[3]);
 
-  const mes = rec[4];
+  const mes =
+
+    String(recibo[4] || "")
+      .trim();
 
   const valor =
-    Number(rec[5] || 0).toFixed(2);
+    numero(recibo[5]);
 
   gerarRecibo(
-    [0, nome, cpf, mes, valor],
-    numero
+
+    [
+      0,
+      nome,
+      cpf,
+      mes,
+      valor
+    ],
+
+    numeroRecibo
+
   );
 }
 
@@ -358,23 +304,42 @@ function reimprimir(numero){
 /* ========= REIMPRIMIR POR COBRANÇA ========= */
 function reimprimirPorCobranca(id){
 
-  const c = cobrancas.find(x =>
-    String(x[0]) === String(id)
+  const cobranca =
+
+    safeArray(state.cobrancas)
+      .find(item =>
+
+        String(item[0])
+          === String(id)
+
+      );
+
+  if(!cobranca){
+
+    showToast(
+      "Cobrança não encontrada",
+      "error"
+    );
+
+    return;
+  }
+
+  const numeroRecibo =
+
+    String(cobranca[7] || "")
+      .trim();
+
+  if(!numeroRecibo){
+
+    showToast(
+      "Recibo não gerado ainda",
+      "error"
+    );
+
+    return;
+  }
+
+  reimprimir(
+    numeroRecibo
   );
-
-  if(!c){
-
-    alert("Cobrança não encontrada");
-    return;
-  }
-
-  const numero = c[7];
-
-  if(!numero){
-
-    alert("Recibo não gerado ainda");
-    return;
-  }
-
-  reimprimir(numero);
 }

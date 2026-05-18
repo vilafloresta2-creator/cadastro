@@ -1,18 +1,59 @@
+/* =========================================
+   NAVIGATION
+========================================= */
+
+
+/* ================== IR ================== */
 function ir(telaNome){
 
   if(!telaNome){
     return;
   }
 
-  telaAtual = telaNome;
+  telaAtual =
 
-  document.querySelectorAll(".nav button")
+    String(telaNome)
+      .trim();
+
+
+  /* =========================================
+     REMOVE ACTIVE
+  ========================================= */
+
+  document
+
+    .querySelectorAll(".nav button")
+
     .forEach(btn => {
-      btn.classList.remove("active");
+
+      btn.classList.remove(
+        "active"
+      );
+
     });
 
-  document.getElementById("btn_" + telaNome)
-    ?.classList.add("active");
+
+  /* =========================================
+     ACTIVE BUTTON
+  ========================================= */
+
+  const botao =
+
+    document.getElementById(
+      "btn_" + telaAtual
+    );
+
+  if(botao){
+
+    botao.classList.add(
+      "active"
+    );
+  }
+
+
+  /* =========================================
+     RENDER
+  ========================================= */
 
   render();
 }
