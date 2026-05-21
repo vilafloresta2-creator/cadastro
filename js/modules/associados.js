@@ -129,7 +129,7 @@ function listarAssociados(){
 
         </div>
 
-        <div class="acoes">
+        <div class="acoes-lista">
 
           <button
             class="btn-edit btn-icon"

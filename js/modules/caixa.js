@@ -692,7 +692,7 @@ async function fecharMes(){
 
   const mes =
     await showPrompt(
-      "Informe o mês (MM-YYYY)"
+      "Informe o mês (YYYY-MM)"
     );
 
   if(!mes){
@@ -703,7 +703,7 @@ async function fecharMes(){
     String(mes).trim();
 
   if(
-    !/^\d{2}-\d{4}$/.test(texto)
+    !/^\d{4}-\d{2}$/.test(texto)
   ){
 
     showToast(
