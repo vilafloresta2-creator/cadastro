@@ -9,32 +9,25 @@
 
 const SCREENS = {
 
-  dashboard:
-    renderDashboard,
+  dashboard: renderDashboard,
 
-  associados:
-    renderAssociados,
+  associados: renderAssociados,
 
-  cobrancas:
-    renderCobrancas,
+  devedores: renderDevedores,
 
-  devedores:
-    renderDevedores,
+  cobrancas: renderCobrancas,
 
-  caixa:
-    renderCaixa,
+  caixa: renderCaixa,
 
-  fixas:
-    renderFixas,
+  reservas: renderReservas,
 
-  recibos:
-    renderRecibos,
+  fixas: renderFixas,
 
-  relatorios:
-    renderRelatorios,
+  relatorios: renderRelatorios,
 
-  backups:
-    renderBackups
+  backups: renderBackups,
+
+  recibos: renderRecibos
 
 };
 
