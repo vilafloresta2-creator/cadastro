@@ -114,6 +114,9 @@ async function carregar(
       safeArray(data.recibos)
         .slice(1);
 
+    state.reservas =
+      safeArray(resp.reservas);    
+
     state.fechamentos =
       safeArray(data.fechamentos)
         .slice(1);

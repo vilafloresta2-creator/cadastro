@@ -261,6 +261,13 @@ function listarReservas(){
             </button>
 
             <button
+              class="btn"
+              onclick="abrirPagamentoReserva('${id}')"
+            >
+              💰 Pagamento
+            </button>            
+
+            <button
               class="btn-cancelar"
               onclick="excluirReservaFrontend('${id}')"
             >
@@ -499,6 +506,84 @@ async function excluirReservaFrontend(id){
 
     showToast(
       "Erro ao excluir reserva",
+      "error"
+    );
+
+  }finally{
+
+    hideLoading();
+  }
+}
+
+/* ================= PAGAMENTO ================= */
+async function abrirPagamentoReserva(id){
+
+  const valor =
+    await showPrompt(
+      "Valor recebido"
+    );
+
+  if(!valor){
+    return;
+  }
+
+  const numero =
+    Number(valor);
+
+  if(
+    isNaN(numero)
+    ||
+    numero <= 0
+  ){
+
+    showToast(
+      "Valor inválido",
+      "warning"
+    );
+
+    return;
+  }
+
+  showLoading(
+    "Registrando pagamento..."
+  );
+
+  try{
+
+    const resp =
+      await postAPI({
+
+        acao:
+          "pagar_reserva",
+
+        id,
+        valor:numero
+
+      });
+
+    if(resp.erro){
+
+      showToast(
+        resp.erro,
+        "error"
+      );
+
+      return;
+    }
+
+    showToast(
+      "Pagamento registrado!",
+      "success"
+    );
+
+    await carregar();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Erro ao registrar pagamento",
       "error"
     );
 
