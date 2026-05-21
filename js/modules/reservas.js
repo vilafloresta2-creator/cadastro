@@ -399,7 +399,7 @@ async function salvarReserva(){
 async function receberReserva(id){
 
   const valor =
-    await showPrompt(
+    prompt(
       "Valor recebido"
     );
 
