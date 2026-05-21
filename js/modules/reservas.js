@@ -251,14 +251,7 @@ function listarReservas(){
             gap:8px;
             margin-top:12px;
             flex-wrap:wrap;
-          ">
-
-            <button
-              class="btn"
-              onclick="receberReserva('${id}')"
-            >
-              💰 Receber
-            </button>
+          ">            
 
             <button
               class="btn"
@@ -385,67 +378,6 @@ async function salvarReserva(){
 
     showToast(
       "Erro ao salvar reserva",
-      "error"
-    );
-
-  }finally{
-
-    hideLoading();
-  }
-}
-
-
-/* ============== RECEBER RESERVA ============== */
-async function receberReserva(id){
-
-  const valor =
-    prompt(
-      "Valor recebido"
-    );
-
-  if(!valor){
-    return;
-  }
-
-  showLoading(
-    "Registrando pagamento..."
-  );
-
-  try{
-
-    const resp =
-      await postAPI({
-
-        acao:"pagar_reserva",
-
-        id,
-        valor
-
-      });
-
-    if(resp.erro){
-
-      showToast(
-        resp.erro,
-        "error"
-      );
-
-      return;
-    }
-
-    showToast(
-      "Pagamento registrado!",
-      "success"
-    );
-
-    await carregar();
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Erro ao registrar pagamento",
       "error"
     );
 
