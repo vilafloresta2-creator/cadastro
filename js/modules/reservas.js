@@ -451,7 +451,7 @@ async function excluirReservaFrontend(id){
 async function abrirPagamentoReserva(id){
 
   const valor =
-    await showPrompt(
+    window.prompt(
       "Valor recebido"
     );
 
