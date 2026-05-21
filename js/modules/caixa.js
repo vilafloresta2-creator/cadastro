@@ -690,10 +690,9 @@ async function excluirCaixa(id){
 /* ================ FECHAR MÊS ================ */
 async function fecharMes(){
 
-  const mes =
-    await showPrompt(
-      "Informe o mês (YYYY-MM)"
-    );
+  const mes = window.prompt(
+    "Informe o mês (YYYY-MM)"
+  );
 
   if(!mes){
     return;
@@ -707,7 +706,7 @@ async function fecharMes(){
   ){
 
     showToast(
-      "Formato inválido. Use MM-YYYY",
+      "Formato inválido. Use YYYY-MM",
       "warning"
     );
 
@@ -715,7 +714,7 @@ async function fecharMes(){
   }
 
   const confirmado =
-    await showConfirm(
+    confirm(
       `Fechar mês ${texto}?`
     );
 
@@ -732,9 +731,7 @@ async function fecharMes(){
     const resp =
       await postAPI({
 
-        acao:
-          "fechar_mes",
-
+        acao:"fechar_mes",
         mes:texto
 
       });
