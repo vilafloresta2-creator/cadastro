@@ -80,21 +80,7 @@ function renderReservas(){
         onclick="salvarReserva()"
       >
         💾 Salvar Reserva
-      </button>
-
-      <button
-        class="btn"
-        onclick="gerarContratoReserva('${id}')"
-      >
-        📄 Contrato
-      </button>
-
-      <button
-        class="btn"
-        onclick="enviarWhatsReserva('${id}')"
-      >
-        📲 WhatsApp
-      </button>
+      </button>      
 
     </div>
 
@@ -263,14 +249,28 @@ function listarReservas(){
             gap:8px;
             margin-top:12px;
             flex-wrap:wrap;
-          ">            
+          ">
 
             <button
               class="btn"
               onclick="abrirPagamentoReserva('${id}')"
             >
               💰 Pagamento
-            </button>            
+            </button>
+
+            <button
+              class="btn"
+              onclick="gerarContratoReserva('${id}')"
+            >
+              📄 Contrato
+            </button>
+
+            <button
+              class="btn"
+              onclick="enviarWhatsReserva('${id}')"
+            >
+              📲 WhatsApp
+            </button>
 
             <button
               class="btn-cancelar"
