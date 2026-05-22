@@ -27,6 +27,8 @@ const SCREENS = {
 
   backups: renderBackups,
 
+  agenda: renderAgenda,
+
   recibos: renderRecibos
 
 };

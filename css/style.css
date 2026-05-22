@@ -855,3 +855,38 @@ button:disabled{
     font-size:24px;
   }
 }
+
+.agenda-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+}
+
+.agenda-header{
+  margin-bottom:10px;
+  font-weight:bold;
+  text-align:center;
+}
+
+.agenda-dia{
+  min-height:100px;
+  background:#1e293b;
+  border-radius:12px;
+  padding:10px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.agenda-dia:hover{
+  transform:scale(1.03);
+}
+
+.agenda-numero{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.agenda-dia.vazio{
+  background:transparent;
+  cursor:default;
+}
