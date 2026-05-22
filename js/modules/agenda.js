@@ -131,29 +131,29 @@ function montarAgenda(
 
         });
 
-    let cor = "";
+    let pagos = 0;
+    let parciais = 0;
+    let pendentes = 0;
 
-    if(reservasDia.length){
+    reservasDia.forEach(r => {
 
       const status =
-
-        String(
-          reservasDia[0][9] || ""
-        );
+        String(r[9] || "");
 
       if(status === "Pago"){
 
-        cor = "#22c55e";
+        pagos++;
 
       }else if(status === "Parcial"){
 
-        cor = "#f59e0b";
+        parciais++;
 
       }else{
 
-        cor = "#ef4444";
+        pendentes++;
       }
-    }
+
+    });
 
     html += `
 
@@ -167,21 +167,51 @@ function montarAgenda(
         </div>
 
         ${
-          reservasDia.length
+  reservasDia.length
+    ? `
+      <div style="
+        margin-top:8px;
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+        font-size:12px;
+        font-weight:bold;
+      ">
+
+        ${
+          pagos
             ? `
-              <div
-                style="
-                  margin-top:8px;
-                  font-size:12px;
-                  color:${cor};
-                  font-weight:bold;
-                "
-              >
-                ${reservasDia.length} reserva(s)
+              <div style="color:#22c55e;">
+                🟢 ${pagos}
               </div>
             `
             : ""
         }
+
+        ${
+          parciais
+            ? `
+              <div style="color:#f59e0b;">
+                🟡 ${parciais}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          pendentes
+            ? `
+              <div style="color:#ef4444;">
+                🔴 ${pendentes}
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+    `
+    : ""
+}
 
       </div>
 

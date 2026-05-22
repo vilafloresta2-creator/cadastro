@@ -79,9 +79,21 @@ function renderReservas(){
         style="margin-top:12px;"
         onclick="salvarReserva()"
       >
-
         💾 Salvar Reserva
+      </button>
 
+      <button
+        class="btn"
+        onclick="gerarContratoReserva('${id}')"
+      >
+        📄 Contrato
+      </button>
+
+      <button
+        class="btn"
+        onclick="enviarWhatsReserva('${id}')"
+      >
+        📲 WhatsApp
       </button>
 
     </div>
@@ -523,4 +535,285 @@ async function abrirPagamentoReserva(id){
 
     hideLoading();
   }
+}
+
+/* ================= WHATSAPP ================= */
+function enviarWhatsReserva(id){
+
+  const reserva =
+
+    safeArray(state.reservas)
+      .find(r =>
+
+        String(r[0])
+          ===
+        String(id)
+
+      );
+
+  if(!reserva){
+
+    showToast(
+      "Reserva não encontrada",
+      "error"
+    );
+
+    return;
+  }
+
+  const nome =
+    String(reserva[1] || "");
+
+  let telefone =
+    String(reserva[2] || "");
+
+  const espaco =
+    String(reserva[3] || "");
+
+  const data =
+    String(reserva[4] || "");
+
+  const hora =
+    String(reserva[5] || "");
+
+  const valor =
+    moeda(
+      numero(reserva[6])
+    );
+
+  const pago =
+    moeda(
+      numero(reserva[7])
+    );
+
+  const saldo =
+    moeda(
+      numero(reserva[8])
+    );
+
+  const status =
+    String(reserva[9] || "");
+
+  telefone =
+    telefone.replace(/\D/g,'');
+
+  if(!telefone){
+
+    showToast(
+      "Telefone não informado",
+      "warning"
+    );
+
+    return;
+  }
+
+  const mensagem = `
+
+Olá ${nome}!
+
+Sua reserva foi registrada com sucesso.
+
+📍 Espaço: ${espaco}
+📅 Data: ${data}
+🕒 Hora: ${hora}
+
+💰 Valor: ${valor}
+✅ Pago: ${pago}
+📌 Saldo: ${saldo}
+
+Status: ${status}
+
+Obrigado!
+
+  `.trim();
+
+  const url =
+
+    `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(
+    url,
+    "_blank"
+  );
+}
+
+/* ================= CONTRATO ================= */
+function gerarContratoReserva(id){
+
+  const reserva =
+
+    safeArray(state.reservas)
+      .find(r =>
+
+        String(r[0])
+          ===
+        String(id)
+
+      );
+
+  if(!reserva){
+
+    showToast(
+      "Reserva não encontrada",
+      "error"
+    );
+
+    return;
+  }
+
+  const nome =
+    reserva[1] || "";
+
+  const telefone =
+    reserva[2] || "";
+
+  const espaco =
+    reserva[3] || "";
+
+  const data =
+    reserva[4] || "";
+
+  const hora =
+    reserva[5] || "";
+
+  const valor =
+    moeda(
+      numero(reserva[6])
+    );
+
+  const pago =
+    moeda(
+      numero(reserva[7])
+    );
+
+  const saldo =
+    moeda(
+      numero(reserva[8])
+    );
+
+  const status =
+    reserva[9] || "";
+
+  const janela =
+    window.open(
+      "",
+      "_blank"
+    );
+
+  janela.document.write(`
+
+    <html>
+
+      <head>
+
+        <title>
+          Contrato Reserva
+        </title>
+
+        <style>
+
+          body{
+            font-family:Arial;
+            padding:40px;
+            line-height:1.6;
+            color:#111;
+          }
+
+          h1{
+            text-align:center;
+          }
+
+          .bloco{
+            margin-top:20px;
+          }
+
+          .assinatura{
+            margin-top:80px;
+          }
+
+        </style>
+
+      </head>
+
+      <body>
+
+        <h1>
+          CONTRATO DE RESERVA
+        </h1>
+
+        <div class="bloco">
+
+          <b>Nome:</b>
+          ${nome}
+
+          <br>
+
+          <b>Telefone:</b>
+          ${telefone}
+
+          <br><br>
+
+          <b>Espaço:</b>
+          ${espaco}
+
+          <br>
+
+          <b>Data:</b>
+          ${data}
+
+          <br>
+
+          <b>Hora:</b>
+          ${hora}
+
+          <br><br>
+
+          <b>Valor Total:</b>
+          ${valor}
+
+          <br>
+
+          <b>Valor Pago:</b>
+          ${pago}
+
+          <br>
+
+          <b>Saldo:</b>
+          ${saldo}
+
+          <br>
+
+          <b>Status:</b>
+          ${status}
+
+        </div>
+
+        <div class="bloco">
+
+          Declaro estar ciente das regras
+          de utilização do espaço comunitário,
+          responsabilizando-me por eventuais
+          danos causados durante o evento.
+
+        </div>
+
+        <div class="assinatura">
+
+          ___________________________________
+
+          <br>
+
+          Assinatura do Responsável
+
+        </div>
+
+      </body>
+
+    </html>
+
+  `);
+
+  janela.document.close();
+
+  janela.print();
 }
