@@ -119,13 +119,17 @@ function montarAgenda(
     const reservasDia =
 
       safeArray(state.reservas)
-        .filter(r =>
+        .filter(r => {
 
-          String(r[4])
-            ===
-          dataFormatada
+          const dataReserva =
+            String(r[4] || "")
+              .substring(0,10);
 
-        );
+          return (
+            dataReserva === dataFormatada
+          );
+
+        });
 
     let cor = "";
 
@@ -231,13 +235,17 @@ function abrirDiaAgenda(data){
   const lista =
 
     safeArray(state.reservas)
-      .filter(r =>
+      .filter(r => {
 
-        String(r[4])
-          ===
-        String(data)
+      const dataReserva =
+        String(r[4] || "")
+          .substring(0,10);
 
+      return (
+        dataReserva === String(data)
       );
+
+    });
 
   const el =
     document.getElementById(
