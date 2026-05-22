@@ -111,7 +111,7 @@ function listarReservas(){
 
     listaEl.innerHTML = `
 
-      <div class="card">
+      <div class="card" id="reserva_${id}">
         Nenhuma reserva cadastrada.
       </div>
 

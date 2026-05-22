@@ -305,14 +305,21 @@ function abrirDiaAgenda(data){
 
     html += `
 
-      <div class="card">
+      <div
+      class="card"
+      onclick="abrirReserva('${r[0]}')"
+      style="
+        cursor:pointer;
+        transition:.2s;
+      "
+    >
 
-        <div style="
-          font-size:18px;
-          font-weight:600;
-        ">
-          ${r[1]}
-        </div>
+      <div style="
+        font-size:18px;
+        font-weight:600;
+      ">
+        ${r[1]}
+      </div>
 
         <div style="margin-top:6px;">
           📍 ${r[3]}
@@ -337,4 +344,38 @@ function abrirDiaAgenda(data){
   });
 
   el.innerHTML = html;
+}
+
+/* ================= ABRIR RESERVA ================= */
+function abrirReserva(id){
+
+  ir("reservas");
+
+  setTimeout(() => {
+
+    const card = document.getElementById(
+      "reserva_" + id
+    );
+
+    if(card){
+
+      card.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
+      card.style.transition =
+        "0.3s";
+
+      card.style.boxShadow =
+        "0 0 0 3px #3b82f6";
+
+      setTimeout(() => {
+
+        card.style.boxShadow = "";
+
+      }, 2000);
+    }
+
+  }, 300);
 }
