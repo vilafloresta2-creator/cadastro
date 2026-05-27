@@ -1,59 +1,22 @@
+/* ================================= 
+          MODALS
+================================= */
+
 /* =============== ABRIR MODAL =============== */
 function abrirModal(){
 
-  const modal =
-    document.getElementById("modal");
+  openModal("modal");
 
-  if(!modal){
-    return;
-  }
-
-  modal.classList.add("show");
-
-  setTimeout(() => {
-
-    const campo =
-      document.getElementById("m_nome");
-
-    if(campo){
-      campo.focus();
-    }
-
-  }, 150);
+  focusInput("m_nome");
 }
 
 
 /* =============== FECHAR MODAL =============== */
 function fecharModal(){
 
-  const modal =
-    document.getElementById("modal");
+  closeModal("modal");
 
-  if(modal){
-    modal.classList.remove("show");
-  }
-
-  const campos = [
-    "m_nome",
-    "m_cpf",
-    "m_tel",
-    "m_email",
-    "m_endereco",
-    "m_mensal"
-  ];
-
-  campos.forEach(id => {
-
-    const el =
-      document.getElementById(id);
-
-    if(el){
-      el.value = "";
-    }
-
-  });
-
-  state.editandoId = null;
+  limparFormularioAssociado();
 }
 
 
@@ -65,44 +28,36 @@ function abrirModalMensalidade(){
 
   if(!lista.length){
 
-    alert("Nenhum associado encontrado");
+    showAlert(
+      "Nenhum associado encontrado"
+    );
+
     return;
   }
 
   const valor =
     numero(lista[0][6]);
 
-  const valorAtual =
-    document.getElementById("valorAtualMensalidade");
+  setText(
+    "valorAtualMensalidade",
+    moeda(valor)
+  );
 
-  const novoValor =
-    document.getElementById("novoValorMensalidade");
+  setValue(
+    "novoValorMensalidade",
+    ""
+  );
 
-  const modal =
-    document.getElementById("modalMensalidade");
-
-  if(valorAtual){
-    valorAtual.innerText =
-      moeda(valor);
-  }
-
-  if(novoValor){
-    novoValor.value = "";
-  }
-
-  if(modal){
-    modal.classList.add("show");
-  }
+  openModal(
+    "modalMensalidade"
+  );
 }
 
 
 /* ========= FECHAR MODAL MENSALIDADE ========= */
 function fecharModalMensalidade(){
 
-  const modal =
-    document.getElementById("modalMensalidade");
-
-  if(modal){
-    modal.classList.remove("show");
-  }
+  closeModal(
+    "modalMensalidade"
+  );
 }

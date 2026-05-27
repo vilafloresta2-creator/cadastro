@@ -29,6 +29,8 @@ function formatarData(dataISO){
   }
 
   const data =
+    parseDataISO(dataISO)
+    ||
     new Date(dataISO);
 
   if(
@@ -39,8 +41,72 @@ function formatarData(dataISO){
 
   return data
     .toLocaleDateString(
-      "pt-BR"
+      "pt-BR",
+      {
+        timeZone:
+          "America/Sao_Paulo"
+      }
     );
+}
+
+
+/* ========== HORA ========== */
+function formatarHora(hora){
+
+  if(!hora){
+    return "";
+  }
+
+  return String(hora)
+    .substring(0,5);
+}
+
+
+/* ========== DATA/HORA ========== */
+function formatarDataHora(data){
+
+  if(!data){
+    return "-";
+  }
+
+  const d =
+    parseDataISO(data)
+    ||
+    new Date(data);
+
+  if(
+    isNaN(d.getTime())
+  ){
+    return "-";
+  }
+
+  return (
+
+    d.toLocaleDateString(
+      "pt-BR",
+      {
+        timeZone:
+          "America/Sao_Paulo"
+      }
+    )
+
+    +
+
+    " "
+
+    +
+
+    d.toLocaleTimeString(
+      "pt-BR",
+      {
+        hour:"2-digit",
+        minute:"2-digit",
+        timeZone:
+          "America/Sao_Paulo"
+      }
+    )
+
+  );
 }
 
 

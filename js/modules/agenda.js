@@ -9,15 +9,35 @@ function renderAgenda(){
   const hoje = new Date();
 
   const ano =
+
+    state.agendaAno
+    ??
+
     hoje.getFullYear();
 
   const mes =
+
+    state.agendaMes
+    ??
+
     hoje.getMonth();
 
   montarAgenda(
     ano,
     mes
   );
+}
+
+
+/* ================= DATA ISO ================= */
+function normalizarDataISO(data){
+
+  if(!data){
+    return "";
+  }
+
+  return String(data)
+    .substring(0,10);
 }
 
 
@@ -103,18 +123,18 @@ function montarAgenda(
 
   `;
 
-  for(let i=0;i<inicioSemana;i++){
+  for(let i = 0; i < inicioSemana; i++){
 
     html += `
       <div class="agenda-dia vazio"></div>
     `;
   }
 
-  for(let dia=1; dia<=totalDias; dia++){
+  for(let dia = 1; dia <= totalDias; dia++){
 
     const dataFormatada =
 
-      `${ano}-${String(mes+1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+      `${ano}-${String(mes + 1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
 
     const reservasDia =
 
@@ -122,8 +142,7 @@ function montarAgenda(
         .filter(r => {
 
           const dataReserva =
-            String(r[4] || "")
-              .substring(0,10);
+            normalizarDataISO(r[4]);
 
           return (
             dataReserva === dataFormatada
@@ -167,51 +186,51 @@ function montarAgenda(
         </div>
 
         ${
-  reservasDia.length
-    ? `
-      <div style="
-        margin-top:8px;
-        display:flex;
-        flex-direction:column;
-        gap:4px;
-        font-size:12px;
-        font-weight:bold;
-      ">
-
-        ${
-          pagos
+          reservasDia.length
             ? `
-              <div style="color:#22c55e;">
-                🟢 ${pagos}
+              <div style="
+                margin-top:8px;
+                display:flex;
+                flex-direction:column;
+                gap:4px;
+                font-size:12px;
+                font-weight:bold;
+              ">
+
+                ${
+                  pagos
+                    ? `
+                      <div style="color:#22c55e;">
+                        🟢 ${pagos}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  parciais
+                    ? `
+                      <div style="color:#f59e0b;">
+                        🟡 ${parciais}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  pendentes
+                    ? `
+                      <div style="color:#ef4444;">
+                        🔴 ${pendentes}
+                      </div>
+                    `
+                    : ""
+                }
+
               </div>
             `
             : ""
         }
-
-        ${
-          parciais
-            ? `
-              <div style="color:#f59e0b;">
-                🟡 ${parciais}
-              </div>
-            `
-            : ""
-        }
-
-        ${
-          pendentes
-            ? `
-              <div style="color:#ef4444;">
-                🔴 ${pendentes}
-              </div>
-            `
-            : ""
-        }
-
-      </div>
-    `
-    : ""
-}
 
       </div>
 
@@ -219,10 +238,13 @@ function montarAgenda(
   }
 
   html += `
+
       </div>
+
     </div>
 
     <div id="agendaDetalhes"></div>
+
   `;
 
   tela.innerHTML = html;
@@ -262,20 +284,22 @@ function navegarAgenda(direcao){
 /* ================= ABRIR DIA ================= */
 function abrirDiaAgenda(data){
 
+  state.agendaDataSelecionada =
+    data;
+
   const lista =
 
     safeArray(state.reservas)
       .filter(r => {
 
-      const dataReserva =
-        String(r[4] || "")
-          .substring(0,10);
+        const dataReserva =
+          normalizarDataISO(r[4]);
 
-      return (
-        dataReserva === String(data)
-      );
+        return (
+          dataReserva === String(data)
+        );
 
-    });
+      });
 
   const el =
     document.getElementById(
@@ -291,7 +315,29 @@ function abrirDiaAgenda(data){
     el.innerHTML = `
 
       <div class="card">
-        Nenhuma reserva neste dia.
+
+        <div style="
+          font-size:18px;
+          font-weight:600;
+          margin-bottom:10px;
+        ">
+          ${formatarDataBR(data)}
+        </div>
+
+        <div style="
+          margin-bottom:16px;
+          opacity:.7;
+        ">
+          Nenhuma reserva neste dia.
+        </div>
+
+        <button
+          class="btn"
+          onclick="ir('reservas')"
+        >
+          + Nova Reserva
+        </button>
+
       </div>
 
     `;
@@ -299,43 +345,91 @@ function abrirDiaAgenda(data){
     return;
   }
 
-  let html = "";
+  let html = `
+
+    <div class="card">
+
+      <div style="
+        font-size:20px;
+        font-weight:700;
+      ">
+        📅 ${formatarDataBR(data)}
+      </div>
+
+    </div>
+
+  `;
 
   lista.forEach(r => {
+
+    const status =
+      String(r[9] || "");
 
     html += `
 
       <div
-      class="card"
-      onclick="abrirReserva('${r[0]}')"
-      style="
-        cursor:pointer;
-        transition:.2s;
-      "
-    >
+        class="card"
+        onclick="abrirReserva('${r[0]}')"
+        style="
+          cursor:pointer;
+          transition:.2s;
+          margin-top:10px;
+        "
+      >
 
-      <div style="
-        font-size:18px;
-        font-weight:600;
-      ">
-        ${r[1]}
-      </div>
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+        ">
 
-        <div style="margin-top:6px;">
-          📍 ${r[3]}
-        </div>
+          <div>
 
-        <div>
-          🕒 ${r[5]}
-        </div>
+            <div style="
+              font-size:18px;
+              font-weight:600;
+            ">
+              ${r[1]}
+            </div>
 
-        <div>
-          💰 ${moeda(r[6])}
-        </div>
+            <div style="
+              margin-top:6px;
+            ">
+              📍 ${r[3]}
+            </div>
 
-        <div>
-          Status:
-          <b>${r[9]}</b>
+            <div>
+              🕒 ${formatarHoraBR(r[5])}
+            </div>
+
+            <div>
+              💰 ${moeda(r[6])}
+            </div>
+
+          </div>
+
+          <div style="
+            text-align:right;
+          ">
+
+            <div style="
+              margin-top:8px;
+              font-weight:600;
+              color:
+                ${
+                  status === "Pago"
+                    ? "#22c55e"
+                    : status === "Parcial"
+                      ? "#f59e0b"
+                      : "#ef4444"
+                };
+            ">
+              ${status}
+            </div>
+
+          </div>
+
         </div>
 
       </div>
@@ -346,6 +440,7 @@ function abrirDiaAgenda(data){
   el.innerHTML = html;
 }
 
+
 /* ================= ABRIR RESERVA ================= */
 function abrirReserva(id){
 
@@ -353,9 +448,10 @@ function abrirReserva(id){
 
   setTimeout(() => {
 
-    const card = document.getElementById(
-      "reserva_" + id
-    );
+    const card =
+      document.getElementById(
+        "reserva_" + id
+      );
 
     if(card){
 

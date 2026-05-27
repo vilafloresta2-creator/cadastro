@@ -7,6 +7,9 @@
 let appInicializado =
   false;
 
+let eventosGlobaisBindados =
+  false;
+
 
 /* ========== INICIAR APP ========== */
 async function init(){
@@ -15,19 +18,28 @@ async function init(){
     return;
   }
 
-  appInicializado = true;
-
   try{
 
     showLoading(
       "Carregando sistema..."
     );
 
-    await carregar();
+    const carregou =
+      await carregar();
 
-    ir("dashboard");
+    if(!carregou){
+
+      throw new Error(
+        "Falha ao carregar dados"
+      );
+    }
 
     bindGlobalEvents();
+
+    render();
+
+    appInicializado =
+      true;
 
   }catch(error){
 
@@ -51,6 +63,15 @@ async function init(){
 /* ========== EVENTOS GLOBAIS ========== */
 function bindGlobalEvents(){
 
+  if(
+    eventosGlobaisBindados
+  ){
+    return;
+  }
+
+  eventosGlobaisBindados =
+    true;
+
   document.addEventListener(
     "keydown",
     handleGlobalKeydown
@@ -64,21 +85,7 @@ function handleGlobalKeydown(e){
   /* ESC */
   if(e.key === "Escape"){
 
-    fecharModal?.();
-
-    fecharModalMensalidade?.();
-
-    fecharModalGlobal?.(
-      "alertOverlay"
-    );
-
-    fecharModalGlobal?.(
-      "confirmOverlay"
-    );
-
-    fecharModalGlobal?.(
-      "promptOverlay"
-    );
+    fecharTodosModais?.();
   }
 }
 

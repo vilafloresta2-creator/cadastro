@@ -3,30 +3,32 @@
 ========================================= */
 
 
-/* ========== VALOR POSITIVO ========== */
-function valorPositivo(valor){
-
-  return numero(valor) > 0;
-}
-
-
 /* ========== CPF ========== */
-function validarCPFFront(cpf){
+function validarCPF(cpf){
 
   const texto =
     limparCPF(cpf);
 
-  if(texto.length !== 11){
+  if(
+    texto.length !== 11
+  ){
     return false;
   }
 
-  /* CPF repetido */
-  if(/^(\d)\1+$/.test(texto)){
+  /* =========================================
+     CPF REPETIDO
+  ========================================= */
+
+  if(
+    /^(\d)\1+$/
+      .test(texto)
+  ){
     return false;
   }
 
   let soma = 0;
   let resto = 0;
+
 
   /* =========================================
      PRIMEIRO DIGITO
@@ -58,9 +60,9 @@ function validarCPFFront(cpf){
     resto !==
     Number(texto[9])
   ){
-
     return false;
   }
+
 
   /* =========================================
      SEGUNDO DIGITO
@@ -91,8 +93,38 @@ function validarCPFFront(cpf){
   }
 
   return (
+
     resto ===
     Number(texto[10])
+
+  );
+}
+
+
+/* ========== EMAIL ========== */
+function validarEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    .test(
+
+      String(email || "")
+        .trim()
+
+    );
+}
+
+
+/* ========== TELEFONE ========== */
+function validarTelefone(telefone){
+
+  const texto =
+
+    String(telefone || "")
+      .replace(/\D/g,'');
+
+  return (
+    texto.length >= 10
   );
 }
 
@@ -101,7 +133,9 @@ function validarCPFFront(cpf){
 function limparErrosCampos(){
 
   document
+
     .querySelectorAll(".input-erro")
+
     .forEach(el => {
 
       el.classList.remove(
@@ -125,7 +159,7 @@ function marcarErro(campo){
 }
 
 
-/* ========== CAMPOS MODAL ========== */
+/* ========== VALIDAR CAMPOS ========== */
 function validarCampos(){
 
   limparErrosCampos();
@@ -167,7 +201,7 @@ function validarCampos(){
   if(
     !cpf?.value.trim()
     ||
-    !validarCPFFront(cpf.value)
+    !validarCPF(cpf.value)
   ){
 
     marcarErro(cpf);

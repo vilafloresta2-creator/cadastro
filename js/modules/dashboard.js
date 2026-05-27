@@ -3,8 +3,8 @@
 ========================================= */
 
 
-/* ============= RENDER DASHBOARD ============= */
-function renderDashboard(){
+/* ================= KPIs ================= */
+function obterKPIsDashboard(){
 
   const mesAtual =
     obterMes(new Date());
@@ -14,181 +14,219 @@ function renderDashboard(){
   let inadimplencia = 0;
   let ativos = 0;
 
-  const listaCaixa =
-    safeArray(state.caixa);
-
-  const listaCobrancas =
-    safeArray(state.cobrancas);
-
-  const listaAssociados =
-    safeArray(state.associados);
-
   /* =========================================
      CAIXA
   ========================================= */
 
-  listaCaixa.forEach(c => {
+  safeArray(state.caixa)
+    .forEach(c => {
 
-    if(!c || !c.length){
-      return;
-    }
+      if(!c?.length){
+        return;
+      }
 
-    const data =
-      c[1];
+      const data =
+        c[1];
 
-    if(!dataValida(data)){
-      return;
-    }
+      if(!dataValida(data)){
+        return;
+      }
 
-    const mes =
-      obterMes(data);
+      const mes =
+        obterMes(data);
 
-    /* ===== apenas mês atual ===== */
-    if(mes !== mesAtual){
-      return;
-    }
+      if(mes !== mesAtual){
+        return;
+      }
 
-    const tipo =
-      normalizarTexto(c[2])
+      const tipo =
+
+        normalizarTexto(c[2])
+          .toLowerCase();
+
+      const valor =
+        numero(c[5]);
+
+      if(tipo === "entrada"){
+        entradas += valor;
+      }
+
+      if(tipo === "saida"){
+        saidas += valor;
+      }
+
+    });
+
+  /* =========================================
+     COBRANÇAS
+  ========================================= */
+
+  safeArray(state.cobrancas)
+    .forEach(c => {
+
+      if(!c?.length){
+        return;
+      }
+
+      const status =
+
+        normalizarTexto(c[5])
+          .toLowerCase();
+
+      const mesCobranca =
+        formatarMes(c[3]);
+
+      if(
+
+        status === "pendente"
+        &&
+
+        mesCobranca === mesAtual
+
+      ){
+
+        inadimplencia +=
+          numero(c[4]);
+      }
+
+    });
+
+  /* =========================================
+     ASSOCIADOS
+  ========================================= */
+
+  safeArray(state.associados)
+    .forEach(a => {
+
+      if(!a?.length){
+        return;
+      }
+
+      const status =
+
+        normalizarTexto(
+          a[7] || "Ativo"
+        )
+
         .toLowerCase();
 
-    const valor =
-      numero(c[5]);
+      if(status === "ativo"){
+        ativos++;
+      }
 
-    if(tipo === "entrada"){
-      entradas += valor;
-    }
+    });
 
-    if(tipo === "saida"){
-      saidas += valor;
-    }
+  return {
 
-  });
+    entradas,
+    saidas,
 
-  /* =========================================
-     INADIMPLÊNCIA
-  ========================================= */
+    saldo:
+      entradas - saidas,
 
-  listaCobrancas.forEach(c => {
+    inadimplencia,
 
-    if(!c || !c.length){
-      return;
-    }
+    ativos
 
-    const status =
+  };
+}
 
-      normalizarTexto(c[5])
-        .toLowerCase();
 
-    const mesCobranca =
-      formatarMes(c[3]);
+/* ================= CARD KPI ================= */
+function cardKPI({
+  titulo = "",
+  valor = "",
+  classe = ""
+}){
 
-    if(
+  return `
 
-      status === "pendente"
-      &&
-      mesCobranca === mesAtual
+    <div class="box">
 
-    ){
+      <b>
+        ${titulo}
+      </b>
 
-      inadimplencia +=
-        numero(c[4]);
-    }
+      <br>
 
-  });
+      <span class="${classe}">
+        ${valor}
+      </span>
 
-  /* =========================================
-     ASSOCIADOS ATIVOS
-  ========================================= */
+    </div>
 
-  listaAssociados.forEach(a => {
+  `;
+}
 
-    if(!a || !a.length){
-      return;
-    }
 
-    const status =
+/* ================= RENDER ================= */
+function renderDashboard(){
 
-      normalizarTexto(
-        a[7] || "Ativo"
-      )
-
-      .toLowerCase();
-
-    if(status === "ativo"){
-      ativos++;
-    }
-
-  });
-
-  const saldo =
-    entradas - saidas;
-
-  /* =========================================
-     RENDER
-  ========================================= */
+  const kpi =
+    obterKPIsDashboard();
 
   tela.innerHTML = `
 
     <div class="top">
 
-      <div class="box">
+      ${cardKPI({
 
-        <b>Entradas</b><br>
+        titulo:"Entradas",
 
-        <span class="text-success">
-          ${moeda(entradas)}
-        </span>
+        valor:
+          moeda(kpi.entradas),
 
-      </div>
+        classe:
+          "text-success"
 
-      <div class="box">
+      })}
 
-        <b>Saídas</b><br>
+      ${cardKPI({
 
-        <span class="text-danger">
-          ${moeda(saidas)}
-        </span>
+        titulo:"Saídas",
 
-      </div>
+        valor:
+          moeda(kpi.saidas),
 
-      <div class="box">
+        classe:
+          "text-danger"
 
-        <b>Saldo</b><br>
+      })}
 
-        <span
-          class="${
-            saldo >= 0
-              ? "text-success"
-              : "text-danger"
-          }"
-        >
+      ${cardKPI({
 
-          ${moeda(saldo)}
+        titulo:"Saldo",
 
-        </span>
+        valor:
+          moeda(kpi.saldo),
 
-      </div>
+        classe:
+          kpi.saldo >= 0
+            ? "text-success"
+            : "text-danger"
 
-      <div class="box">
+      })}
 
-        <b>Inadimplência</b><br>
+      ${cardKPI({
 
-        <span class="text-warning">
-          ${moeda(inadimplencia)}
-        </span>
+        titulo:"Inadimplência",
 
-      </div>
+        valor:
+          moeda(kpi.inadimplencia),
 
-      <div class="box">
+        classe:
+          "text-warning"
 
-        <b>Associados Ativos</b><br>
+      })}
 
-        <span>
-          ${ativos}
-        </span>
+      ${cardKPI({
 
-      </div>
+        titulo:"Associados Ativos",
+
+        valor:
+          kpi.ativos
+
+      })}
 
     </div>
 

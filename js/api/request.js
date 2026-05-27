@@ -1,39 +1,15 @@
 /* =========================================
-   API
+   API REQUEST
 ========================================= */
 
 
-/* ========== POST API RAW ========== */
-async function postAPI(body = {}){
-
-  const response =
-    await fetch(API_URL,{
-
-      method:"POST",
-
-      body:
-        JSON.stringify(body)
-
-    });
-
-  return response.json();
-}
-
-
-/* ========== API REQUEST PADRÃO ========== */
+/* ========== REQUEST PADRAO ========== */
 async function apiRequest({
 
   body = {},
-
   loading = "",
-
   sucesso = "",
-
-  erro = "Erro inesperado",
-
-  onSuccess = null,
-
-  onError = null
+  erro = "Erro inesperado"
 
 }){
 
@@ -47,10 +23,6 @@ async function apiRequest({
     const resp =
       await postAPI(body);
 
-    /* =====================================
-       ERRO BACKEND
-    ===================================== */
-
     if(resp?.erro){
 
       showToast(
@@ -58,14 +30,8 @@ async function apiRequest({
         "error"
       );
 
-      onError?.(resp);
-
       return null;
     }
-
-    /* =====================================
-       SUCESSO
-    ===================================== */
 
     if(sucesso){
 
@@ -74,8 +40,6 @@ async function apiRequest({
         "success"
       );
     }
-
-    onSuccess?.(resp);
 
     return resp;
 
@@ -87,8 +51,6 @@ async function apiRequest({
       erro,
       "error"
     );
-
-    onError?.(error);
 
     return null;
 

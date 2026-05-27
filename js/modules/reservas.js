@@ -111,7 +111,7 @@ function listarReservas(){
 
     listaEl.innerHTML = `
 
-      <div class="card" id="reserva_${id}">
+      <div class="card">
         Nenhuma reserva cadastrada.
       </div>
 
@@ -165,6 +165,7 @@ function listarReservas(){
 
         <div
           class="card"
+          id="reserva_${id}"
           style="
             margin-top:10px;
           "
@@ -201,7 +202,7 @@ function listarReservas(){
               </div>
 
               <div>
-                📅 ${data} às ${hora}
+                📅 ${formatarDataBR(data)} às ${formatarHoraBR(hora)}
               </div>
 
             </div>

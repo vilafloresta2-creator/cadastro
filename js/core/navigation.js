@@ -10,10 +10,42 @@ function ir(telaNome){
     return;
   }
 
-  state.telaAtual =
+  const destino =
 
     String(telaNome)
       .trim();
+
+  /* =========================================
+     TELA INVÁLIDA
+  ========================================= */
+
+  if(
+    !SCREENS[destino]
+  ){
+
+    console.warn(
+      "Tela inválida:",
+      destino
+    );
+
+    return;
+  }
+
+  /* =========================================
+     EVITA RERENDER
+  ========================================= */
+
+  if(
+    state.telaAtual
+    ===
+    destino
+  ){
+
+    return;
+  }
+
+  state.telaAtual =
+    destino;
 
 
   /* =========================================
@@ -22,7 +54,9 @@ function ir(telaNome){
 
   document
 
-    .querySelectorAll(".nav button")
+    .querySelectorAll(
+      ".nav button"
+    )
 
     .forEach(btn => {
 
@@ -40,7 +74,7 @@ function ir(telaNome){
   const botao =
 
     document.getElementById(
-      "btn_" + state.telaAtual
+      "btn_" + destino
     );
 
   if(botao){

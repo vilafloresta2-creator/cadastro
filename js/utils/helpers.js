@@ -12,9 +12,7 @@ function normalizarTexto(valor){
 
     .normalize("NFD")
 
-    .replace(/[\u0300-\u036f]/g, "")
-
-    .toLowerCase();
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 
@@ -61,6 +59,10 @@ function dataValida(valor){
 /* ========== OBTER MES ========== */
 function obterMes(data){
 
+  if(!data){
+    return "";
+  }
+
   const d =
     new Date(data);
 
@@ -85,115 +87,63 @@ function obterMes(data){
 }
 
 
-/* ========== OBTER MES DATA ========== */
-function obterMesData(data){
+/* ========== VALOR POSITIVO ========== */
+function valorPositivo(valor){
 
-  return obterMes(data);
+  return numero(valor) > 0;
 }
 
 
-/* ========== ENTRADA ========== */
-function isEntrada(tipo){
+/* ========== PARSE DATA ISO ========== */
+function parseDataISO(data){
 
-  return (
+  if(!data){
+    return null;
+  }
 
-    normalizarTexto(tipo)
+  const partes =
+    String(data)
+      .split("-");
 
-    ===
+  if(partes.length !== 3){
+    return null;
+  }
 
-    "entrada"
+  const ano =
+    Number(partes[0]);
 
+  const mes =
+    Number(partes[1]);
+
+  const dia =
+    Number(partes[2]);
+
+  return new Date(
+    ano,
+    mes - 1,
+    dia
   );
 }
 
+/* ========== GET VALUE ========== */
+function getValue(id){
 
-/* ========== SAIDA ========== */
-function isSaida(tipo){
-
-  return (
-
-    normalizarTexto(tipo)
-
-    ===
-
-    "saida"
-
-  );
+  return document
+    .getElementById(id)
+    ?.value || "";
 }
 
 
-/* ========== TIPO CAIXA ========== */
-function tipoCaixa(tipo){
+/* ========== SET VALUE ========== */
+function setValue(id, valor){
 
-  return isEntrada(tipo)
-    ? "Entrada"
-    : "Saida";
-}
+  const el =
+    document.getElementById(id);
 
+  if(!el){
+    return;
+  }
 
-/* ========== STATUS ASSOCIADO ========== */
-function statusAssociado(cpf){
-
-  const pendente =
-
-    safeArray(state.cobrancas)
-
-      .some(c =>
-
-        String(c[2] || "")
-          .trim()
-
-        ===
-
-        String(cpf || "")
-          .trim()
-
-        &&
-
-        normalizarTexto(c[5])
-
-        ===
-
-        "pendente"
-
-      );
-
-  return pendente
-    ? "Devedor"
-    : "Regular";
-}
-
-
-/* ========== JA GEROU MES ========== */
-function jaGerouMesAtual(){
-
-  const hoje =
-    new Date();
-
-  const mesAtual =
-
-    String(hoje.getMonth() + 1)
-      .padStart(2,"0")
-
-    +
-
-    "-"
-
-    +
-
-    hoje.getFullYear();
-
-  return safeArray(state.cobrancas)
-
-    .some(c => {
-
-      const mes =
-
-        String(c[3] || "")
-          .trim()
-          .substring(0,7);
-
-      return mes === mesAtual;
-
-    });
+  el.value =
+    valor ?? "";
 }
