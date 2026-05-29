@@ -124,26 +124,3 @@ function parseDataISO(data){
     dia
   );
 }
-
-/* ========== GET VALUE ========== */
-function getValue(id){
-
-  return document
-    .getElementById(id)
-    ?.value || "";
-}
-
-
-/* ========== SET VALUE ========== */
-function setValue(id, valor){
-
-  const el =
-    document.getElementById(id);
-
-  if(!el){
-    return;
-  }
-
-  el.value =
-    valor ?? "";
-}

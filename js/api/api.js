@@ -6,94 +6,21 @@
 /* ========== POST API RAW ========== */
 async function postAPI(body = {}){
 
+  const formData =
+    new FormData();
+
+  formData.append(
+    "dados",
+    JSON.stringify(body)
+  );
+
   const response =
     await fetch(API_URL,{
 
       method:"POST",
 
-      body:
-        JSON.stringify(body)
-
+      body: formData
     });
 
   return response.json();
-}
-
-
-/* ========== API REQUEST PADRÃO ========== */
-async function apiRequest({
-
-  body = {},
-
-  loading = "",
-
-  sucesso = "",
-
-  erro = "Erro inesperado",
-
-  onSuccess = null,
-
-  onError = null
-
-}){
-
-  if(loading){
-
-    showLoading(loading);
-  }
-
-  try{
-
-    const resp =
-      await postAPI(body);
-
-    /* =====================================
-       ERRO BACKEND
-    ===================================== */
-
-    if(resp?.erro){
-
-      showToast(
-        resp.erro,
-        "error"
-      );
-
-      onError?.(resp);
-
-      return null;
-    }
-
-    /* =====================================
-       SUCESSO
-    ===================================== */
-
-    if(sucesso){
-
-      showToast(
-        sucesso,
-        "success"
-      );
-    }
-
-    onSuccess?.(resp);
-
-    return resp;
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      erro,
-      "error"
-    );
-
-    onError?.(error);
-
-    return null;
-
-  }finally{
-
-    hideLoading();
-  }
 }

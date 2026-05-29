@@ -6,8 +6,8 @@
 /* ========== RENDER CARD ========== */
 function renderCardAssociado(a){
 
-  const status =
-    statusAssociado(a[2]);
+  const statusFinanceiro =
+    statusFinanceiroAssociado(a[2]);
 
   const statusCadastro =
 
@@ -16,7 +16,7 @@ function renderCardAssociado(a){
       .toLowerCase();
 
   const ativo =
-    statusCadastro !== "inativo";
+    statusCadastro === "ativo";
 
   return `
 
@@ -25,28 +25,53 @@ function renderCardAssociado(a){
       <div>
 
         <div class="associado-nome">
+
           ${a[1] || "-"}
+
         </div>
 
         <div
           class="associado-status"
-          style="
-            color:${
-              !ativo
-                ? "#9ca3af"
-                : status === "Devedor"
-                  ? "#ef4444"
-                  : "#22c55e"
-            };
-          "
+          style="margin-top:6px;"
         >
 
           ${
             !ativo
-              ? "⚫ Inativo"
-              : status === "Devedor"
-                ? "🔴 Devedor"
-                : "🟢 Regular"
+
+              ? `
+
+                <span class="
+                  status-badge
+                  status-warning
+                ">
+                  ⚫ Inativo
+                </span>
+
+              `
+
+              : statusFinanceiro === "Devedor"
+
+                ? `
+
+                  <span class="
+                    status-badge
+                    status-danger
+                  ">
+                    🔴 Devedor
+                  </span>
+
+                `
+
+                : `
+
+                  <span class="
+                    status-badge
+                    status-success
+                  ">
+                    🟢 Regular
+                  </span>
+
+                `
           }
 
         </div>
@@ -56,14 +81,14 @@ function renderCardAssociado(a){
       <div class="acoes-lista">
 
         <button
-          class="btn-edit btn-icon"
+          class="btn btn-icon btn-editar"
           onclick="editar('${a[0]}')"
         >
           ✏️
         </button>
 
         <button
-          class="btn-cancelar btn-icon"
+          class="btn-cancelar btn-icon btn-excluir"
           onclick="excluir('${a[0]}')"
         >
           🗑️

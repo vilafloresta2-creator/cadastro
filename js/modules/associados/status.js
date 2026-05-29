@@ -4,7 +4,7 @@
 
 
 /* ========== STATUS ASSOCIADO ========== */
-function statusAssociado(cpf){
+function statusFinanceiroAssociado(cpf){
 
   const cobrancas =
     safeArray(state.cobrancas);

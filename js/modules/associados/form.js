@@ -14,14 +14,14 @@ function limparFormularioAssociado(){
   setValue("m_mensal", "");
   setValue("m_status", "Ativo");
 
+  state.editandoId = null;
+
   limparErrosCampos?.();
 }
 
 
 /* ========== PREENCHER FORM ========== */
-function preencherFormularioAssociado(
-  associado
-){
+function preencherFormularioAssociado(associado){
 
   if(!associado){
     return;
@@ -73,7 +73,7 @@ function obterDadosFormularioAssociado(){
       state.editandoId,
 
     nome:
-      getValue("m_nome"),
+      getValue("m_nome").trim(),
 
     cpf:
       limparCPF(
@@ -85,10 +85,10 @@ function obterDadosFormularioAssociado(){
         .replace(/\D/g,""),
 
     email:
-      getValue("m_email"),
+      getValue("m_email").trim(),
 
     endereco:
-      getValue("m_endereco"),
+      getValue("m_endereco").trim(),
 
     mensalidade:
       numero(
@@ -98,4 +98,65 @@ function obterDadosFormularioAssociado(){
     status:
       getValue("m_status") || "Ativo"
   };
+}
+
+
+/* ========== SALVAR MODAL ========== */
+async function salvarModal(){
+
+  if(!validarCampos()){
+
+    showToast(
+      "Preencha corretamente",
+      "warning"
+    );
+
+    return;
+  }
+
+  const editando =
+    !!state.editandoId;
+
+  const dados =
+    obterDadosFormularioAssociado();
+
+  const btn =
+    getEl("btnSalvar");
+
+  if(btn){
+
+    btn.disabled = true;
+
+    btn.innerText =
+      "Salvando...";
+  }
+
+  try{
+
+    const resp =
+      await salvarAssociado(
+        dados,
+        editando
+      );
+
+    if(!resp){
+      return;
+    }
+
+    fecharModal();
+
+    await carregar();
+
+    listarAssociados();
+
+  }finally{
+
+    if(btn){
+
+      btn.disabled = false;
+
+      btn.innerText =
+        "Salvar";
+    }
+  }
 }

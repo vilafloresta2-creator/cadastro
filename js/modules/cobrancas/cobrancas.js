@@ -7,7 +7,7 @@
 function listarCobrancas(){
 
   const filtroMes =
-    value("filtroMes");
+    getValue("filtroMes");
 
   let lista =
     safeArray(state.cobrancas);
