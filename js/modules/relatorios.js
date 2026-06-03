@@ -107,39 +107,39 @@ function gerarRelatorioMensal(){
 
 
   /* ================== CAIXA ================== */
-  listaCaixa.forEach(c => {
+listaCaixa.forEach(c => {
 
-    if(!c || !c.length){
-      return;
-    }
+  const caixa =
+    caixaObj(c);
 
-    const data =
-      c[1];
+  const data =
+    caixa.data;
 
-    if(!dataValida(data)){
-      return;
-    }
+  if(!dataValida(data)){
+    return;
+  }
 
-    const mesLinha =
-      obterMes(data);
+  const mesLinha =
+    obterMes(data);
 
-    if(mesLinha !== mes){
-      return;
-    }
+  if(mesLinha !== mes){
+    return;
+  }
 
-    const tipo =
-      normalizarTexto(c[2]);
+  const tipo =
+    normalizarTexto(
+      caixa.tipo
+    );
 
-    const categoria =
+  const categoria =
 
-      String(
-        c[3] || "Sem categoria"
-      )
+    String(
+      caixa.categoria ||
+      "Sem categoria"
+    ).trim();
 
-        .trim();
-
-    const valor =
-      numero(c[5]);
+  const valor =
+    caixa.valor;
 
     /* =============== ENTRADAS =============== */
     if(isEntrada(tipo)){
@@ -162,32 +162,36 @@ function gerarRelatorioMensal(){
 
 
   /* ============== INADIMPLÊNCIA ============== */
-  listaCobrancas.forEach(c => {
+listaCobrancas.forEach(c => {
 
-    if(!c || !c.length){
-      return;
-    }
+  const cobranca =
+    cobrancaObj(c);
 
-    const mesCobranca =
+  const mesCobranca =
 
-      String(c[3] || "")
-        .replace("/", "-")
-        .trim();
+    String(
+      cobranca.mes || ""
+    )
 
-    const status =
-      normalizarTexto(c[5]);
+      .replace("/", "-")
+      .trim();
 
-    if(
-      mesCobranca === mes
-      &&
-      status === "pendente"
-    ){
+  const status =
+    normalizarTexto(
+      cobranca.status
+    );
 
-      inadimplencia +=
-        numero(c[4]);
-    }
+  if(
+    mesCobranca === mes
+    &&
+    status === "pendente"
+  ){
 
-  });
+    inadimplencia +=
+      cobranca.valor;
+  }
+
+});
 
   const saldo =
     entradas - saidas;
@@ -200,7 +204,7 @@ function gerarRelatorioMensal(){
 
       .sort((a, b) =>
 
-        b[1] - a[1]
+        b[1] - associado.nome
 
       );
 

@@ -125,41 +125,46 @@ function listarReservas(){
   lista
     .slice()
     .reverse()
-    .forEach(r => {
 
-      if(!r || !r.length){
+    .forEach(r => {      
+    
+
+      const reserva =
+        reservaObj(r);
+
+      if(!reserva.id){
         return;
-      }
+      }  
 
       const id =
-        String(r[0] || "");
+        String(reserva.id);
 
       const nome =
-        String(r[1] || "");
+        String(reserva.nome);
 
       const telefone =
-        String(r[2] || "");
+        String(reserva.telefone);
 
       const espaco =
-        String(r[3] || "");
+        String(reserva.espaco);
 
       const data =
-        String(r[4] || "");
+        String(reserva.data);
 
       const hora =
-        String(r[5] || "");
+        String(reserva.hora);
 
       const valor =
-        numero(r[6]);
+        reserva.valor;
 
       const pago =
-        numero(r[7]);
+        reserva.pago;
 
       const saldo =
-        numero(r[8]);
+        reserva.saldo;
 
       const status =
-        String(r[9] || "");
+        String(reserva.status);
 
       html += `
 
@@ -202,7 +207,7 @@ function listarReservas(){
               </div>
 
               <div>
-                📅 ${formatarDataBR(data)} às ${formatarHoraBR(hora)}
+                📅 ${data} às ${hora}
               </div>
 
             </div>
@@ -383,7 +388,10 @@ async function salvarReserva(){
       "success"
     );
 
-    await carregar();
+    await carregar();    
+    
+    renderReservas();
+    showToast("Reserva salva!", "success");
 
   }catch(error){
 
@@ -443,7 +451,9 @@ async function excluirReservaFrontend(id){
       "success"
     );
 
-    await carregar();
+    await carregar();    
+    renderReservas();
+    showToast("Reserva excluída", "success");
 
   }catch(error){
 
@@ -522,6 +532,7 @@ async function abrirPagamentoReserva(id){
     );
 
     await carregar();
+    renderReservas();
 
   }catch(error){
 
@@ -541,16 +552,27 @@ async function abrirPagamentoReserva(id){
 /* ================= WHATSAPP ================= */
 function enviarWhatsReserva(id){
 
-  const reserva =
-
+  const item =
     safeArray(state.reservas)
-      .find(r =>
+      .find(r => {
 
-        String(r[0])
+        const reserva =
+          reservaObj(r);
+
+        return (
+
+          String(reserva.id)
+
           ===
-        String(id)
 
-      );
+          String(id)
+
+        );
+
+      });
+
+  const reserva =
+    reservaObj(item);
 
   if(!reserva){
 
@@ -563,37 +585,31 @@ function enviarWhatsReserva(id){
   }
 
   const nome =
-    String(reserva[1] || "");
+    reserva.nome;
 
   let telefone =
-    String(reserva[2] || "");
+    reserva.telefone;
 
   const espaco =
-    String(reserva[3] || "");
+    reserva.espaco;
 
   const data =
-    String(reserva[4] || "");
+    reserva.data;
 
   const hora =
-    String(reserva[5] || "");
+    reserva.hora;
 
   const valor =
-    moeda(
-      numero(reserva[6])
-    );
+    moeda(reserva.valor);
 
   const pago =
-    moeda(
-      numero(reserva[7])
-    );
+    moeda(reserva.pago);
 
   const saldo =
-    moeda(
-      numero(reserva[8])
-    );
+    moeda(reserva.saldo);
 
   const status =
-    String(reserva[9] || "");
+    reserva.status;
 
   telefone =
     telefone.replace(/\D/g,'');
@@ -641,16 +657,27 @@ Obrigado!
 /* ================= CONTRATO ================= */
 function gerarContratoReserva(id){
 
-  const reserva =
-
+  const item =
     safeArray(state.reservas)
-      .find(r =>
+      .find(r => {
 
-        String(r[0])
+        const reserva =
+          reservaObj(r);
+
+        return (
+
+          String(reserva.id)
+
           ===
-        String(id)
 
-      );
+          String(id)
+
+        );
+
+      });
+
+  const reserva =
+    reservaObj(item);
 
   if(!reserva){
 
@@ -663,37 +690,31 @@ function gerarContratoReserva(id){
   }
 
   const nome =
-    reserva[1] || "";
+    reserva.nome;
 
   const telefone =
-    reserva[2] || "";
+    reserva.telefone;
 
   const espaco =
-    reserva[3] || "";
+    reserva.espaco;
 
   const data =
-    reserva[4] || "";
+    (reserva.data);
 
   const hora =
-    reserva[5] || "";
+    reserva.hora;
 
   const valor =
-    moeda(
-      numero(reserva[6])
-    );
+    moeda(reserva.valor);
 
   const pago =
-    moeda(
-      numero(reserva[7])
-    );
+    moeda(reserva.pago);
 
   const saldo =
-    moeda(
-      numero(reserva[8])
-    );
+    moeda(reserva.saldo);
 
   const status =
-    reserva[9] || "";
+    reserva.status;
 
   const janela =
     window.open(
@@ -817,4 +838,17 @@ function gerarContratoReserva(id){
   janela.document.close();
 
   janela.print();
+}
+
+/* ------------------------------------- */
+function limparFormularioReserva(){
+
+  setValue("rv_nome","");
+  setValue("rv_telefone","");
+  setValue("rv_espaco","");
+  setValue("rv_data","");
+  setValue("rv_hora","");
+  setValue("rv_valor","");
+  setValue("rv_obs","");
+
 }

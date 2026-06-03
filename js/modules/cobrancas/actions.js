@@ -9,14 +9,15 @@ async function pagar(id){
   const item =
     safeArray(state.cobrancas)
 
-      .find(c =>
+      .find(item => {
 
-        String(c[0])
+        const c =
+          cobrancaObj(item);
 
-        ===
+        return String(c.id)
+          === String(id);
 
-        String(id)
-      );
+      });
 
   if(!item){
 
@@ -45,7 +46,7 @@ async function pagar(id){
   }
 
   await carregar();
-
+  listarCobrancas();
   gerarRecibo(
     item,
     resp.recibo

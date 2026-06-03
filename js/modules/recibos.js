@@ -46,22 +46,25 @@ function renderRecibos(){
       return;
     }
 
+    const recibo =
+      reciboObj(r);
+
     const numero =
-      String(r[1] || "")
+      String(recibo.numero)
         .trim();
 
     const nome =
-      String(r[2] || "")
+      String(recibo.nome)
         .trim();
 
     const mes =
-      formatarMes(r[4]);
+      formatarMes(recibo.mes);
 
     const valor =
-      numero(r[5]);
+      recibo.valor;
 
     const data =
-      formatarData(r[6]);
+      formatarData(recibo.data);
 
     html += `
 
@@ -386,19 +389,24 @@ function reimprimir(numeroRecibo){
   }
 
   const recibo =
-
     safeArray(state.recibos)
-      .find(r =>
+      .find(r => {
 
-        String(r[1] || "")
-          .trim()
+        const item =
+          reciboObj(r);
+
+        return (
+
+          String(item.numero)
+            .trim()
 
           ===
 
-        String(numeroRecibo)
-          .trim()
+          String(numeroRecibo)
+            .trim()
+        );
 
-      );
+      });
 
   if(!recibo){
 
@@ -410,21 +418,22 @@ function reimprimir(numeroRecibo){
     return;
   }
 
-  const nome =
+  const item =
+    reciboObj(recibo);
 
-    String(recibo[2] || "")
+  const nome =
+    String(item.nome)
       .trim();
 
   const cpf =
-    limparCPF(recibo[3]);
+    limparCPF(item.cpf);
 
   const mes =
-
-    String(recibo[4] || "")
+    String(item.mes)
       .trim();
 
   const valor =
-    numero(recibo[5]);
+    item.valor;
 
   gerarRecibo(
 
@@ -446,14 +455,19 @@ function reimprimir(numeroRecibo){
 function reimprimirPorCobranca(id){
 
   const cobranca =
-
     safeArray(state.cobrancas)
-      .find(item =>
+      .find(item => {
 
-        String(item[0])
-          === String(id)
+        const c =
+          cobrancaObj(item);
 
-      );
+        return (
+          String(c.id)
+          ===
+          String(id)
+        );
+
+      });
 
   if(!cobranca){
 
@@ -466,9 +480,9 @@ function reimprimirPorCobranca(id){
   }
 
   const numeroRecibo =
-
-    String(cobranca[7] || "")
-      .trim();
+    String(
+      cobrancaObj(cobranca).recibo
+    ).trim();
 
   if(!numeroRecibo){
 

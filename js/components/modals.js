@@ -26,7 +26,10 @@ function abrirModalMensalidade(){
   const lista =
     safeArray(state.associados);
 
-  if(!lista.length){
+  const associado =
+    lista[0];
+
+  if(!associado){
 
     showAlert(
       "Nenhum associado encontrado"
@@ -36,7 +39,9 @@ function abrirModalMensalidade(){
   }
 
   const valor =
-    numero(lista[0][6]);
+    numero(
+      associado.mensalidade
+    );
 
   setText(
     "valorAtualMensalidade",

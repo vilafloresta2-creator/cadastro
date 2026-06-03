@@ -24,17 +24,16 @@ function editar(id){
 
   const associado =
 
-    safeArray(state.associados)
+  safeArray(state.associados)
 
-      .find(x =>
+    .find(x => {
 
-        String(x[0])
+      const a = x;
+        
+      return String(a.id)
+        === String(id);
 
-        ===
-
-        String(id)
-
-      );
+    });
 
   if(!associado){
 

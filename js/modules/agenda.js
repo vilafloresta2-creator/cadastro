@@ -141,8 +141,11 @@ function montarAgenda(
       safeArray(state.reservas)
         .filter(r => {
 
+          const reserva =
+            reservaObj(r);
+
           const dataReserva =
-            normalizarDataISO(r[4]);
+            normalizarDataISO(reserva.data);
 
           return (
             dataReserva === dataFormatada
@@ -156,8 +159,11 @@ function montarAgenda(
 
     reservasDia.forEach(r => {
 
+      const reserva =
+        reservaObj(r);
+
       const status =
-        String(r[9] || "");
+        String(reserva.status || "");
 
       if(status === "Pago"){
 
@@ -292,8 +298,11 @@ function abrirDiaAgenda(data){
     safeArray(state.reservas)
       .filter(r => {
 
+        const reserva =
+          reservaObj(r);
+
         const dataReserva =
-          normalizarDataISO(r[4]);
+          normalizarDataISO(reserva.data);
 
         return (
           dataReserva === String(data)
@@ -321,7 +330,7 @@ function abrirDiaAgenda(data){
           font-weight:600;
           margin-bottom:10px;
         ">
-          ${formatarDataBR(data)}
+          ${formatarData(data)}
         </div>
 
         <div style="
@@ -353,7 +362,7 @@ function abrirDiaAgenda(data){
         font-size:20px;
         font-weight:700;
       ">
-        📅 ${formatarDataBR(data)}
+        📅 ${formatarData(data)}
       </div>
 
     </div>
@@ -362,14 +371,17 @@ function abrirDiaAgenda(data){
 
   lista.forEach(r => {
 
+    const reserva =
+      reservaObj(r);
+
     const status =
-      String(r[9] || "");
+      String(reserva.status || "");
 
     html += `
 
       <div
         class="card"
-        onclick="abrirReserva('${r[0]}')"
+        onclick="abrirReserva('${reserva.id}')"
         style="
           cursor:pointer;
           transition:.2s;
@@ -390,21 +402,21 @@ function abrirDiaAgenda(data){
               font-size:18px;
               font-weight:600;
             ">
-              ${r[1]}
+              ${reserva.nome}
             </div>
 
             <div style="
               margin-top:6px;
             ">
-              📍 ${r[3]}
+              📍 ${reserva.espaco}
             </div>
 
             <div>
-              🕒 ${formatarHoraBR(r[5])}
+              🕒 ${formatarHora(reserva.hora)}
             </div>
 
             <div>
-              💰 ${moeda(r[6])}
+              💰 ${moeda(reserva.valor)}
             </div>
 
           </div>

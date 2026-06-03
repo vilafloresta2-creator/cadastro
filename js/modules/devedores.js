@@ -12,9 +12,16 @@ function renderDevedores(){
 
       safeArray(state.cobrancas)
 
-        .map(c =>
-          String(c?.[3] || "").trim()
-        )
+        .map(c => {
+
+          const cobranca =
+            cobrancaObj(c);
+
+          return String(
+            cobranca.mes || ""
+          ).trim();
+
+        })
 
         .filter(Boolean)
 
@@ -124,61 +131,88 @@ function listarDevedores(){
 
   let lista =
 
-    safeArray(state.cobrancas)
+  safeArray(state.cobrancas)
 
-      .filter(c => {
+    .filter(c => {
 
-        return (
+      const cobranca =
+        cobrancaObj(c);
 
-          normalizarTexto(c?.[5])
+      return (
 
-          ===
+        String(cobranca.status || "")
+          .trim()
+          .toLowerCase()
 
-          "pendente"
+        ===
 
-        );
+        "pendente"
 
-      });
+      );
+
+    });
 
 
   /* ================= BUSCA ================= */
   if(busca){
 
-    lista = lista.filter(c =>
+    lista = lista.filter(c => {
 
-      normalizarTexto(c?.[1])
+      const cobranca =
+        cobrancaObj(c);
 
-        .includes(busca)
+      return normalizarTexto(
+        cobranca.nome
+      ).includes(busca);
 
-    );
+    });
   }
 
 
   /* ============== FILTRO MÊS ============== */
   if(mes){
 
-    lista = lista.filter(c =>
+    lista = lista.filter(c => {
 
-      String(c?.[3] || "").trim()
+      const cobranca =
+        cobrancaObj(c);
 
-      ===
+      return (
 
-      mes
+        String(
+          cobranca.mes || ""
+        ).trim()
 
-    );
+        ===
+
+        mes
+
+      );
+
+    });
   }
 
 
   /* ================ ORDENAÇÃO ================ */
-  lista.sort((a, b) =>
+  lista.sort((a, b) => {
 
-    numero(b?.[4])
+    const cb =
+      cobrancaObj(b);
 
-    -
+    const ca =
+      cobrancaObj(a);
 
-    numero(a?.[4])
+    return (
 
-  );
+      cb.valor
+
+      -
+
+      ca.valor
+
+    );
+
+  });
 
   let total = 0;
 
@@ -205,19 +239,19 @@ function listarDevedores(){
       return;
     }
 
-    const nome =
+    const cobranca =
+      cobrancaObj(c);
 
-      String(c[1] || "-")
-        .trim();
+    const nome =
+      cobranca.nome || "-";
 
     const mesFormatado =
-
       formatarMes(
-        String(c[3] || "")
+        cobranca.mes
       );
 
     const valor =
-      numero(c[4]);
+      cobranca.valor;
 
     total += valor;
 

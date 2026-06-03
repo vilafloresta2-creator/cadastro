@@ -158,39 +158,50 @@ function renderCaixa(){
 
     const item =
       safeArray(state.caixa)
-        .find(c =>
+        .find(c => {
 
-          String(c[0])
+          const caixa =
+            caixaObj(c);
+
+          return (
+
+            String(caixa.id)
+
             ===
-          String(state.editandoCaixa)
 
-        );
+            String(state.editandoCaixa)
+
+          );
+
+        });
 
     if(item){
+
+      const caixa =
+        caixaObj(item);
 
       document.getElementById(
         "cx_tipo"
       ).value =
+        caixa.tipo;
 
-        String(item[2] || "");
 
       document.getElementById(
         "cx_categoria"
       ).value =
+        caixa.categoria;
 
-        String(item[3] || "");
 
       document.getElementById(
         "cx_descricao"
       ).value =
+        caixa.descricao;
 
-        String(item[4] || "");
 
       document.getElementById(
         "cx_valor"
       ).value =
-
-        numero(item[5]);
+        caixa.valor;
     }
   }
 
@@ -239,32 +250,38 @@ function listarCaixa(){
   lista
     .slice()
     .reverse()
+    
     .forEach(c => {
 
       if(!Array.isArray(c)){
         return;
       }
 
+      const caixa =
+        caixaObj(c);
+
       const id =
-        String(c[0] || "");
+        String(caixa.id);
 
       const tipo =
-        String(c[2] || "")
+        String(caixa.tipo)
           .trim();
 
       const categoria =
-        String(c[3] || "")
+        String(caixa.categoria)
           .trim();
 
       const descricao =
-        String(c[4] || "")
+        String(caixa.descricao)
           .trim();
 
       const valor =
-        numero(c[5]);
+        caixa.valor;
 
       const data =
-        formatarData(c[1]);
+        formatarData(
+          caixa.data
+        );
 
       const entrada =
         isEntrada(tipo);
@@ -522,6 +539,7 @@ async function salvarCaixa(){
       null;
 
     await carregar();
+    renderCaixa();
 
   }catch(error){
 
@@ -544,13 +562,22 @@ function editarCaixa(id){
 
   const item =
     safeArray(state.caixa)
-      .find(c =>
+      .find(c => {
 
-        String(c[0])
+        const caixa =
+          caixaObj(c);
+
+        return (
+
+          String(caixa.id)
+
           ===
-        String(id)
 
-      );
+          String(id)
+
+        );
+
+      });
 
   if(!item){
 
@@ -670,6 +697,7 @@ async function excluirCaixa(id){
     );
 
     await carregar();
+    renderCaixa(); 
 
   }catch(error){
 

@@ -24,28 +24,57 @@ async function carregar(){
     }
 
     state.associados =
-      safeArray(data.associados);
+  safeArray(data.associados)
+    .slice(1)
+
+      .map(a => ({
+
+        id: a[0] || "",
+
+        nome: a[1] || "",
+
+        cpf: a[2] || "",
+
+        telefone: a[3] || "",
+
+        email: a[4] || "",
+
+        endereco: a[5] || "",
+
+        mensalidade: numero(a[6]),
+
+        status: a[7] || "Ativo"
+
+      }));
 
     state.cobrancas =
-      safeArray(data.cobrancas);
+      safeArray(data.cobrancas)
+      .slice(1);
 
     state.caixa =
-      safeArray(data.caixa);
+      safeArray(data.caixa)
+      .slice(1);
 
     state.recibos =
-      safeArray(data.recibos);
+      safeArray(data.recibos)
+      .slice(1);
 
     state.backups =
-      safeArray(data.backups);
+      safeArray(data.backups)
+      .slice(1);
 
     state.fixas =
-      safeArray(data.fixas);
+      safeArray(data.fixas)
+      .slice(1);
 
     state.reservas =
-      safeArray(data.reservas);
+      safeArray(data.reservas)
+      .slice(1)
+      .map(reservaObj);
 
     state.fechamentos =
-      safeArray(data.fechamentos);
+      safeArray(data.fechamentos)
+      .slice(1);
 
     return true;
 

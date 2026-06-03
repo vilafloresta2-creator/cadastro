@@ -21,7 +21,9 @@ function limparFormularioAssociado(){
 
 
 /* ========== PREENCHER FORM ========== */
-function preencherFormularioAssociado(associado){
+function preencherFormularioAssociado(
+  associado
+){
 
   if(!associado){
     return;
@@ -29,37 +31,41 @@ function preencherFormularioAssociado(associado){
 
   setValue(
     "m_nome",
-    String(associado[1] || "").trim()
+    associado.nome || ""
   );
 
   setValue(
     "m_cpf",
-    maskCPF(associado[2])
+    maskCPF(
+      associado.cpf
+    )
   );
 
   setValue(
     "m_tel",
-    String(associado[3] || "").trim()
+    associado.telefone || ""
   );
 
   setValue(
     "m_email",
-    String(associado[4] || "").trim()
+    associado.email || ""
   );
 
   setValue(
     "m_endereco",
-    String(associado[5] || "").trim()
+    associado.endereco || ""
   );
 
   setValue(
     "m_mensal",
-    numero(associado[6])
+    numero(
+      associado.mensalidade
+    )
   );
 
   setValue(
     "m_status",
-    associado[7] || "Ativo"
+    associado.status || "Ativo"
   );
 }
 
@@ -114,6 +120,53 @@ async function salvarModal(){
     return;
   }
 
+  /* =====================================
+     VALIDAR TELEFONE DUPLICADO
+  ===================================== */
+
+  const telefone =
+
+    getValue("m_tel")
+      .replace(/\D/g,"");
+
+  const existe =
+
+    state.associados.some(a => {
+
+      const associado =
+        associadoObj(a);
+
+      return (
+
+        String(associado.telefone || "")
+          .replace(/\D/g,"")
+
+        ===
+
+        telefone
+
+        &&
+
+        String(associado.id)
+
+        !==
+
+        String(state.editandoId)
+
+      );
+
+    });
+
+  if(existe){
+
+    showToast(
+      "Telefone já cadastrado",
+      "warning"
+    );
+
+    return;
+  }
+
   const editando =
     !!state.editandoId;
 
@@ -147,7 +200,7 @@ async function salvarModal(){
 
     await carregar();
 
-    listarAssociados();
+    render();
 
   }finally{
 

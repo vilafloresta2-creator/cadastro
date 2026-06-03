@@ -142,7 +142,7 @@
 
       <input id="m_cpf" placeholder="CPF">
 
-      <input id="m_tel" placeholder="Telefone">
+      <input id="m_tel" placeholder="WhatsApp *">
 
       <input id="m_email" placeholder="Email">
 
@@ -301,6 +301,29 @@
   <!-- CORE FINAL -->  
   <script src="js/core/render.js"></script>
   <script src="js/core/init.js"></script>
+
+  <script>
+  if("serviceWorker" in navigator){
+
+    window.addEventListener("load", () => {
+
+      navigator.serviceWorker.register("./sw.js")
+
+        .then(() => {
+
+          console.log("SW registrado");
+
+        })
+
+        .catch(err => {
+
+          console.error("Erro SW", err);
+
+        });
+
+    });
+  }
+  </script>
 
 </body>
 

@@ -2,6 +2,8 @@
    API
 ========================================= */
 
+const APP_VERSION =
+  "1.0.0";
 
 /* ========== POST API RAW ========== */
 async function postAPI(body = {}){

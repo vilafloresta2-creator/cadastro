@@ -6,17 +6,26 @@
 /* ========== RENDER CARD ========== */
 function renderCardAssociado(a){
 
+  const associado = a;
+
   const statusFinanceiro =
-    statusFinanceiroAssociado(a[2]);
-
-  const statusCadastro =
-
-    String(a[7] || "Ativo")
-      .trim()
-      .toLowerCase();
+    statusFinanceiroAssociado(
+      associado.cpf
+    );
 
   const ativo =
-    statusCadastro === "ativo";
+
+    String(
+      associado.status || "Ativo"
+    )
+
+      .trim()
+
+      .toLowerCase()
+
+    ===
+
+    "ativo";
 
   return `
 
@@ -26,7 +35,7 @@ function renderCardAssociado(a){
 
         <div class="associado-nome">
 
-          ${a[1] || "-"}
+          ${associado.nome || "-"}
 
         </div>
 
@@ -81,15 +90,15 @@ function renderCardAssociado(a){
       <div class="acoes-lista">
 
         <button
-          class="btn btn-icon btn-editar"
-          onclick="editar('${a[0]}')"
+          class="btn btn-icon"
+          onclick="editar('${associado.id}')"
         >
           ✏️
         </button>
 
         <button
-          class="btn-cancelar btn-icon btn-excluir"
-          onclick="excluir('${a[0]}')"
+          class="btn-cancelar btn-icon"
+          onclick="excluir('${associado.id}')"
         >
           🗑️
         </button>

@@ -14,27 +14,44 @@ function obterBuscaAssociado(){
 }
 
 
-/* ========== ASSOCIADOS FILTRADOS ========== */
+/* ========== FILTRAR ASSOCIADOS ========== */
 function obterAssociadosFiltrados(){
 
-  const termoBusca =
-    obterBuscaAssociado();
+  const busca =
+
+    normalizarTexto(
+      obterBuscaAssociado()
+    )
+
+      .toLowerCase();
 
   return safeArray(state.associados)
+    
+    .filter(item => {
 
-  .slice(1)
+      const associado =
+        item;
 
-    .filter(a => {
+      return (
 
-      if(!a || !a.length){
-        return false;
-      }
+        normalizarTexto(
+          associado.nome
+        )
 
-      const nome =
-        normalizarTexto(a[1]);
+          .toLowerCase()
 
-      return nome.includes(
-        termoBusca
+          .includes(busca)
+
+        ||
+
+        String(associado.cpf || "")
+          .includes(busca)
+
+        ||
+
+        String(associado.telefone || "")
+          .includes(busca)
+
       );
     });
 }

@@ -13,9 +13,22 @@ function filtrarCobrancasPorMes(
     return lista;
   }
 
-  return lista.filter(c =>
+  return lista.filter(c => {
 
-    formatarMes(c[3])
-      === mes
-  );
+    const cobranca =
+      cobrancaObj(c);
+
+    return (
+
+      String(cobranca.mes)
+        .substring(0,7)
+
+      ===
+
+      mes
+
+    );
+
+  });
+
 }

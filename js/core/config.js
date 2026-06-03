@@ -3,7 +3,7 @@
 
 /* ========== API ========== */
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzTDpFmScHg1foVd1pMDHa1OSIoUS84-hnA6SyOoLlE9SA8aSYrAw_54ioHsVxIE_G4/exec";
+  "https://script.google.com/macros/s/AKfycbzbAB59QOl2Z4x493MAaVRHirTyhKKRU5XncqW1bmsGN3_Al_Pb4lPbwyeDd8R_6iaQ/exec";
 
 
 /* ========== APP CONFIG ========== */

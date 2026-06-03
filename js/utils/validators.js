@@ -174,6 +174,11 @@ function validarCampos(){
       "m_cpf"
     );
 
+  const telefone =
+    document.getElementById(
+      "m_tel"
+    );       
+
   const mensalidade =
     document.getElementById(
       "m_mensal"
@@ -207,7 +212,23 @@ function validarCampos(){
     marcarErro(cpf);
 
     valido = false;
-  }
+  }   
+
+   /* =========================================
+     TELEFONE
+  ========================================= */
+
+  if(
+    !telefone?.value.trim()
+    ||
+    !validarTelefone(telefone.value)
+    
+  ){
+
+    marcarErro(telefone);
+
+    valido = false;
+  } 
 
   /* =========================================
      MENSALIDADE

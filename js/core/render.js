@@ -15,7 +15,7 @@ const SCREENS = {
 
   devedores: renderDevedores,
 
-  cobrancas: render/*Cobrancas*/,
+  cobrancas: renderCobrancas,
 
   caixa: renderCaixa,
 

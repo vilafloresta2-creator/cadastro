@@ -6,49 +6,39 @@
 /* ========== CARD ========== */
 function renderCardCobranca(c){
 
-  if(!c || !c.length){
+  if(!c){
     return "";
   }
 
-  const id =
-    c[0];
-
-  const nome =
-    String(c[1] || "")
-      .trim();
-
-  const mes =
-    formatarMes(c[3]);
-
-  const valor =
-    numero(c[4]);
-
-  const status =
-
-    normalizarTexto(c[5])
-      .toLowerCase();
-
-  const recibo =
-    String(c[7] || "")
-      .trim();
+  const cobranca =
+    cobrancaObj(c);
 
   const pago =
-    status === "pago";
+
+    normalizarTexto(
+      cobranca.status
+    )
+
+      .toLowerCase()
+
+    ===
+
+    "pago";
 
   return `
 
     <div class="card">
 
       <div class="cobranca-nome">
-        ${nome || "-"}
+        ${cobranca.nome || "-"}
       </div>
 
       <div class="cobranca-mes">
-        ${mes}
+        ${formatarMes(cobranca.mes)}
       </div>
 
       <div class="cobranca-valor">
-        ${moeda(valor)}
+        ${moeda(cobranca.valor)}
       </div>
 
       <div
@@ -77,7 +67,7 @@ function renderCardCobranca(c){
             <button
               class="btn-light"
               style="margin-top:10px;"
-              onclick="pagar('${id}')"
+              onclick="pagar('${cobranca.id}')"
             >
 
               Pagar
@@ -89,13 +79,13 @@ function renderCardCobranca(c){
       }
 
       ${
-        pago && recibo
+        pago && cobranca.recibo
           ? `
 
             <button
               class="btn-recibo"
               style="margin-top:10px;"
-              onclick="reimprimir('${recibo}')"
+              onclick="reimprimir('${cobranca.recibo}')"
             >
 
               🧾 Reimprimir

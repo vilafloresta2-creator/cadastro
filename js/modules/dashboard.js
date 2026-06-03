@@ -15,47 +15,49 @@ function obterKPIsDashboard(){
   let ativos = 0;
 
   /* =========================================
-     CAIXA
-  ========================================= */
+   CAIXA
+========================================= */
 
-  safeArray(state.caixa)
-    .forEach(c => {
+safeArray(state.caixa)
+  .forEach(c => {
 
-      if(!c?.length){
-        return;
-      }
+    const caixa =
+      caixaObj(c);
 
-      const data =
-        c[1];
+    const data =
+      caixa.data;
 
-      if(!dataValida(data)){
-        return;
-      }
+    if(!dataValida(data)){
+      return;
+    }
 
-      const mes =
-        obterMes(data);
+    const mes =
+      obterMes(data);
 
-      if(mes !== mesAtual){
-        return;
-      }
+    if(mes !== mesAtual){
+      return;
+    }
 
-      const tipo =
+    const tipo =
 
-        normalizarTexto(c[2])
-          .toLowerCase();
+      normalizarTexto(
+        caixa.tipo
+      )
 
-      const valor =
-        numero(c[5]);
+      .toLowerCase();
 
-      if(tipo === "entrada"){
-        entradas += valor;
-      }
+    const valor =
+      caixa.valor;
 
-      if(tipo === "saida"){
-        saidas += valor;
-      }
+    if(tipo === "entrada"){
+      entradas += valor;
+    }
 
-    });
+    if(tipo === "saida"){
+      saidas += valor;
+    }
+
+  });
 
   /* =========================================
      COBRANÇAS
@@ -96,21 +98,21 @@ function obterKPIsDashboard(){
   ========================================= */
 
   safeArray(state.associados)
-    .forEach(a => {
+    .forEach(item => {
 
-      if(!a?.length){
-        return;
-      }
+      const associado = item;
 
-      const status =
-
+      if(
         normalizarTexto(
-          a[7] || "Ativo"
+          associado.status
         )
 
-        .toLowerCase();
+        .toLowerCase()
 
-      if(status === "ativo"){
+        ===
+
+        "ativo"
+      ){
         ativos++;
       }
 

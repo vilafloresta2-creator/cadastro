@@ -55,3 +55,35 @@ function listarCobrancas(){
     html
   );
 }
+
+/* =========================================
+   RENDER COBRANÇAS
+========================================= */
+
+function renderCobrancas(){
+
+  tela.innerHTML = `
+
+    <div class="top">
+
+      <input
+        type="month"
+        id="filtroMes"
+        onchange="listarCobrancas()"
+      >
+
+      <button
+        class="btn"
+        onclick="gerarCobrancas()"
+      >
+        Gerar Cobranças
+      </button>
+
+    </div>
+
+    <div id="lista"></div>
+
+  `;
+
+  listarCobrancas();
+}
