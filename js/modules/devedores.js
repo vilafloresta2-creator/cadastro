@@ -300,7 +300,7 @@ function listarDevedores(){
         </div>
 
         <button
-          class="btn-light"
+          class="btn"
           style="
             font-size:12px;
             padding:6px 12px;

@@ -151,7 +151,7 @@ function showConfirm(msg = ""){
       botoes:`
 
         <button
-          class="btn-light"
+          class="btn-cancelar"
           id="btnCancelConfirm"
         >
           Cancelar

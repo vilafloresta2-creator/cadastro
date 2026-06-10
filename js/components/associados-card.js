@@ -28,8 +28,12 @@ function renderCardAssociado(a){
     "ativo";
 
   return `
-
-    <div class="card associado-card">
+    
+    <div
+      class="card associado-card"
+      onclick="editar('${associado.id}')      
+      "
+    >
 
       <div>
 
@@ -87,18 +91,14 @@ function renderCardAssociado(a){
 
       </div>
 
-      <div class="acoes-lista">
-
-        <button
-          class="btn btn-icon"
-          onclick="editar('${associado.id}')"
-        >
-          ✏️
-        </button>
+      <div class="acoes-lista">        
 
         <button
           class="btn-cancelar btn-icon"
-          onclick="excluir('${associado.id}')"
+          onclick="
+            event.stopPropagation();
+            excluir('${associado.id}');
+          "
         >
           🗑️
         </button>

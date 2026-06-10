@@ -109,25 +109,17 @@
     <!-- TELA -->
     <section id="tela"></section>
 
-  </main>
+  </main> 
 
 
-  <!-- FAB -->
-  <button
-    class="fab"
-    onclick="novo()"
-    aria-label="Novo associado"
-  >
-    +
-  </button>
-
-
+  
+  
   <!-- MODAL ASSOCIADO -->
   <div
     id="modal"
     class="modal"
     onclick="fecharModal()"
-  >
+  >    
 
     <div
       class="modal-box"
@@ -243,6 +235,14 @@
 
   </div>
 
+  <button
+    id="fab"
+    class="fab"
+    style="display:none"
+  >
+    +
+  </button>
+
 
   <!-- CORE -->
   <script src="js/core/config.js"></script>
@@ -268,6 +268,8 @@
   <script src="js/components/dialog.js"></script>
   <script src="js/components/modal-core.js"></script>
   <script src="js/components/modals.js"></script>
+  <script src="js/components/reserva-form-modal.js"></script>
+  
   <script src="js/components/associados-card.js"></script>
 
   <!-- SERVICES -->

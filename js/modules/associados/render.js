@@ -22,6 +22,16 @@ function renderAssociados(){
 
     <div id="lista"></div>
 
+    
+      <!-- FAB -->
+        <button
+          class="fab"
+          onclick="novo()"
+          aria-label="Novo associado"
+        >
+          +
+        </button>
+
   `);
 
   const busca =

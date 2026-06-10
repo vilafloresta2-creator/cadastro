@@ -63,8 +63,28 @@ function editar(id){
 }
 
 
-/* ================= EXCLUIR ================= */
+/* ============= EXCLUIR ASSOCIADO ============= */
 async function excluir(id){
+
+  const associado =
+
+    safeArray(state.associados)
+
+      .find(a =>
+
+        String(a.id) === String(id)
+
+      );
+
+  const confirmar = confirm(
+
+    `Excluir associado?\n\n${associado?.nome || ""}`
+
+  );
+
+  if(!confirmar){
+    return;
+  }
 
   const ok =
     await excluirAssociado(id);

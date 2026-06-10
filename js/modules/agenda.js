@@ -136,6 +136,16 @@ function montarAgenda(
 
       `${ano}-${String(mes + 1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
 
+      const hoje = new Date();
+
+      const dataHoje =
+      `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
+
+      const classeHoje =
+        dataFormatada === dataHoje
+          ? "hoje"
+          : "";
+
     const reservasDia =
 
       safeArray(state.reservas)
@@ -151,92 +161,93 @@ function montarAgenda(
             dataReserva === dataFormatada
           );
 
-        });
+        });    
 
-    let pagos = 0;
-    let parciais = 0;
-    let pendentes = 0;
+    const reservasOrdenadas =
+      reservasDia
+        .map(r => reservaObj(r))
+        .sort((a,b)=>
 
-    reservasDia.forEach(r => {
+          String(a.hora || "")
+            .localeCompare(
+              String(b.hora || "")
+            )
+        );
 
-      const reserva =
-        reservaObj(r);
+    const reservasPreview =
 
-      const status =
-        String(reserva.status || "");
-
-      if(status === "Pago"){
-
-        pagos++;
-
-      }else if(status === "Parcial"){
-
-        parciais++;
-
-      }else{
-
-        pendentes++;
-      }
-
-    });
+      reservasOrdenadas
+        .slice(0,3);  
+          
 
     html += `
 
       <div
-        class="agenda-dia"
-        onclick="abrirDiaAgenda('${dataFormatada}')"
+        class="agenda-dia ${classeHoje}"
+        onclick="clicarDiaAgenda('${dataFormatada}')"
       >
 
         <div class="agenda-numero">
           ${dia}
         </div>
 
-        ${
-          reservasDia.length
-            ? `
-              <div style="
-                margin-top:8px;
-                display:flex;
-                flex-direction:column;
-                gap:4px;
-                font-size:12px;
-                font-weight:bold;
-              ">
+              ${reservasPreview.length ? `                 
 
-                ${
-                  pagos
-                    ? `
-                      <div style="color:#22c55e;">
-                        🟢 ${pagos}
+                  ${reservasPreview.map(r => {
+
+                    const tooltip = `
+                      ${r.nome}
+                      ⏰ ${formatarHora(r.hora)}
+                      📍 ${r.espaco}
+                      💰 ${moeda(r.valor)}
+                      💳 Pago: ${moeda(r.pago || 0)}
+                      📌 Saldo: ${moeda(r.saldo || 0)}
+                      Status: ${r.status}
+                      `.trim();
+
+                    let classePreview = "preview-pendente";
+
+                    if(r.status === "Pago"){
+
+                      classePreview = "preview-pago";
+
+                    }else if(r.status === "Parcial"){
+
+                      classePreview = "preview-parcial";
+                    }
+
+                    return `
+
+                    <div class="agenda-preview-item ${classePreview}"
+                       data-tooltip="${tooltip}">
+
+                      <div class="agenda-preview-hora">
+                        ${formatarHora(r.hora)}
                       </div>
-                    `
-                    : ""
-                }
 
-                ${
-                  parciais
-                    ? `
-                      <div style="color:#f59e0b;">
-                        🟡 ${parciais}
+                      <div class="agenda-preview-nome">
+                        ${r.nome}
                       </div>
-                    `
-                    : ""
-                }
 
-                ${
-                  pendentes
-                    ? `
-                      <div style="color:#ef4444;">
-                        🔴 ${pendentes}
-                      </div>
-                    `
-                    : ""
-                }
+                    </div>
 
-              </div>
-            `
-            : ""
-        }
+                  `;
+
+                  }).join("")}
+
+                  ${
+                    reservasDia.length > 3
+                      ? `
+                        <div class="agenda-preview-extra">
+                          +${reservasDia.length - 3} reserva(s)
+                        </div>
+                      `
+                      : ""
+
+
+                  }                  
+                
+              ` : ""}
 
       </div>
 
@@ -287,13 +298,12 @@ function navegarAgenda(direcao){
 }
 
 
-/* ================= ABRIR DIA ================= */
-function abrirDiaAgenda(data){
 
-  state.agendaDataSelecionada =
-    data;
 
-  const lista =
+/* ================= ABRIR RESERVA ================= */
+function clicarDiaAgenda(data){
+
+  const reservas =
 
     safeArray(state.reservas)
       .filter(r => {
@@ -301,157 +311,128 @@ function abrirDiaAgenda(data){
         const reserva =
           reservaObj(r);
 
-        const dataReserva =
-          normalizarDataISO(reserva.data);
-
         return (
-          dataReserva === String(data)
+
+          normalizarDataISO(
+            reserva.data
+          ) === data
+
         );
 
       });
 
-  const el =
-    document.getElementById(
-      "agendaDetalhes"
-    );
+  if(reservas.length){
 
-  if(!el){
+    abrirListaReservasDia(data);
+
     return;
   }
 
-  if(!lista.length){
+  abrirFormularioReserva({
 
-    el.innerHTML = `
+    data
 
-      <div class="card">
+  });
+} 
 
-        <div style="
-          font-size:18px;
-          font-weight:600;
-          margin-bottom:10px;
-        ">
-          ${formatarData(data)}
-        </div>
+/* ================= ABRIR LISTA RESERVA ================= */
+function abrirListaReservasDia(data){
 
-        <div style="
-          margin-bottom:16px;
-          opacity:.7;
-        ">
-          Nenhuma reserva neste dia.
-        </div>
+  const reservas =
 
-        <button
-          class="btn"
-          onclick="ir('reservas')"
-        >
-          + Nova Reserva
-        </button>
+    safeArray(state.reservas)
+      .filter(r => {
+
+        const reserva =
+          reservaObj(r);
+
+        return (
+          normalizarDataISO(
+            reserva.data
+          ) === data
+
+        );
+
+      });
+
+  let html = `
+
+
+    <div
+      class="modal-box"
+      onclick="event.stopPropagation()"      
+    >
+
+      <h3>
+        📅 ${formatarData(data)}
+      </h3>
+
+  `;
+
+  reservas.forEach(r => {
+
+    const reserva =
+      reservaObj(r);     
+
+    html += `
+
+      <div
+        class="card agenda-card-reserva" 
+        style="
+          cursor:pointer;
+          margin-top:10px;"
+
+        onclick="
+          closeModal('modal');
+          abrirFormularioReserva(
+            ${JSON.stringify(reserva)
+              .replace(/"/g,'&quot;')}
+          );
+        "
+      >
+
+        <b>
+          ${formatarHora(reserva.hora)}
+        </b>
+
+        <br>
+
+        ${reserva.nome}
 
       </div>
 
     `;
 
-    return;
-  }
+  });
 
-  let html = `
+  html += `
 
-    <div class="card">
-
-      <div style="
-        font-size:20px;
-        font-weight:700;
-      ">
-        📅 ${formatarData(data)}
-      </div>
+      <button
+        class="btn"
+        style="
+          width:100%;
+          margin-top:15px;
+        "
+        onclick="
+          closeModal('modal');
+          abrirFormularioReserva({
+            data:'${data}'
+          });
+        "
+      >
+        ➕ Nova Reserva
+      </button>
 
     </div>
 
   `;
 
-  lista.forEach(r => {
+  modal.innerHTML = html;
 
-    const reserva =
-      reservaObj(r);
+  modal.style.display = "flex";
 
-    const status =
-      String(reserva.status || "");
-
-    html += `
-
-      <div
-        class="card"
-        onclick="abrirReserva('${reserva.id}')"
-        style="
-          cursor:pointer;
-          transition:.2s;
-          margin-top:10px;
-        "
-      >
-
-        <div style="
-          display:flex;
-          justify-content:space-between;
-          gap:10px;
-          flex-wrap:wrap;
-        ">
-
-          <div>
-
-            <div style="
-              font-size:18px;
-              font-weight:600;
-            ">
-              ${reserva.nome}
-            </div>
-
-            <div style="
-              margin-top:6px;
-            ">
-              📍 ${reserva.espaco}
-            </div>
-
-            <div>
-              🕒 ${formatarHora(reserva.hora)}
-            </div>
-
-            <div>
-              💰 ${moeda(reserva.valor)}
-            </div>
-
-          </div>
-
-          <div style="
-            text-align:right;
-          ">
-
-            <div style="
-              margin-top:8px;
-              font-weight:600;
-              color:
-                ${
-                  status === "Pago"
-                    ? "#22c55e"
-                    : status === "Parcial"
-                      ? "#f59e0b"
-                      : "#ef4444"
-                };
-            ">
-              ${status}
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-  });
-
-  el.innerHTML = html;
+  modal.classList.add("show");
 }
-
 
 /* ================= ABRIR RESERVA ================= */
 function abrirReserva(id){
@@ -487,3 +468,19 @@ function abrirReserva(id){
 
   }, 300);
 }
+
+/* ================= ABRIR RESERVA AGENDA ================= 
+function abrirReservaAgenda(id){
+
+  const reserva =
+
+    safeArray(state.reservas)
+      .map(r => reservaObj(r))
+      .find(r => String(r.id) === String(id));
+
+  if(!reserva){
+    return;
+  }
+
+  abrirFormularioReserva(reserva);
+}*/

@@ -8,55 +8,12 @@ function renderFixas(){
 
   tela.innerHTML = `
 
-    <div class="card">
-
-      <h3>Nova Despesa Fixa</h3>
-
-      <input
-        id="fx_categoria"
-        placeholder="Categoria"
-      >
-
-      <input
-        id="fx_descricao"
-        placeholder="Descrição"
-        style="margin-top:8px;"
-      >
-
-      <input
-        id="fx_valor"
-        type="number"
-        step="0.01"
-        placeholder="Valor"
-        style="margin-top:8px;"
-      >
-
-      <input
-        id="fx_dia"
-        type="number"
-        min="1"
-        max="31"
-        placeholder="Dia do mês"
-        style="margin-top:8px;"
-      >
-
-      <button
-        class="btn"
-        style="margin-top:10px;"
-        onclick="salvarFixa()"
-      >
-
-        💾 Salvar
-
-      </button>
-
-    </div>
-
     <div id="listaFixas"></div>
 
-  `;
+    `;
 
   listarFixas();
+
 }
 
 
@@ -135,8 +92,10 @@ function listarFixas(){
     html += `
 
       <div
-        class="card"
+        class="card fixa-card"
+        onclick="editarFixa('${f[0]}')"
         style="
+          cursor:pointer;
           display:flex;
           justify-content:space-between;
           align-items:center;
@@ -177,6 +136,8 @@ function listarFixas(){
 
         </div>
 
+        <div>
+
         <div style="
           font-weight:bold;
           color:#ef4444;
@@ -187,8 +148,18 @@ function listarFixas(){
 
         </div>
 
-      </div>
+        <button
+        class="btn-cancelar btn-icon"
+        onclick="
+          event.stopPropagation();
+          excluirFixa('${f[0]}');
+        "
+      >
+        🗑️
+      </button>
 
+      </div>
+      </div>
     `;
   });
 
@@ -199,6 +170,9 @@ function listarFixas(){
 /* ========== SALVAR DESPESA FIXA ========== */
 async function salvarFixa(){
 
+  const id =
+  state.editandoFixaId || "";
+  
   const categoria =
 
     String(
@@ -276,6 +250,7 @@ async function salvarFixa(){
 
       acao:"salvar_fixa",
 
+      id,
       categoria,
       descricao,
       valor,
@@ -315,7 +290,11 @@ async function salvarFixa(){
       "success"
     );
 
+    state.editandoFixaId = null;
+
     await carregar();
+
+    listarFixas();
 
   }catch(error){
 
@@ -330,4 +309,143 @@ async function salvarFixa(){
 
     hideLoading();
   }
+}
+
+
+/* ================= editar ================= */
+function editarFixa(id){
+
+  const fixa =
+
+    safeArray(state.fixas)
+
+      .find(f =>
+
+        String(f[0])
+        ===
+        String(id)
+
+      );
+
+  if(!fixa){
+    return;
+  }
+
+  state.editandoFixaId = id;
+
+  getEl("fx_categoria").value =
+    fixa[1] || "";
+
+  getEl("fx_descricao").value =
+    fixa[2] || "";
+
+  getEl("fx_valor").value =
+    fixa[3] || "";
+
+  getEl("fx_dia").value =
+    fixa[4] || "";
+}
+
+/* ================= excluir ================= */
+async function excluirFixa(id){
+
+  if(
+    !confirm(
+      "Excluir esta despesa fixa?"
+    )
+  ){
+    return;
+  }
+
+  const resp = await postAPI({
+
+    acao:"excluir_fixa",
+    id
+
+  });
+
+  if(resp.erro){
+
+    showToast(
+      resp.erro,
+      "error"
+    );
+
+    return;
+  }
+
+  showToast(
+    "Despesa fixa excluída",
+    "success"
+  );
+
+  await carregar();
+
+  listarFixas();
+}
+
+
+/* ================= MODAL ================= */
+function abrirModalFixa(){
+
+  state.editandoFixaId = null;
+
+  modal.innerHTML = `
+
+    <div
+      class="modal-box"
+      onclick="event.stopPropagation()"
+    >
+
+      <h3>Nova Despesa Fixa</h3>
+
+      <input
+        id="fx_categoria"
+        placeholder="Categoria"
+      >
+
+      <input
+        id="fx_descricao"
+        placeholder="Descrição"
+      >
+
+      <input
+        id="fx_valor"
+        type="number"
+        step="0.01"
+        placeholder="Valor"
+      >
+
+      <input
+        id="fx_dia"
+        type="number"
+        min="1"
+        max="31"
+        placeholder="Dia do mês"
+      >
+
+      <div class="acoes">
+
+        <button
+          class="btn"
+          onclick="salvarFixa()"
+        >
+          💾 Salvar
+        </button>
+
+        <button
+          class="btn-cancelar"
+          onclick="modal.classList.remove('show')"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+   modal.classList.add("show");
+   
 }

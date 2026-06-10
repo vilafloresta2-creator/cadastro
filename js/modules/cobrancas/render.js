@@ -65,7 +65,7 @@ function renderCardCobranca(c){
           ? `
 
             <button
-              class="btn-light"
+              class="btn"
               style="margin-top:10px;"
               onclick="pagar('${cobranca.id}')"
             >

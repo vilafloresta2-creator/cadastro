@@ -196,7 +196,7 @@ function reciboObj(r){
 
 }
 
-/* =========   RESERVA OBJ ========= */
+/* ========= RESERVA OBJ ========= */
 function reservaObj(r){
 
   if(!Array.isArray(r)){
@@ -206,16 +206,17 @@ function reservaObj(r){
   return {
 
     id: r[0] || "",
-    nome: r[1] || "",
-    telefone: r[2] || "",
-    espaco: r[3] || "",
-    data: r[4] || "",
-    hora: r[5] || "",
-    valor: numero(r[6]),
-    pago: numero(r[7]),
-    saldo: numero(r[8]),
-    status: r[9] || "",
-    observacao: r[10] || ""
+    associadoId: r[1] || "",
+    nome: r[2] || "",
+    telefone: r[3] || "",
+    espaco: r[4] || "",
+    data: r[5] || "",
+    hora: r[6] || "",
+    valor: numero(r[7]),
+    pago: numero(r[8]),
+    saldo: numero(r[9]),
+    status: r[10] || "",
+    observacao: r[11] || ""
 
   };
 

@@ -8,82 +8,6 @@ function renderReservas(){
 
   tela.innerHTML = `
 
-    <div class="card">
-
-      <h3>
-        Nova Reserva
-      </h3>
-
-      <div class="grid-2">
-
-        <input
-          id="rv_nome"
-          placeholder="Nome"
-        >
-
-        <input
-          id="rv_telefone"
-          placeholder="Telefone"
-        >
-
-      </div>
-
-      <div
-        class="grid-2"
-        style="margin-top:10px;"
-      >
-
-        <input
-          id="rv_espaco"
-          placeholder="Espaço"
-        >
-
-        <input
-          id="rv_data"
-          type="date"
-        >
-
-      </div>
-
-      <div
-        class="grid-2"
-        style="margin-top:10px;"
-      >
-
-        <input
-          id="rv_hora"
-          type="time"
-        >
-
-        <input
-          id="rv_valor"
-          type="number"
-          step="0.01"
-          placeholder="Valor"
-        >
-
-      </div>
-
-      <textarea
-        id="rv_obs"
-        placeholder="Observações"
-        style="
-          margin-top:10px;
-          width:100%;
-          min-height:80px;
-        "
-      ></textarea>
-
-      <button
-        class="btn"
-        style="margin-top:12px;"
-        onclick="salvarReserva()"
-      >
-        💾 Salvar Reserva
-      </button>      
-
-    </div>
-
     <div id="listaReservas"></div>
 
   `;
@@ -259,7 +183,7 @@ function listarReservas(){
 
             <button
               class="btn"
-              onclick="abrirPagamentoReserva('${id}')"
+              onclick="receberReservaFormulario('${id}')"
             >
               💰 Pagamento
             </button>
@@ -471,12 +395,19 @@ async function excluirReservaFrontend(id){
 }
 
 /* ================= PAGAMENTO ================= */
-async function abrirPagamentoReserva(id){
+async function abrirPagamentoReserva(
+  id,
+  valorRecebido = null
+){
 
   const valor =
-    window.prompt(
-      "Valor recebido"
-    );
+    valorRecebido !== null
+
+      ? valorRecebido
+
+      : window.prompt(
+          "Valor recebido"
+        );
 
   if(!valor){
     return;
@@ -484,6 +415,35 @@ async function abrirPagamentoReserva(id){
 
   const numero =
     Number(valor);
+
+  const reserva =
+
+    safeArray(state.reservas)
+      .map(r => reservaObj(r))
+      .find(r => String(r.id) === String(id));
+
+  if(!reserva){
+
+    showToast(
+      "Reserva não encontrada",
+      "error"
+    );
+
+    return;
+  }
+
+  const saldoAtual =
+    Number(reserva.saldo || 0); 
+    
+  if(numero > saldoAtual){
+
+    showToast(
+      `Saldo pendente: ${moeda(saldoAtual)}`,
+      "warning"
+    );
+
+    return;
+  }   
 
   if(
     isNaN(numero)
@@ -531,8 +491,18 @@ async function abrirPagamentoReserva(id){
       "success"
     );
 
+    const modal =
+      getEl("modal");
+
+    if(modal){
+
+      modal.classList.remove("show");
+
+      modal.innerHTML = "";
+    }
+
     await carregar();
-    renderReservas();
+    renderAgenda();
 
   }catch(error){
 
@@ -585,10 +555,7 @@ function enviarWhatsReserva(id){
   }
 
   const nome =
-    reserva.nome;
-
-  let telefone =
-    reserva.telefone;
+    reserva.nome;  
 
   const espaco =
     reserva.espaco;
@@ -611,8 +578,9 @@ function enviarWhatsReserva(id){
   const status =
     reserva.status;
 
-  telefone =
-    telefone.replace(/\D/g,'');
+  const telefone =
+    String(reserva.telefone || "")
+      .replace(/\D/g,"");
 
   if(!telefone){
 
@@ -851,4 +819,14 @@ function limparFormularioReserva(){
   setValue("rv_valor","");
   setValue("rv_obs","");
 
+}
+
+/* ------------------------------------- */
+async function excluirReservaFormulario(id){
+
+  await excluirReservaFrontend(id);
+
+  modal.classList.remove("show");
+
+  renderAgenda();
 }

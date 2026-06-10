@@ -90,10 +90,11 @@ function render(){
 
 
     /* =========================================
-       RENDER
+                    RENDER
     ========================================= */
-
     renderTela();
+    
+    atualizarFAB();
 
   }catch(error){
 
@@ -136,4 +137,50 @@ function render(){
       "error"
     );
   }
+}
+
+/* =========================================
+                FAB
+    ========================================= */
+function atualizarFAB(){
+
+  const fab =
+    document.getElementById("fab");
+
+  if(!fab){
+    return;
+  }
+
+  fab.style.display = "none";
+
+  fab.onclick = null;
+
+  switch(state.telaAtual){
+
+    case "associados":
+
+      fab.style.display = "";
+
+      fab.onclick = () => novo();
+
+    break;
+
+    case "fixas":
+
+      fab.style.display = "";
+
+      fab.onclick = () => abrirModalFixa();
+
+    break;
+
+    case "agenda":
+
+      fab.style.display = "";
+
+      fab.onclick = () => abrirFormularioReserva();
+
+    break;
+
+  }
+
 }

@@ -131,31 +131,22 @@ async function salvarModal(){
 
   const existe =
 
-    state.associados.some(a => {
+    state.associados.some(a =>
 
-      const associado =
-        associadoObj(a);
+      String(a.telefone || "")
+        .replace(/\D/g,"")
 
-      return (
+      ===
 
-        String(associado.telefone || "")
-          .replace(/\D/g,"")
+      telefone
 
-        ===
+      &&
 
-        telefone
-
-        &&
-
-        String(associado.id)
-
+      String(a.id)
         !==
+      String(state.editandoId)
 
-        String(state.editandoId)
-
-      );
-
-    });
+    );
 
   if(existe){
 
