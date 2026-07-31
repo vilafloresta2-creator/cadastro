@@ -1,332 +1,262 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
+  <head>
 
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    Associação Vila Floresta 2
-  </title>
-
-  <!-- CSS -->
-  <link
-    rel="stylesheet"
-    href="css/style.css"
-  >
-
-</head>
-
-<body>
-
-  <!-- HEADER -->
-  <header>
-    Associação Moradores Vila Floresta 2
-  </header>
-
-
-  <!-- APP -->
-  <main class="container">
-
-    <!-- NAV -->
-    <nav class="nav">
-
-      <button
-        id="btn_dashboard"
-        onclick="ir('dashboard')"
-      >
-        Dashboard
-      </button>
-
-      <button
-        id="btn_associados"
-        onclick="ir('associados')"
-      >
-        Associados
-      </button>
-
-      <button
-        id="btn_devedores"
-        onclick="ir('devedores')"
-      >
-        Devedores
-      </button>
-
-      <button
-        id="btn_cobrancas"
-        onclick="ir('cobrancas')"
-      >
-        Cobranças
-      </button>
-
-      <button
-        id="btn_caixa"
-        onclick="ir('caixa')"
-      >
-        Caixa
-      </button>
-
-      <button
-        id="btn_fixas"
-        onclick="ir('fixas')"
-      >
-        Fixas
-      </button>
-
-      <button
-        id="btn_relatorios"
-        onclick="ir('relatorios')"
-      >
-        📊 Relatórios
-      </button>
-
-      <button
-        id="btn_reservas"
-        onclick="ir('reservas')"
-      >
-        Reservas
-      </button>
-
-      <button id="btn_agenda" onclick="ir('agenda')">
-        📅 Agenda
-      </button>
-
-      <button
-        id="btn_backups"
-        onclick="ir('backups')"
-      >
-        Backups
-      </button>
-
-    </nav>
-
-
-    <!-- TELA -->
-    <section id="tela"></section>
-
-  </main> 
-
-
-  
-  
-  <!-- MODAL ASSOCIADO -->
-  <div
-    id="modal"
-    class="modal"
-    onclick="fecharModal()"
-  >    
-
-    <div
-      class="modal-box"
-      onclick="event.stopPropagation()"
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
     >
 
-      <h3 id="modalTitulo">
-        Novo Associado
-      </h3>
+    <title>
+      Associação Vila Floresta 2
+    </title>
 
-      <input id="m_nome" placeholder="Nome">
-
-      <input id="m_cpf" placeholder="CPF">
-
-      <input id="m_tel" placeholder="WhatsApp *">
-
-      <input id="m_email" placeholder="Email">
-
-      <input id="m_endereco" placeholder="Endereço">
-
-      <input
-        id="m_mensal"
-        placeholder="Mensalidade"
-      >
-
-      <select id="m_status">
-
-        <option value="Ativo">
-          Ativo
-        </option>
-
-        <option value="Inativo">
-          Inativo
-        </option>
-
-      </select>
-
-      <div class="acoes">
-
-        <button
-          id="btnSalvar"
-          class="btn"
-          onclick="salvarModal()"
-        >
-          Salvar
-        </button>
-
-        <button
-          class="btn-cancelar"
-          onclick="fecharModal()"
-        >
-          Cancelar
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- MODAL MENSALIDADE -->
-  <div
-    id="modalMensalidade"
-    class="modal"
-    onclick="fecharModalMensalidade()"
-  >
-
-    <div
-      class="modal-box"
-      onclick="event.stopPropagation()"
+    <!-- CSS -->
+    <link
+      rel="stylesheet"
+      href="css/style.css"
     >
 
-      <h3>
-        Atualizar Mensalidade
-      </h3>
+  </head>
 
-      <p class="modal-subtitle">
-        Valor atual:
-      </p>
+  <body>
 
-      <div id="valorAtualMensalidade"
-        class="valor-mensalidade"
-      >
-        R$ 0,00
-      </div>
+    <!-- HEADER -->
+    <header>
+      Associação Moradores Vila Floresta 2
+    </header>
 
-      <input
-        id="novoValorMensalidade"
-        type="number"
-        placeholder="Novo valor"
-      >
 
-      <div class="acoes">
+    <!-- APP -->
+    <main class="container">
+
+      <!-- NAV -->
+      <nav class="nav">
 
         <button
-          class="btn"
-          onclick="salvarMensalidade()"
+          id="btn_dashboard"
+          onclick="ir('dashboard')"
         >
-          Salvar
+          Dashboard
         </button>
 
         <button
-          class="btn-cancelar"
-          onclick="fecharModalMensalidade()"
+          id="btn_associados"
+          onclick="ir('associados')"
         >
-          Cancelar
+          Associados
+        </button>      
+
+        <button
+          id="btn_cobrancas"
+          onclick="ir('cobrancas')"
+        >
+          Cobranças
         </button>
 
-      </div>
+        <button
+          id="btn_caixa"
+          onclick="ir('caixa')"
+        >
+          Caixa
+        </button>
 
+        <button
+          id="btn_fixas"
+          onclick="ir('fixas')"
+        >
+          Fixas
+        </button>
+
+        <button
+          id="btn_relatorios"
+          onclick="ir('relatorios')"
+        >
+          📊 Relatórios
+        </button>
+
+        <button
+          id="btn_reservas"
+          onclick="ir('reservas')"
+        >
+          Reservas
+        </button>
+
+        <button id="btn_agenda" onclick="ir('agenda')">
+          📅 Agenda
+        </button>
+
+        <button
+          id="btn_backups"
+          onclick="ir('backups')"
+        >
+          Backups
+        </button>
+
+      </nav>
+
+
+      <!-- TELA -->
+      <section id="tela"></section>
+
+    </main>     
+    
+    
+    <!-- MODAL -->
+    <div id="modal"
+      class="modal"   
+    >    
     </div>
+      
 
-  </div>
-
-  <button
-    id="fab"
-    class="fab"
-    style="display:none"
-  >
-    +
-  </button>
+    <button
+      id="fab"
+      class="fab"
+      style="display:none"
+    >
+      +
+    </button>
 
 
-  <!-- CORE -->
-  <script src="js/core/config.js"></script>
-  <script src="js/core/state.js"></script>
-  <script src="js/core/dom.js"></script>
-  <script src="js/core/navigation.js"></script>
+    <!-- CORE -->
+    <script src="js/core/config.js"></script>
+    <script src="js/core/state.js"></script>
+    <script src="js/core/dom.js"></script>
+    <script src="js/core/navigation.js"></script>
 
-  <!-- UTILS -->
-  <script src="js/utils/helpers.js"></script>
-  <script src="js/utils/format.js"></script>
-  <script src="js/utils/masks.js"></script>
-  <script src="js/utils/utils.js"></script>
-  <script src="js/utils/validators.js"></script>
 
-  <!-- API -->
-  <script src="js/api/api.js"></script>
-  <script src="js/api/request.js"></script>
-  <script src="js/api/load.js"></script>
+    <!-- UTILS -->
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/format.js"></script>
+    <script src="js/utils/masks.js"></script>
+    <script src="js/utils/status.js"></script>       
+    <script src="js/utils/validators.js"></script>
+    <script src="js/utils/date.js"></script>
 
-  <!-- COMPONENTS -->
-  <script src="js/components/toast.js"></script>
-  <script src="js/components/loading.js"></script>
-  <script src="js/components/dialog.js"></script>
-  <script src="js/components/modal-core.js"></script>
-  <script src="js/components/modals.js"></script>
-  <script src="js/components/reserva-form-modal.js"></script>
-  
-  <script src="js/components/associados-card.js"></script>
 
-  <!-- SERVICES -->
-  <script src="js/services/associados.service.js"></script>
-  <script src="js/services/cobrancas.service.js"></script>
+    <!-- API -->
+    <script src="js/api/api.js"></script>
+    <script src="js/api/request.js"></script>
+    <script src="js/api/load.js"></script>    
 
-  <!-- ASSOCIADOS -->
-  <script src="js/modules/associados/status.js"></script>
-  <script src="js/modules/associados/filter.js"></script>
-  <script src="js/modules/associados/form.js"></script>
-  <script src="js/modules/associados/render.js"></script>
-  <script src="js/modules/associados/associados.js"></script>
 
-  <!-- COBRANÇAS -->
-  <script src="js/modules/cobrancas/filter.js"></script>
-  <script src="js/modules/cobrancas/render.js"></script>
-  <script src="js/modules/cobrancas/actions.js"></script>
-  <script src="js/modules/cobrancas/cobrancas.js"></script>
+    <!-- COMPONENTS -->
+    <script src="js/components/ui.js"></script>
+    <script src="js/components/toast.js"></script>
+    <script src="js/components/loading.js"></script>
+    <script src="js/components/dialog.js"></script>
+    <script src="js/components/modal-core.js"></script>
+    <script src="js/components/modals.js"></script>
+    <script src="js/components/kpi.js"></script>    
+    <script src="js/components/empty.js"></script>
+    <script src="js/components/actions.js"></script>     
+    <script src="js/components/card.js"></script>         
+    
 
-  <!-- MODULES -->
-  <script src="js/modules/dashboard.js"></script>
-  <script src="js/modules/devedores.js"></script>
-  <script src="js/modules/caixa.js"></script>
-  <script src="js/modules/fixas.js"></script>
-  <script src="js/modules/reservas.js"></script>
-  <script src="js/modules/relatorios.js"></script>
-  <script src="js/modules/backups.js"></script>
-  <script src="js/modules/recibos.js"></script>
-  <script src="js/modules/agenda.js"></script>
+    <!-- ASSOCIADOS -->    
+    <script src="js/modules/associados/associados-filter.js"></script>
+    <script src="js/modules/associados/associados-form.js"></script>
+    <script src="js/modules/associados/associados-modal.js"></script>
+    <script src="js/modules/associados/associados-actions.js"></script>
+    <script src="js/modules/associados/associados-render.js"></script>
+    <script src="js/modules/associados/associados-utils.js"></script>
+    <script src="js/modules/associados/associados-validator.js"></script>
+    <script src="js/modules/associados/associados-service.js"></script>    
 
-  <!-- CORE FINAL -->  
-  <script src="js/core/render.js"></script>
-  <script src="js/core/init.js"></script>
 
-  <script>
-  if("serviceWorker" in navigator){
+    <!-- COBRANÇAS -->
+    <script src="js/modules/cobrancas/cobrancas-filter.js"></script>  
+    <script src="js/modules/cobrancas/cobrancas-actions.js"></script>
+    <script src="js/modules/cobrancas/cobrancas-render.js"></script>
+    <script src="js/modules/cobrancas/cobrancas-service.js"></script>
 
-    window.addEventListener("load", () => {
 
-      navigator.serviceWorker.register("./sw.js")
+    <!-- FIXAS -->
+    <script src="js/modules/fixas/fixas-form.js"></script>
+    <script src="js/modules/fixas/fixas-modal.js"></script>  
+    <script src="js/modules/fixas/fixas.js"></script>
+    <script src="js/modules/fixas/fixas-render.js"></script>
+    <script src="js/modules/fixas/fixas-service.js"></script>
 
-        .then(() => {
 
-          console.log("SW registrado");
+    <!-- RESERVAS -->
+    <script src="js/modules/reservas/reservas-form.js"></script>
+    <script src="js/modules/reservas/reservas-modal.js"></script>
+    <script src="js/modules/reservas/reservas-actions.js"></script>
+    <script src="js/modules/reservas/reservas-recebimentos.js"></script>     
+    <script src="js/modules/reservas/reservas-render.js"></script>
+    <script src="js/modules/reservas/reservas-utils.js"></script>
+    <script src="js/modules/reservas/reservas-service.js"></script>
+    
 
-        })
+    <!-- AGENDA -->    
+    <script src="js/modules/agenda/agenda-utils.js"></script>            
+    <script src="js/modules/agenda/agenda-render.js"></script>    
+    <script src="js/modules/agenda/agenda-modal.js"></script>
+    <script src="js/modules/agenda/agenda.js"></script>
 
-        .catch(err => {
 
-          console.error("Erro SW", err);
+    <!-- CAIXA -->
+    <script src="js/modules/caixa/caixa-form.js"></script>
+    <script src="js/modules/caixa/caixa-actions.js"></script>
+    <script src="js/modules/caixa/caixa-render.js"></script>
+    <script src="js/modules/caixa/caixa-modal.js"></script>  
+    <script src="js/modules/caixa/caixa-service.js"></script>
+
+
+    <!-- DASHBOARD -->
+    <script src="js/modules/dashboard/dashboard-kpis.js"></script>
+    <script src="js/modules/dashboard/dashboard-render.js"></script>
+    
+
+    <!-- RELATORIOS -->        
+    <script src="js/modules/relatorios/relatorios-actions.js"></script>   
+    <script src="js/modules/relatorios/relatorios-modal.js"></script>
+    <script src="js/modules/relatorios/relatorios.js"></script>
+
+
+    <!-- RECIBOS -->
+    <script src="js/modules/recibos/recibos-render.js"></script>   
+    <script src="js/modules/recibos/recibos-print.js"></script> 
+
+    
+    <!-- BACKUPS -->               
+    <script src="js/modules/backups/backups-render.js"></script>    
+    <script src="js/modules/backups/backups-actions.js"></script>
+    <script src="js/modules/backups/backups-service.js"></script>
+
+
+    <!-- CORE FINAL -->  
+    <script src="js/core/render.js"></script>
+    <script src="js/core/init.js"></script>
+    
+
+    <script>
+      if("serviceWorker" in navigator){
+
+        window.addEventListener("load", () => {
+
+          navigator.serviceWorker.register("./sw.js")
+
+            .then(() => {
+
+              console.log("SW registrado");
+
+            })
+
+            .catch(err => {
+
+              console.error("Erro SW", err);
+
+            });
 
         });
+      }
+    </script>
 
-    });
-  }
-  </script>
-
-</body>
+  </body>
 
 </html>

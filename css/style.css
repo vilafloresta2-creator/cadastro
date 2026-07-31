@@ -1,6 +1,6 @@
-/* =========================================
+/* ----------------------------------------
                 STYLE
-========================================= */
+---------------------------------------- */
 
 /* =========================================
           RESET
@@ -31,6 +31,42 @@ body{
   background-attachment:fixed;
   min-height:100vh;
   overflow-x:hidden;
+}
+
+
+/* =========================================
+              INFO VALOR
+========================================= */
+.info-valor{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+}
+
+.info-valor small{
+    font-size:11px;
+    opacity:.7;
+}
+
+.info-valor strong{
+    font-size:15px;
+    font-weight:700;
+}
+
+.texto-verde{
+    color:#22c55e;
+}
+
+.texto-vermelho{
+    color:#ef4444;
+}
+
+.texto-amarelo{
+    color:#facc15;
+}
+
+.texto-azul{
+    color:#38bdf8;
 }
 
 
@@ -154,6 +190,39 @@ header{
     rgba(255,255,255,.08);
 }
 
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.card-titulo{
+  font-size:18px;
+  font-weight:600;
+}
+
+.card-subtitulo{
+  opacity:.7;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.card-info{
+  flex:1;
+}
+
+.card-valores{
+  text-align:right;
+}
+
+.card-acoes{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
 
 /* =========================================
               ASSOCIADOS
@@ -175,6 +244,7 @@ header{
 .associado-status{
   display:flex;
   align-items:center;
+  margin-top:6px;
 }
 
 .acoes-lista{
@@ -185,6 +255,68 @@ header{
 
 .associado-card:hover{
   transform:translateY(-2px);
+}
+
+
+/* =========================================
+            RESERVA CARD
+========================================= */
+
+.reserva-card-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.reserva-card-info{
+  flex:1;
+}
+
+.reserva-card-titulo{
+  font-size:18px;
+  font-weight:600;
+}
+
+.reserva-card-telefone{
+  opacity:.7;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.reserva-card-valores{
+  text-align:right;
+}
+
+.reserva-card-valores small{
+  display:block;
+  opacity:.7;
+}
+
+.reserva-card-valores strong{
+  font-size:15px;
+}
+
+
+/* =========================================
+            COBRANÇA CARD
+========================================= */
+.cobranca-card{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.cobranca-card-direita{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.cobranca-card-valor{
+  font-weight:700;
+  white-space:nowrap;
 }
 
 
@@ -215,6 +347,10 @@ header{
   font-size:13px;
   color:#94a3b8;
   margin-bottom:10px;
+}
+
+.box-margin{
+  margin-bottom:20px;
 }
 
 .box span{
@@ -623,11 +759,13 @@ button:disabled{
 .linha-filtros{
   display:flex;
   gap:12px;
-  margin-bottom:16px;
+  flex-wrap:wrap;
+  margin:12px 0;
 }
 
 .linha-filtros input{
   flex:2;
+  min-width:0;
 }
 
 .linha-filtros select{
@@ -867,6 +1005,35 @@ button:disabled{
   background:#b91c1c !important;
 }
 
+
+/* =================================
+         STATUS DEVEDORES
+================================= */
+.barra-pago{
+
+  border-left:
+    4px solid #22c55e;
+}
+
+.barra-pendente{
+
+  border-left:
+    4px solid #ef4444;
+}
+
+.barra-parcial{
+
+  border-left:
+    4px solid #f59e0b;
+}
+
+.text-danger{
+  color:#ef4444;
+}
+
+.text-success{
+  color:#22c55e;
+}
 
 /* =========================================
                 MOBILE
